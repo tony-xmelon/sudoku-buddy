@@ -1,4 +1,4 @@
-Ten things this build does that the last one would not.
+Eleven things this build does that the last one would not.
 
 A PAGE YOU FILLED IN AT THE SIZE OF THE PRINT NOW SCANS
 
@@ -153,6 +153,21 @@ anyway.
 
 The advice in the camera while you are aiming has not changed, which is when it is
 actually useful.
+
+YOUR ANSWERS AND THE PRINT ARE TOLD APART BETTER
+
+On the newsprint pages from the other reader, the app has never been able to tell
+which digits were printed and which were written, because that hand writes at the
+size of the print and presses as hard. Every measurement it takes of a digit
+overlaps between the two.
+
+It no longer tries to draw a line through any single measurement. It looks at all of
+them together and lets the digits fall into the two groups they actually form, then
+takes the inkier group as the print. That is thirty-three fewer squares filed under
+the wrong heading on those twelve pages.
+
+It only does this on a page that has already shown the simple test fails, so nothing
+that reads correctly today changes.
 
 THE READER
 

@@ -36,8 +36,8 @@ class RecognitionAccuracyTest {
          * printed digits than any sudoku has. Sorting every page that way costs printed
          * digits on pages where nothing was wrong, and lost three of them outright.
          *
-         * What is left is 110 cells on twelve pages. The count is a ceiling rather than a
-         * target, and it has moved for three different reasons, which is worth separating.
+         * What is left is 77 cells on twelve pages. The count is a ceiling rather than a
+         * target, and it has moved for four different reasons, which is worth separating.
          *
          * It grew by pages joining: 94 on ten, 109 on eleven, 125 on twelve. Each time the
          * new cells were the new page's own and nothing that sorted correctly before
@@ -50,18 +50,24 @@ class RecognitionAccuracyTest {
          * print. See [GridReader.ANSWER_MIN]. What is left is the collision proper, and
          * it is a harder thing - measured, no rule over the six things the reader
          * measures does better than about seventy of these cells, where a small learned
-         * function over the same six does thirty-three. That is the next decision, and it
-         * wants corpus from a second hand before it is taken.
+         * function over the same six does thirty-three. Clustering has since taken most of
+         * that ground without a model and without a threshold; what a learned function
+         * might still add is unmeasured, and it would want corpus from a second hand.
          *
          * It then rose from 100 to 110, and that is the third reason and the least
          * obvious: a page that used to be refused outright now reads, so its cells are
-         * counted here for the first time. Being unable to solve a puzzle is no longer
+         * counted here for the first time.
+         *
+         * And then fell from 110 to 77, which is the first time the collision itself has
+         * given ground rather than the accounting changing. No new threshold: the two
+         * populations are simply allowed to settle into the two clusters they lie in
+         * instead of being cut apart by a bar. See [GridReader.settle]. Being unable to solve a puzzle is no longer
          * treated as being unable to read one, and blue-3 - whose printed digits do not
          * make one puzzle - comes back as a grid to be questioned rather than as nothing
          * at all. It brings ten of these cells with it. Nothing that was counted before
          * moved.
          */
-        const val SAME_SIZE_HANDWRITING_MISSORTS = 110
+        const val SAME_SIZE_HANDWRITING_MISSORTS = 77
 
         /**
          * Printed digits misread on the one page whose ink is barely there.

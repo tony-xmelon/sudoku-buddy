@@ -8,6 +8,43 @@ by Firebase at 16,384 characters. It used to hold all of this, growing every rou
 one day it went over the limit and the upload failed after a full CI build had already
 run. Keep that file short and put the history here.
 
+THE COLLISION GIVES GROUND AT LAST, TO NO THRESHOLD AT ALL.
+110 cells to 77, and a failed idea worth recording beside it.
+
+Every attempt on the print/handwriting collision so far has been a line drawn across a
+measurement, and on these pages there is no line to draw. The writer works at the size
+of the print and bears down as hard as the press did, so each of the six things measured
+of a blob overlaps on its own, and the best rule anyone can write over all six leaves
+about seventy of the seventy-nine boundary cells wrong against the seventy-nine it
+starts from.
+
+What is true of them together is that they are two populations, and two populations can
+be found without knowing where the line between them goes. The split the ink sort
+produced is taken as a starting guess and the cells settle into whichever of two
+clusters they are nearest, over all five measurements at once, each standardised so no
+one of them decides by having the largest numbers. The inkier cluster is the print,
+because print is toner and an answer is not.
+
+Nothing in it is fitted. There is no threshold, and the starting point is whatever the
+rules already decided. It runs only where the page has already declared the size rule
+broken, which is the same discipline as everything else here - no photograph that reads
+correctly today is touched. Started cold rather than from the existing split it is
+worse, 63 rather than 45 on the print boundary; run on every page it costs a cell on one
+that was perfect.
+
+The idea that did not work is worth as much. Print is a font, so a printed digit should
+have a near-identical twin elsewhere on the page while handwriting should not, and
+templates built from the *true* printed cells separate the two with seven errors in the
+whole corpus. That number was misleading, and it was mine: it needs the answer in order
+to compute it. Built from what can actually be had - the tightest same-digit pair on the
+page, which really is two printed cells 91% of the time - the best threshold on the
+resulting scores leaves 71, and a rule with no oracle, held out page by page, leaves 79
+against 84. The reason is measurable: on these pages print-print distances run to a
+median of 33 and hand-hand to 80, so the populations do separate, but a template built
+from two samples carries enough of its own noise to eat the margin. One reader's
+handwriting is more self-consistent than a two-sample template is precise.
+
+
 LOSING THE GRID IS THE ONLY THING THAT STOPS THE APP.
 The rule taken to its end, and one principle worth writing down.
 
