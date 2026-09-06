@@ -1,4 +1,4 @@
-Eleven things this build does that the last one would not.
+Twelve things this build does that the last one would not.
 
 A PAGE YOU FILLED IN AT THE SIZE OF THE PRINT NOW SCANS
 
@@ -168,6 +168,21 @@ the wrong heading on those twelve pages.
 
 It only does this on a page that has already shown the simple test fails, so nothing
 that reads correctly today changes.
+
+THE SQUARES ARE CUT IN THE RIGHT PLACES NOW
+
+You spotted this from the pictures: on one photo the app was taking each square out
+of the wrong part of the puzzle, so the eighth column held the ninth column's digit
+and the last column held nothing but a line.
+
+It was looking for each of the ten grid lines near where it would be if the puzzle
+filled the straightened picture exactly. When it does not quite - which happens
+whenever the app has had to work to find the grid at all - the error grows across
+the page until the far columns are a whole square out.
+
+It now works out where the grid starts and how big its squares are before looking
+for any single line. That photo goes from thirty-one squares wrong to twenty, and
+every printed digit in the whole collection is now read correctly.
 
 THE READER
 

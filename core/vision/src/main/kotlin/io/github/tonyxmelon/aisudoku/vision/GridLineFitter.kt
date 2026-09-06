@@ -82,6 +82,25 @@ object GridLineFitter {
      */
     private const val MOST_LINES_ASSUMED = 2
 
+    /** How far the whole grid may sit from filling the straightened square, in cells. */
+    private const val MOST_DRIFT = 0.6
+    private const val DRIFT_STEP = 0.02
+
+    /**
+     * How much better a moved grid must score before it is preferred to the plain ninths.
+     *
+     * The straightened square usually is the grid, and on those photographs hunting each
+     * line near its own ninth is right and this search only has the chance to be wrong.
+     * It is worth taking only when it finds a great deal more line than the ninths do -
+     * measured, requiring a fifth more keeps every page that was already right and still
+     * rescues the one whose columns had slipped a whole cell.
+     */
+    private const val WORTH_MOVING_FOR = 1.20
+
+    /** And how much wider or narrower than a ninth its cells may be. */
+    private const val MOST_STRETCH = 0.12
+    private const val STRETCH_STEP = 0.004
+
     fun fit(rectified: GrayImage): CellGeometry? {
         val binary = Mat()
         Imgproc.adaptiveThreshold(
@@ -94,12 +113,61 @@ object GridLineFitter {
         return CellGeometry(vertical, horizontal)
     }
 
+    /**
+     * Where the ten lines sit, found as one regular grid before any of them is refined.
+     *
+     * Each line used to be hunted near its nominal ninth, within a fifth of a cell. That
+     * assumes the straightened square *is* the grid, and it is not always: a quad that took
+     * in a little margin - which the rescues that grow a candidate, or accept an obscured
+     * one, will hand over - puts the real lines progressively further from their nominal
+     * places, until the ones at the far end fall outside the window entirely and are
+     * assumed at nominal instead. On the screen photograph that pushed the right-hand
+     * columns almost a full cell across: the eighth column held the ninth column's digit
+     * and the ninth held nothing but a rule.
+     *
+     * A grid is regular, so where it starts and how far apart its lines are can be fitted
+     * before asking where any single line is. Every start and spacing within reach is
+     * scored by how much line there is at the ten places it implies, and the best is kept.
+     * Ten measurements of one two-parameter shape survive a few missing lines, which is
+     * exactly the case this has to hold up in.
+     */
+    private fun regularGrid(profile: DoubleArray): Pair<Double, Double> {
+        val size = profile.size
+        val nominal = (size - 1.0) / 9.0
+        var best = 0.0 to nominal
+        var bestScore = (0..9).sumOf { line ->
+            val at = (line * nominal).toInt()
+            if (at in profile.indices) profile[at] else 0.0
+        } * WORTH_MOVING_FOR
+        var offset = -nominal * MOST_DRIFT
+        while (offset <= nominal * MOST_DRIFT) {
+            var pitch = nominal * (1 - MOST_STRETCH)
+            while (pitch <= nominal * (1 + MOST_STRETCH)) {
+                if (offset + 9 * pitch <= size - 1 + nominal * MOST_DRIFT) {
+                    var score = 0.0
+                    for (line in 0..9) {
+                        val at = (offset + line * pitch).toInt()
+                        if (at in profile.indices) score += profile[at]
+                    }
+                    if (score > bestScore) {
+                        bestScore = score
+                        best = offset to pitch
+                    }
+                }
+                pitch += nominal * STRETCH_STEP
+            }
+            offset += nominal * DRIFT_STEP
+        }
+        return best
+    }
+
     private fun fitAxis(profile: DoubleArray): List<Double>? {
         val size = profile.size
         val strongest = profile.max()
         if (strongest <= 0.0) return null
 
         val window = (size / 9.0 * SEARCH_WINDOW_FRACTION).toInt().coerceAtLeast(4)
+        val (start, pitch) = regularGrid(profile)
 
         // A line that cannot be made out is put where the grid says it must be, rather
         // than failing the whole fit.
@@ -114,8 +182,8 @@ object GridLineFitter {
         // is gone and the fit should fail, which is what [MOST_LINES_ASSUMED] is for.
         var assumed = 0
         val lines = (0..9).map { line ->
-            val nominal = line * (size - 1.0) / 9.0
-            val centre = nominal.toInt()
+            val nominal = start + line * pitch
+            val centre = nominal.toInt().coerceIn(0, size - 1)
             val from = (centre - window).coerceAtLeast(0)
             val to = (centre + window).coerceAtMost(size - 1)
 

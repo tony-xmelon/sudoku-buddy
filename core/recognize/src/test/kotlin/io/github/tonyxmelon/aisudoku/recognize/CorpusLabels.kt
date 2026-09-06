@@ -52,28 +52,28 @@ object CorpusLabels {
     )
 
     /**
-     * Pages whose ink is too faint to find, whatever it says.
+     * The one photograph of a screen, and what is still wrong with it.
      *
-     * One so far: an advertisement photographed off a phone screen, out of focus, its
-     * digits light blue on white with a tan overlay across a corner. The grid is found
-     * and straightened and most of the puzzle is read, and about thirty of its squares
-     * are still filed wrongly.
+     * An advertisement on a phone lying on a car seat: out of focus, its digits light grey
+     * on white, with a shadow across half the puzzle. Every one of its forty-five printed
+     * digits is now read correctly and the grid is found and straightened; twenty of its
+     * squares are still filed as handwriting rather than print.
      *
-     * The name is a half-truth and worth correcting rather than renaming: the ink is
-     * found. What blur does to this page is break each digit into pieces, so the largest
-     * piece of a full-height digit measures a third to three quarters of one, and the
-     * triage was filing them as pencil marks on size. Admitting anything inky enough
-     * regardless of size recovers a good part of that. What is left is that the pieces
-     * are pieces - too small to sit in the printed band, so a page of nothing but print
-     * has most of its digits offered as handwriting instead.
+     * The note here has been wrong twice, which is worth leaving on the record. It first
+     * said the ink could not be found - inferred from the classifier test skipping those
+     * cells, when the reason it skips them is that a cell called a mark is never read. It
+     * then said the digits were arriving in pieces, which was reading the small heights
+     * without looking at the cells. What was actually happening is that the cells were
+     * being cut in the wrong places: this page arrives through the rescue that accepts an
+     * obscured grid, whose quad takes in a little margin, so the real rules sat further and
+     * further left of their nominal ninths until the eighth column held the ninth column's
+     * digit. Fitting the grid as a whole before hunting any single line fixed that, and
+     * took this page from 31 wrong to 20.
      *
-     * It is kept because that is a failure worth having in front of us, and because the
-     * app no longer needs a page to be perfect to be useful: what it reads goes to the
-     * screen and the person fixes the rest. It is named here so the strict rule - no cell
-     * wrong on any page that reads correctly - still holds over everything else.
-     *
-     * Lowering the ink threshold to reach these cells was measured and makes the whole
-     * corpus worse. See [CellAnalyzer.INK_MARGIN].
+     * What is left is the shadow. Where the page is washed out the threshold finds only
+     * part of each digit, so those blobs measure 0.2 to 0.8 of the printed band and are
+     * offered as answers rather than print. Every digit is present and right; they are
+     * editable where they should be fixed, which is the mildest form this fault takes.
      */
     val faintOnScreen = setOf(
         "aisudoku-2026-09-05-screen-ambiguous.jpg",

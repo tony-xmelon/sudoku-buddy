@@ -79,19 +79,13 @@ class RecognitionAccuracyTest {
         const val SAME_SIZE_HANDWRITING_MISSORTS = 57
 
         /**
-         * Printed digits misread on the one page whose ink is barely there.
+         * Cells sorted wrongly on the one photograph of a screen.
          *
-         * See [CorpusLabels.faintOnScreen]. Both are on that photograph; every printed
-         * digit on every other page in the corpus is read correctly, which is what this
-         * assertion is really for.
+         * It was 31 and is 20, and the difference was not recognition at all: the cells
+         * under those digits were being cut in the wrong places. See
+         * [CorpusLabels.faintOnScreen] for what is left.
          */
-        const val FAINT_PRINT_MISREADS = 2
-
-        /**
-         * Cells sorted wrongly on that same page, nearly all of them squares whose ink
-         * was never found at all rather than misjudged. See [CorpusLabels.faintOnScreen].
-         */
-        const val FAINT_INK_MISSORTS = 31
+        const val FAINT_INK_MISSORTS = 20
     }
 
     private fun setUp() {
@@ -148,7 +142,7 @@ class RecognitionAccuracyTest {
         }
         println("triage: $right/$total cells sorted correctly")
         println("of which on pages that defeat it: $knownWrong")
-        println("and on the one page whose ink cannot be found: $faintWrong")
+        println("and on the one photograph of a screen: $faintWrong")
         assertTrue(
             right + knownWrong + faintWrong == total,
             "cells sorted wrongly on pages that should be sorted correctly:$wrong",
@@ -211,15 +205,10 @@ class RecognitionAccuracyTest {
 
         // Anything less than perfect on printed digits means Kotlin inference has
         // drifted from the model that was trained.
-        // Perfect everywhere the ink can be seen. The exception is named rather than the
-        // bar being lowered: one photograph of a screen is faint enough that two of its
-        // printed digits are misread, and letting that soften the rule for all of them
-        // would retire the only check that catches Kotlin inference drifting from the
-        // model that was trained.
-        assertTrue(
-            printedRight >= printedTotal - FAINT_PRINT_MISREADS,
-            "printed digits must be perfect outside the faint page: $printedRight/$printedTotal",
-        )
+        // Perfect, with no exception. There was one for a while - the screen photograph
+        // misread two of its printed digits - and it went away when the cells under them
+        // were cut in the right places rather than by making the rule softer.
+        assertTrue(printedRight == printedTotal, "printed digits must be perfect: $printedRight/$printedTotal")
         assertTrue(handRight >= handTotal * 0.90, "handwriting regressed: $handRight/$handTotal")
     }
 }

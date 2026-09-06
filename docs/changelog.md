@@ -8,6 +8,44 @@ by Firebase at 16,384 characters. It used to hold all of this, growing every rou
 one day it went over the limit and the upload failed after a full CI build had already
 run. Keep that file short and put the history here.
 
+THE CELLS WERE BEING CUT IN THE WRONG PLACES.
+A fault that had nothing to do with recognition, found by looking at the pictures.
+
+Tony looked at the squares the app was getting wrong on the screen photograph and said
+they had been taken out of the picture incorrectly. He was right, and two explanations
+of that page written here before this one were wrong - the first that its ink could not
+be found, the second that its digits were arriving in pieces. Both were inferences from
+numbers. The eighth column held the ninth column's digit and the last column held
+nothing but a rule, which is visible at a glance in a contact sheet and invisible in any
+statistic.
+
+The cause is general rather than particular to that page. Each of the ten grid lines was
+hunted near its own ninth of the straightened square, within a fifth of a cell, which
+assumes the square *is* the grid. It is not always: every rescue that grows a candidate
+quad or accepts an obscured one hands over a quad with a little margin in it, and then
+the real rules sit progressively further from their nominal places until the ones at the
+far end fall outside the window and are assumed at nominal instead - exactly where they
+are not. The error accumulates across the page.
+
+A grid is regular, so where it starts and how far apart its lines are can be fitted
+before any single line is looked for. Ten measurements of one two-parameter shape
+survive a few faint or missing lines, which is the case this has to hold up in. It is
+taken only when it finds a fifth more line than the plain ninths do: applied to every
+photograph it made the newsprint pages worse, 57 wrong to 69, which is how the gate came
+to be there.
+
+That page goes from 31 wrong to 20 and the whole corpus from 1937 sorted to 1948. It
+also made the printed digits perfect again - 697 of 697, where an allowance for two
+misreads on this page had been carrying it. The allowance is gone: it was there because
+the cells under those two digits were cut in the wrong places, and the answer to that
+was to cut them properly rather than to soften the rule.
+
+What is left on that page is the shadow across half of it. Where it is washed out the
+threshold finds only part of each digit, so those blobs measure a fifth to four fifths
+of the printed band and are offered as answers rather than print. Every digit is there
+and every one is read correctly; twenty of them are editable where they should be fixed.
+
+
 THE SHAPE OF THE INK JOINS THE MEASUREMENTS OF IT.
 110 cells to 57 across three changes, and two ideas measured and thrown away.
 
