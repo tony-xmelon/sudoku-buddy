@@ -288,6 +288,21 @@ object CellAnalyzer {
     /**
      * The MNIST convention: the digit scaled so its longest side is 20 pixels, then
      * centred by mass in a 28x28 box. Matching this matters more than the model does.
+     *
+     * The alternative was measured rather than assumed: hand the classifier the whole
+     * square, contrast-stretched, and let it find the digit itself. It is the obvious
+     * answer to the fragment fault above, since a square cannot be cut into pieces, and
+     * over three seeds it looked like ten cells of 1450. It was not. Carried into the
+     * reader it ties - 45 wrong against 45 - and the ten cells were a handicap on this
+     * side of the comparison rather than a gain on the other: both arms had been
+     * measured under an augmentation whose only difference from the reference one is the
+     * crop-and-centre step, which the whole-square arm does not have. The full account is
+     * in the changelog; what matters here is that the tie is real and so this stays.
+     *
+     * It is a tie rather than a rout, and the two are not the same reader: the whole
+     * square is better on handwriting and worse on print, and print is the givens. If it
+     * is tried again, the thing to beat is 45 on the reference augmentation, and the
+     * comparison has to hold that augmentation fixed.
      */
     private fun normalise(gray: Mat, blob: Blob, parts: Set<Int>, cell: GrayImage): FloatArray {
         val grayF = Mat()

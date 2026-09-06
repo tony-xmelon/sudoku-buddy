@@ -8,6 +8,63 @@ by Firebase at 16,384 characters. It used to hold all of this, growing every rou
 one day it went over the limit and the upload failed after a full CI build had already
 run. Keep that file short and put the history here.
 
+THE WHOLE SQUARE READS NO BETTER THAN THE INK CUT OUT OF IT.
+A ten-cell win that turned out to be the measuring apparatus, not the change.
+
+Tony asked the obvious question about the entry below: if the classifier keeps being
+handed fragments, why hand it a cut-out at all? Give it the whole square, contrast
+stretched, and let it find the digit itself. It is the opposite bet to the one the reader
+makes, and the fragment fault is evidence the current bet has a price.
+
+Built as an arm that could be measured against the shipped one over the same cells, the
+same folds and the same seeds, with the synthetic sources re-rendered as squares - a
+glyph placed at the size and offset the corpus actually shows, on paper, sometimes with a
+grid-line remnant, a stray mark or the ghost of an erased digit. Over three seeds:
+
+  whole square  35, 39, 45 wrong        the cut-out  47, 51, 52 wrong
+
+No run of one overlapping any run of the other, on a noise floor of about four cells.
+Ten cells of 1450. It was wrong.
+
+Carried into the reader - the square rendered in Kotlin, the training set placed into
+squares to match, the augmentation no longer cropping to the ink - it measures 47 wrong
+against the shipped 45, and 45 against 45 when the augmentation is changed. A tie, and
+the ten cells are nowhere.
+
+What produced them is worth writing down, because nothing about it looked like a mistake.
+Both arms were measured under the GPU augmentation, for speed, on the reasoning that a
+handicap applied to both arms cancels. It does not cancel here. The whole difference
+between the two augmentations *is* the crop-and-centre step, one written with a sampling
+grid and the other with PIL, and the whole-cell arm has no crop in it. So the shortcut
+took six cells from the incumbent and none from the challenger, and handed back a ten
+cell gap that was six cells of handicap and four of noise.
+
+  the cut-out    45 wrong on the reference augmentation, 51 on the fast one
+  whole square   47 and 45 - it barely notices, because the step is not in its path
+
+The rule that comes out of it: when two input representations are being compared,
+anything that touches one representation's preprocessing is not a free variable, however
+symmetrically it appears to be applied.
+
+Two things survive the retraction. The whole square is not the same reader - it is better
+on handwriting and worse on print, 31 and 14 wrong against 34 and 11 - and print is the
+givens, where a wrong digit is worse than a wrong answer, so the tie is not a coin toss.
+And the faint end of the corpus really is where it helps: the out-of-focus photograph of a
+screen, pale blue on white, is the one page it clears.
+
+Also tried and worse: both at once, as two channels of the same picture. The two arms fail
+on almost disjoint cells - fifteen wrong in both, thirty-six only in one, thirty only in
+the other - which looked like an invitation. It is not one. 44, 47 and 48 wrong over three
+seeds, below either arm alone, and the reason is visible in the split: the best printed
+digits of anything measured here, 7 to 9 wrong, and the worst handwriting, 37 to 40. Given
+both, the model leans on the cut-out, which is the fault the whole exercise started from.
+Deriving the synthetic cut-out channel from the synthetic square, so that it fragments on
+its own rather than arriving clean, was not enough to stop it.
+
+The arms are kept in `tools/recognizer/wholecell.py` and `twochannel.py`, because the next
+person to have this idea should be able to re-run it in an afternoon rather than a week.
+
+
 MENDING THE FRAGMENTS, THIS TIME WITHOUT THE ERASURES.
 63 digits wrong on unseen pages to 45, and the entry below it is now half wrong.
 
