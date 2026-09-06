@@ -8,6 +8,42 @@ by Firebase at 16,384 characters. It used to hold all of this, growing every rou
 one day it went over the limit and the upload failed after a full CI build had already
 run. Keep that file short and put the history here.
 
+A DIGIT WRITTEN HIGH IN ITS SQUARE IS NOT A PENCIL MARK.
+Two more digits reach the screen, and the one that is genuinely misread is not the
+classifier's fault either.
+
+Tony read the ten digits the app fails to show and pointed out that all ten are plainly
+legible. They are, and nine of the ten never reached the classifier at all - they were
+thrown out by the triage before anything looked at their shape, so "not classified" was
+literally true. Attributing each one to the rule that discarded it put five of them on a
+single line: the limit on how high in its square a blob may sit.
+
+That rule is real. Candidate marks are written along the top of a square and answers in
+the middle, and it is the only thing that catches a mark the size of a digit. But it was
+one number measured on one reader's pages, and the second reader writes higher in the
+box: three of the five miss by a hundredth or two, and one is a full-size 4 at 0.95 of
+the print's height thrown out for sitting 0.02 too high.
+
+Lowering the line for everything does not work - swept over the corpus, -0.16 buys two
+digits and -0.25 invents thirty-one, because the rule is holding back genuine marks.
+What separates a mark from a digit written high is not where it sits but what it is made
+of: marks are pencil, and none in this corpus carries more than a quarter of the print's
+ink. So a blob carrying half of it is allowed to sit as high as printed digits may, and
+everything fainter is held where it was. Two digits recovered, no cell sorted wrongly,
+and no digit invented on an empty square. Letting fainter ink through buys a third digit
+and a phantom with it, which is the worse trade - a number that is not there is harder
+to notice than one that is missing.
+
+That leaves one digit in 1450 genuinely misread: a handwritten 2 on the welded-border
+page, read as a 7 with 0.82 confidence. Looking at the cell says why, and it is not the
+model - the writer's 2 sits low enough that its base stroke is clipped off by the bottom
+of the cell, and what is left really does look like a 7. Widening the crop was measured
+and is far worse: the margin exists to keep the grid's own rules out of the cell, and at
+0.09 the misreads go from one to seven, at 0.06 to twenty-eight, and at 0.03 to a
+hundred and thirty-seven with three hundred phantom digits. The margin stays where it is
+and that 2 stays wrong.
+
+
 THE CELLS WERE BEING CUT IN THE WRONG PLACES.
 A fault that had nothing to do with recognition, found by looking at the pictures.
 

@@ -538,7 +538,7 @@ def corpus_cells():
             ":core:recognize:test --tests '*ExportNormalisedTest*' -Ddump=true "
             "--rerun-tasks")
 
-    xs, ys, sources, photos = [], [], [], []
+    xs, ys, sources, photos, squares = [], [], [], [], []
     missing = []
     for stem, cl in load_labels().items():
         bitmaps = normalised_cells(stem)
@@ -553,6 +553,9 @@ def corpus_cells():
             ys.append(digit - 1)
             sources.append(source)
             photos.append(stem)
+            # Which square on the page, so that a miss can be looked at rather than only
+            # counted. A tally says a 7 was read as a 4; only the square says which 7.
+            squares.append(i)
     if missing:
         print("  no exported bitmaps for: " + ", ".join(sorted(missing)))
     if not xs:
@@ -560,7 +563,7 @@ def corpus_cells():
             "No normalised cells found under " + NORMALISED_HINT + ". Run the "
             "export first: ./gradlew :core:recognize:test --tests "
             "'*ExportNormalisedTest*' -Ddump=true --rerun-tasks")
-    return np.stack(xs), np.array(ys, dtype=np.int64), sources, photos
+    return np.stack(xs), np.array(ys, dtype=np.int64), sources, photos, squares
 
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -675,7 +678,7 @@ def main():
     np.random.seed(SEED)
     base_x, base_y = build_sources()
 
-    xc, yc, sources, photos = corpus_cells()
+    xc, yc, sources, photos, squares = corpus_cells()
     guess = np.array([s == "guess" for s in sources])
     given = ~guess
     print(f"  corpus {len(xc)} real digits ({given.sum()} printed, {guess.sum()} handwritten)")
@@ -720,9 +723,11 @@ def main():
             model.eval()
             with torch.no_grad():
                 pred = model(tx.to(DEVICE)).argmax(1).cpu()
-            for pv, tv, hv in zip(pred.tolist(), ty.tolist(), hand.tolist()):
+            held_squares = [s for s, keep in zip(squares, held) if keep]
+            for i, (pv, tv, hv) in enumerate(zip(pred.tolist(), ty.tolist(), hand.tolist())):
                 if pv != tv:
-                    lopo_wrong.append((tv + 1, pv + 1, "hand" if hv else "print", stem))
+                    lopo_wrong.append((tv + 1, pv + 1, "hand" if hv else "print", stem,
+                                       held_squares[i]))
         print(f"\n  handwriting, unseen photographs: {total_right}/{total} = "
               f"{total_right / max(1, total):.3f}")
         print(f"  the same, averaged over five views:  {tta_right}/{total} = "
@@ -731,12 +736,12 @@ def main():
         print()
         print("  every miss on an unseen photograph (truth -> read):")
         tally = {}
-        for tv, pv, kind, stem in lopo_wrong:
+        for tv, pv, kind, stem, square in lopo_wrong:
             tally[(tv, pv, kind)] = tally.get((tv, pv, kind), 0) + 1
         for (tv, pv, kind), n in sorted(tally.items(), key=lambda kv: -kv[1]):
             print(f"    {tv} -> {pv}  ({kind}): {n}")
-        for tv, pv, kind, stem in lopo_wrong:
-            print(f"      {stem}: {tv} read as {pv} ({kind})")
+        for tv, pv, kind, stem, square in lopo_wrong:
+            print(f"      MISS	{stem}	{square}	{tv}	{pv}	{kind}")
 
     print("\n=== the shipped model, trained on everything ===")
     ax, ay = amplify_chosen(xc[:, None], yc, CORPUS_TIMES)

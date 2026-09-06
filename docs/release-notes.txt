@@ -1,4 +1,4 @@
-Twelve things this build does that the last one would not.
+Thirteen things this build does that the last one would not.
 
 A PAGE YOU FILLED IN AT THE SIZE OF THE PRINT NOW SCANS
 
@@ -183,6 +183,18 @@ the page until the far columns are a whole square out.
 It now works out where the grid starts and how big its squares are before looking
 for any single line. That photo goes from thirty-one squares wrong to twenty, and
 every printed digit in the whole collection is now read correctly.
+
+A DIGIT WRITTEN HIGH IN ITS SQUARE IS STILL A DIGIT
+
+The app decides a square holds a pencilled note rather than a digit partly by where
+the ink sits: notes go along the top of the square, answers in the middle. That is
+usually true and it was throwing away real digits written high in the box - including
+one full-sized 4 that missed the line by a fiftieth.
+
+A pencilled note is faint. So anything carrying half as much ink as the printed
+digits is now allowed to sit as high as the print does, and only fainter ink is held
+to the old line. Two more digits reach the screen, and nothing that was right before
+has changed.
 
 THE READER
 

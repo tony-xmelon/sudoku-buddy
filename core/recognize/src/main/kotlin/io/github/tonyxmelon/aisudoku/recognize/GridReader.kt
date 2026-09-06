@@ -366,12 +366,31 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
                 (!sortByInk || inkOf(blob, core) >= PRINT_INK) -> Ink.PRINTED
 
             (relative >= ANSWER_MIN || inkOf(blob, core) >= INKY_ENOUGH_ANYWAY) &&
-                blob.verticalOffset >= ANSWER_TOP_LIMIT && !isPencilledMark(ink, core) ->
+                blob.verticalOffset >= topLimitFor(blob, core) && !isPencilledMark(ink, core) ->
                 if (isResidue(ink)) Ink.MARK else Ink.ANSWER
 
             else -> Ink.MARK
         }
     }
+
+    /**
+     * How high in its square a blob may sit, given how much ink it carries.
+     *
+     * Candidate marks are written along the top of a square and answers in the middle, so
+     * where the ink sits is a real signal and the one line that catches a mark the size of
+     * a digit. But it was a single number, and it is the reason five of the ten digits the
+     * app fails to show are lost - three of them by a hundredth or two, and one of them a
+     * full-size 4 sitting 0.02 too high. The rule was measured on one reader's pages, and
+     * the second reader writes higher in the box.
+     *
+     * What separates a mark from a digit written high is not where it is but what it is
+     * made of: marks are pencil, and this corpus has none carrying more than 0.255 of the
+     * print's ink at the ninetieth percentile. So a blob carrying half the print's ink is
+     * allowed to sit as high as the printed band is, and everything fainter is held to the
+     * line where answers are.
+     */
+    private fun topLimitFor(blob: Blob, core: PrintedCore): Double =
+        if (inkOf(blob, core) >= INK_THAT_EXCUSES_HEIGHT) INKY_TOP_LIMIT else ANSWER_TOP_LIMIT
 
     /**
      * How much ink a blob carries, against the print of this same photograph.
@@ -615,6 +634,26 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
          */
         private const val PRINTED_TOP_LIMIT = -0.18
         private const val ANSWER_TOP_LIMIT = -0.13
+
+        /**
+         * Ink that excuses a blob for sitting high in its square.
+         *
+         * See [topLimitFor]. Half the print's ink is far above anything a pencil mark in
+         * this corpus carries - they reach 0.255 at the ninetieth percentile - so this is
+         * the edge of their population rather than a number chosen to fit.
+         */
+        private const val INK_THAT_EXCUSES_HEIGHT = 0.50
+
+        /**
+         * And how high such a blob may then sit.
+         *
+         * Swept together with the ink above. Half the print's ink at this height recovers
+         * two of the digits the app was dropping and costs nothing at all - no cell sorted
+         * wrongly, and no digit invented on an empty square. Letting fainter ink through
+         * buys one more digit and a phantom with it, which is the worse trade: a number
+         * that is not there is harder to notice than one that is missing.
+         */
+        private const val INKY_TOP_LIMIT = -0.25
 
         /**
          * How much of the print's ink a blob must carry to be counted as print.
