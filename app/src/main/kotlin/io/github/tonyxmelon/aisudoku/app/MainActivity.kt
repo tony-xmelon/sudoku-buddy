@@ -190,46 +190,42 @@ private fun AppRoot() {
         // A reading page is somewhere you went on purpose; sliding history in over it
         // would be answering a question nobody asked.
         drawerContent = {
-            // Narrower than the screen on purpose, so there is always a strip of scrim to
-            // tap. The default is 360dp, which is wider than a small phone.
-            ModalDrawerSheet(modifier = Modifier.fillMaxWidth(0.84f)) {
-                HistoryList(
-                    history = history,
-                    entries = entries,
-                    currentId = entryId,
-                    onOpen = { entry ->
-                        history.loadPhoto(entry)?.let { photo ->
-                            entryId = entry.id
-                            puzzle = PuzzleState(
-                                photo = photo,
-                                grid = entry.grid,
-                                uncertainCells = emptySet(),
-                                readingNote = null,
-                                hintStyle = settings.hintStyle,
-                                routeStyle = settings.routeStyle,
-                            )
-                            go(Screen.PUZZLE)
-                        }
-                        scope.launch { drawer.close() }
-                    },
-                    onDelete = { entry ->
-                        history.delete(entry)
-                        entries = history.list()
-                        // The puzzle on screen has just been thrown away, so leave it.
-                        if (entryId == entry.id) discardPuzzle()
-                    },
-                    onCamera = {
-                        takePhoto()
-                        closeDrawer()
-                    },
-                    refused = refused,
-                    onDiscard = { scan ->
-                        Diagnostics.discard(scan)
-                        refused = Diagnostics.refused(context)
-                    },
-                    onClose = ::closeDrawer,
-                )
-            }
+            HistoryDrawer(
+                history = history,
+                entries = entries,
+                currentId = entryId,
+                refused = refused,
+                onOpen = { entry ->
+                    history.loadPhoto(entry)?.let { photo ->
+                        entryId = entry.id
+                        puzzle = PuzzleState(
+                            photo = photo,
+                            grid = entry.grid,
+                            uncertainCells = emptySet(),
+                            readingNote = null,
+                            hintStyle = settings.hintStyle,
+                            routeStyle = settings.routeStyle,
+                        )
+                        go(Screen.PUZZLE)
+                    }
+                    closeDrawer()
+                },
+                onDelete = { entry ->
+                    history.delete(entry)
+                    entries = history.list()
+                    // The puzzle on screen has just been thrown away, so leave it.
+                    if (entryId == entry.id) discardPuzzle()
+                },
+                onCamera = {
+                    takePhoto()
+                    closeDrawer()
+                },
+                onDiscard = { scan ->
+                    Diagnostics.discard(scan)
+                    refused = Diagnostics.refused(context)
+                },
+                onClose = ::closeDrawer,
+            )
         },
     ) {
         when {
@@ -281,6 +277,40 @@ private fun AppRoot() {
                 onAbout = { go(Screen.ABOUT) },
             )
         }
+    }
+}
+
+/**
+ * The puzzles behind the drawer.
+ *
+ * Narrower than the screen on purpose, so there is always a strip of scrim to tap. The
+ * default is 360dp, which is wider than a small phone - and the drawer has no other way
+ * out on one, which is how Back came to be the only way to close it.
+ */
+@Composable
+private fun HistoryDrawer(
+    history: History,
+    entries: List<HistoryEntry>,
+    currentId: Long?,
+    refused: List<Diagnostics.Refused>,
+    onOpen: (HistoryEntry) -> Unit,
+    onDelete: (HistoryEntry) -> Unit,
+    onCamera: () -> Unit,
+    onDiscard: (Diagnostics.Refused) -> Unit,
+    onClose: () -> Unit,
+) {
+    ModalDrawerSheet(modifier = Modifier.fillMaxWidth(0.84f)) {
+        HistoryList(
+            history = history,
+            entries = entries,
+            currentId = currentId,
+            onOpen = onOpen,
+            onDelete = onDelete,
+            onCamera = onCamera,
+            refused = refused,
+            onDiscard = onDiscard,
+            onClose = onClose,
+        )
     }
 }
 
