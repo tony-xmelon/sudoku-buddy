@@ -179,7 +179,8 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         }
         if (considered.size < ENOUGH_TO_SETTLE) return readings
 
-        val features = considered.map { index ->
+        val unlike = unlikeItsTwins(considered, ink, readings)
+        val measured = considered.map { index ->
             val cell = ink[index] ?: return readings
             val blob = cell.blob
             doubleArrayOf(
@@ -190,8 +191,14 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
                 blob.strokeWidth / 20.0,
             )
         }
+        val inkiness = measured.map { it[2] }
+        val features = measured.mapIndexed { i, row -> row + unlike[i] }
         standardise(features)
 
+        // Settling on the measurements first and bringing the shape in for a second pass
+        // was tried, on the thought that shape is the noisiest axis and should not drag the
+        // starting split about. It lands in exactly the same place - 57 either way - so the
+        // simpler of the two is here.
         var labels = considered.map { if (readings[it].ink == Ink.PRINTED) 1 else 0 }.toIntArray()
         repeat(SETTLING_ROUNDS) {
             val centres = Array(2) { group -> centre(features, labels, group) }
@@ -207,7 +214,7 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         // swap them, and on some pages it does.
         val inkiest = (0..1).maxBy { group ->
             val members = labels.indices.filter { labels[it] == group }
-            if (members.isEmpty()) -1.0 else members.sumOf { features[it][2] } / members.size
+            if (members.isEmpty()) -1.0 else members.sumOf { inkiness[it] } / members.size
         }
         val printed = labels.count { it == inkiest }
         if (printed < MIN_GIVENS || printed > PLAUSIBLE_GIVENS) return readings
@@ -218,6 +225,63 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
             if (kind != settled[index].ink) settled[index] = settled[index].copy(ink = kind)
         }
         return settled
+    }
+
+    /**
+     * How unlike the other copies of its own digit a cell is, in the shape of the ink.
+     *
+     * Print is a font. Every printed seven on a page is the same seven, struck by the same
+     * press, while a handwritten seven is only ever similar to the others - measured over
+     * these pages, two printed copies of a digit sit 33 apart at the median and two written
+     * ones 80. It is the strongest single thing that separates them and it does not appear
+     * anywhere in the five measurements of a blob, all of which are about how big and how
+     * dark the ink is rather than what shape it makes.
+     *
+     * Used on its own it disappoints, and that is worth recording because it looked like
+     * the answer: templates built from the *true* printed cells separate the corpus with
+     * seven errors, but that needs the answer to compute. Built from what can be had - the
+     * closest pair of any digit on the page, which really is two printed cells 91 times in
+     * a hundred - the best threshold anyone could draw leaves 71 and an honest rule leaves
+     * 79, against 84 without it. A template from two samples carries too much of its own
+     * noise, and this reader's hand is too consistent, for a line drawn on that one number.
+     *
+     * As one more axis for the settling it is a different thing entirely, because it does
+     * not have to be right on its own - it only has to pull in the same direction as the
+     * other five. It takes the twelve pages from 62 wrong to 57.
+     */
+    private fun unlikeItsTwins(
+        considered: List<Int>,
+        ink: List<CellInk?>,
+        readings: List<CellReading>,
+    ): DoubleArray {
+        val byDigit = considered.indices.groupBy { readings[considered[it]].digit }
+        val out = DoubleArray(considered.size)
+        for ((digit, members) in byDigit) {
+            if (digit == null || members.size < 2) continue
+            val shapes = members.map { ink[considered[it]]?.normalised ?: return DoubleArray(considered.size) }
+
+            var closest = Double.MAX_VALUE
+            var pair: Pair<Int, Int>? = null
+            for (a in members.indices) {
+                for (b in a + 1 until members.size) {
+                    val apart = between(shapes[a], shapes[b])
+                    if (apart < closest) {
+                        closest = apart
+                        pair = a to b
+                    }
+                }
+            }
+            val (first, second) = pair ?: continue
+            val template = FloatArray(shapes[first].size) { (shapes[first][it] + shapes[second][it]) / 2f }
+            members.forEachIndexed { i, index -> out[index] = between(shapes[i], template) }
+        }
+        return out
+    }
+
+    private fun between(a: FloatArray, b: FloatArray): Double {
+        var sum = 0.0
+        for (i in a.indices) sum += Math.abs(a[i] - b[i]).toDouble()
+        return sum
     }
 
     /** Each measurement centred and scaled, so none of them decides by being the largest. */

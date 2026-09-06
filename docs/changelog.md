@@ -8,6 +8,43 @@ by Firebase at 16,384 characters. It used to hold all of this, growing every rou
 one day it went over the limit and the upload failed after a full CI build had already
 run. Keep that file short and put the history here.
 
+THE SHAPE OF THE INK JOINS THE MEASUREMENTS OF IT.
+110 cells to 57 across three changes, and two ideas measured and thrown away.
+
+Three things came out of looking at what was actually left rather than at what the
+collision was assumed to be.
+
+The first was a correction. Thirty-one cells on the screen photograph were recorded as
+squares whose ink could not be found. The ink is found: those cells are called pencil
+marks, and the note was inferred from the classifier test skipping them, when the reason
+it skips them is that a cell called a mark is never read. Of fifty-three digits filed as
+marks, forty-eight were lost to the size floor alone - not because they are small, but
+because blur breaks a digit into pieces and only the largest piece is measured. The
+biggest piece of a full-height digit on that page runs a third to three quarters of one.
+A blob carrying a quarter of the print's ink is not a pencil mark whatever its size, and
+0.25 is the edge of the mark population rather than a fitted number: genuine marks reach
+0.255 at the ninetieth percentile. That is 77 cells to 62.
+
+The second is that shape now settles the cells the measurements leave in doubt. Print is
+a font - two printed copies of a digit sit 33 apart at the median where two written ones
+sit 80 - and none of the five things measured of a blob is about shape at all. On its own
+it disappoints, and that is worth recording because it looked like the answer: templates
+built from the true printed cells separate the corpus with seven errors, but computing
+that needs the answer. Built from the closest pair of a digit on the page, which really is
+two printed cells 91 times in a hundred, the best threshold anyone could draw leaves 71
+and an honest rule leaves 79 against 84. As one more axis for the clustering it does not
+have to be right on its own, only to pull the same way as the others: 62 to 57.
+
+Two things were measured and are not here. Closing the ink mask to reconnect broken
+strokes recovers little and wrecks the classifier, which reads 695 printed digits of 697
+and 431 with a two-pixel close, because the shape it was trained on is the shape it must
+be given. And measuring the whole glyph rather than its largest piece - gathering the
+pieces of a broken digit back together - helps the blurred page a little and costs the
+twelve collision pages heavily, 62 wrong to 107 at the best setting tried, because on a
+page carrying candidate marks and grid remnants "close enough to be one glyph" gathers
+things that are not the glyph.
+
+
 THE COLLISION GIVES GROUND AT LAST, TO NO THRESHOLD AT ALL.
 110 cells to 77, and a failed idea worth recording beside it.
 
