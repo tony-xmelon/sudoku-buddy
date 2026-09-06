@@ -116,7 +116,9 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
             }
         }
 
-        val printed = readings.filter { it.ink == Ink.PRINTED }
+        val settled = takeBackAFigureRank(readings, ink, core)
+
+        val printed = settled.filter { it.ink == Ink.PRINTED }
         if (printed.size < MIN_GIVENS) {
             return ReadResult.Unreadable(
                 "Only ${printed.size} printed digits were found, which is too few for a puzzle.",
@@ -124,8 +126,8 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
             )
         }
 
-        val grid = assemble(readings)
-        val weak = readings
+        val grid = assemble(settled)
+        val weak = settled
             .filter { it.digit != null && it.margin < CONFIDENT_MARGIN }
             .map { it.index }
             .toSet()
@@ -133,15 +135,15 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         return when (Solver.solve(grid)) {
             is SolveResult.Unique ->
                 if (weak.isEmpty()) {
-                    ReadResult.Accepted(grid, readings)
+                    ReadResult.Accepted(grid, settled)
                 } else {
                     ReadResult.NeedsConfirmation(
-                        grid, readings, weak,
+                        grid, settled, weak,
                         "Some digits were not read confidently.",
                     )
                 }
 
-            else -> repair(readings, grid, weak, core)
+            else -> repair(settled, grid, weak, core)
         }
     }
 
@@ -169,6 +171,57 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
      * the existing split it is worse, 63 rather than 45, and run on every page it costs a
      * cell on one that was perfect.
      */
+    /**
+     * Takes back a whole rank of printed digits that the size rule sent to the handwriting.
+     *
+     * The reader assumes a printed digit is one height, because in a lining font it is.
+     * Not every font is lining. In an old-style font - text figures, which newspapers do
+     * set - 1 and 2 sit at x-height while 6 and 8 ascend, and the short ones measure about
+     * three quarters of the tall ones. That is well below the printed band, so every 1 and
+     * 2 on the page is sorted as handwriting, and a puzzle loses a third of its givens
+     * without a single digit being misread.
+     *
+     * Measured on a grid set in Georgia: five printed digits sorted as handwriting, all of
+     * them 1s and 2s, every one at 0.737 of the core height against the font's own 0.74.
+     * The same puzzle in Arial reads thirty printed and nothing wrong.
+     *
+     * What gives a rank away is that it is a rank. A font repeats a glyph exactly, so the
+     * short figures all measure the same to three decimals, while a hand does not: across
+     * the corpus the printed digits of a page spread by 0.011 to 0.047 and the handwriting
+     * by 0.09 to 0.21, and the only handwriting tighter than that is two cells on a page
+     * that has only two. So a group is taken back only if there are [ENOUGH_FOR_A_RANK] of
+     * them, they sit within [ONE_FIGURE_SPREAD] of each other, and they carry the print's
+     * own ink rather than a pen's - printed digits carry 0.98 of the core at the median
+     * against handwriting's 0.43.
+     *
+     * The last guard is the one that makes the rest safe: the rank is only taken back if
+     * the page still comes out with a plausible number of givens. On a solved puzzle the
+     * fifty answers would have to join thirty givens to make eighty, which no sudoku has,
+     * so the rule cannot fire where there is real handwriting to lose.
+     */
+    private fun takeBackAFigureRank(
+        readings: List<CellReading>,
+        ink: List<CellInk?>,
+        core: PrintedCore,
+    ): List<CellReading> {
+        val answers = readings.filter { it.ink == Ink.ANSWER }
+        if (answers.size < ENOUGH_FOR_A_RANK) return readings
+        if (readings.count { it.ink == Ink.PRINTED } + answers.size > PLAUSIBLE_GIVENS) {
+            return readings
+        }
+
+        val blobs = answers.mapNotNull { ink[it.index]?.blob }
+        if (blobs.size != answers.size) return readings
+
+        val heights = blobs.map { it.heightRatio / core.height }
+        val mean = heights.average()
+        val spread = Math.sqrt(heights.sumOf { (it - mean) * (it - mean) } / heights.size)
+        if (spread > ONE_FIGURE_SPREAD) return readings
+        if (median(blobs.map { inkOf(it, core) }) < RANK_INK) return readings
+
+        return readings.map { if (it.ink == Ink.ANSWER) it.copy(ink = Ink.PRINTED) else it }
+    }
+
     private fun settle(
         ink: List<CellInk?>,
         core: PrintedCore,
@@ -568,6 +621,35 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         private const val PLAUSIBLE_GIVENS = 45
 
         /** Fewest cells worth letting settle into two clusters. */
+        /**
+         * How many cells make a rank of figures rather than a coincidence.
+         *
+         * Two is not enough: two pages in the corpus have exactly two handwritten answers
+         * and those two sit within 0.01 and 0.02 of each other, which would look like a
+         * rank on any measure of tightness. Every page with three or more spreads by at
+         * least 0.045.
+         */
+        private const val ENOUGH_FOR_A_RANK = 3
+
+        /**
+         * How closely a group must agree on its height to be one figure of one font.
+         *
+         * The printed digits of a page spread by 0.011 to 0.047 across the corpus and the
+         * handwriting by 0.09 to 0.21. This sits at the tight end of print and three times
+         * inside the loose end of handwriting.
+         */
+        private const val ONE_FIGURE_SPREAD = 0.03
+
+        /**
+         * How much of the print's own ink a rank must carry to be print.
+         *
+         * Printed digits carry 0.98 of the core at the median, the tenth percentile 0.69;
+         * handwriting carries 0.43, its ninetieth percentile 0.72. This sits below the
+         * print's tenth percentile because a short figure is a thinner glyph - Georgia's 1
+         * carries about 0.75 - and the tightness test is what carries the separation.
+         */
+        private const val RANK_INK = 0.60
+
         private const val ENOUGH_TO_SETTLE = 20
 
         /** How many times the cells may move between the two clusters before stopping. */
