@@ -218,122 +218,18 @@ object PuzzleLogic {
         /** Which answer to show, when the puzzle has more than one. */
         answerShown: Int = 0,
     ): Overlay {
-        val digits = mutableMapOf<Int, OverlayDigit>()
-        var evidence = emptySet<Int>()
-        var focus: Int? = null
-        var chain: Chain? = null
+        val drawn = when (mode) {
+            OverlayMode.NONE -> NOTHING
 
-        when (mode) {
-            OverlayMode.NONE -> Unit
+            // The reading layer is drawn from the readings rather than from the grid, so
+            // that it can show what was thrown away as well as what was kept. Nothing to
+            // add here.
+            OverlayMode.READING -> NOTHING
 
-            // Every cell that is not printed, so a finished puzzle shows the whole answer
-            // rather than the handful of cells recognition happened to miss.
-            //
-            // All three outcomes draw something. Showing nothing when a puzzle has no
-            // single answer is how Solve came to look like a button that did nothing: the
-            // one case where the user most needs to be told is the one where they were
-            // told least.
-            OverlayMode.SOLUTION -> when (val solved = Solver.solve(grid)) {
-                is SolveResult.Unique -> for (i in 0 until 81) {
-                    if (grid[i].source != CellSource.GIVEN) {
-                        digits[i] = OverlayDigit(solved.solution[i].digit!!, OverlayRole.SOLUTION)
-                    }
-                }
-
-                // One of them, drawn exactly like the answer to a proper puzzle, with the
-                // squares that differ between answers marked so it is clear which parts
-                // are chosen rather than deduced.
-                is SolveResult.Multiple -> {
-                    val answers = Solver.solutions(grid, MOST_ANSWERS_OFFERED)
-                    val chosen = answers.getOrNull(answerShown.mod(answers.size.coerceAtLeast(1)))
-                    if (chosen != null) {
-                        for (i in 0 until 81) {
-                            if (grid[i].source != CellSource.GIVEN) {
-                                digits[i] = OverlayDigit(chosen[i].digit!!, OverlayRole.SOLUTION)
-                            }
-                        }
-                        evidence = solved.ambiguousCells
-                    }
-                }
-
-                // Nothing can be drawn in the squares, so what is drawn is the diagnosis:
-                // the fewest printed digits that have to be wrong for this to be a puzzle
-                // at all. Those are the squares to look at, and they are marked as
-                // evidence because that is what they are - the reason it will not solve.
-                is SolveResult.None -> {
-                    evidence = MinimalFix.find(grid).orEmpty()
-                    focus = evidence.minOrNull()
-                }
-            }
-
-            OverlayMode.CHECK -> (AnswerChecker.check(grid) as? AnswerCheck.Checked)?.let { checked ->
-                for (i in checked.correct) digits[i] = OverlayDigit(grid[i].digit!!, OverlayRole.CORRECT)
-                // The digit carried here is what the app *read*, not what is on the paper.
-                // Drawing it is the whole point: a misread then looks like a misread
-                // instead of the app calling a correct answer wrong.
-                for (i in checked.incorrect) digits[i] = OverlayDigit(grid[i].digit!!, OverlayRole.INCORRECT)
-            }
-
-            // Drawn from the readings rather than from the grid, so it can show what was
-            // thrown away as well as what was kept.
-            OverlayMode.READING -> Unit
-
-            OverlayMode.HINT -> hint(grid, style)?.let { h ->
-                if (style == HintStyle.REVEAL) {
-                    // Asked for the digit and nothing else. Highlighting a region as well
-                    // would be answering a question this style exists to skip.
-                    digits[h.index] = OverlayDigit(h.digit, OverlayRole.HINT)
-                    return@let
-                }
-
-                val supporting = (h as? Hint.Explained)?.supportingCells.orEmpty() - h.index
-
-                // Each rung has to change what is on screen, or pressing again looks like
-                // nothing happened - which is what it did. The first rung answers "where
-                // should I look" with the box; every rung after it shows the evidence,
-                // which is a different set of squares.
-                evidence = if (hintDepth == 0 || supporting.isEmpty()) {
-                    Coordinates.boxIndices[Coordinates.boxOf(h.index)].toSet() - h.index
-                } else {
-                    supporting
-                }
-                if (hintDepth >= 2) focus = h.index
-                if (hintDepth >= HINT_DEPTHS - 1) {
-                    digits[h.index] = OverlayDigit(h.digit, OverlayRole.HINT)
-                }
-            }
-
-            // Nothing is drawn for the introduction: it is about the route, not about any
-            // one square, and highlighting something would be pointing at the wrong thing.
-            OverlayMode.LESSON -> walkthrough?.takeIf { it.steps.isNotEmpty() }?.let { route ->
-                val at = stepIndex(lessonStep, route) ?: return@let
-                // On a route, everything up to and including this step, so the board
-                // fills in as it is walked and each move is seen from the position it was
-                // made in. When browsing one technique the steps are alternatives from a
-                // single position, so only the one being looked at is drawn.
-                val from = if (route.cumulative) 0 else at
-                for (i in from..at) {
-                    val step = route.steps[i] as? Deduction.Placement ?: continue
-                    digits[step.index] = OverlayDigit(step.digit, OverlayRole.SOLUTION)
-                }
-                val step = route.steps[at]
-                focus = (step as? Deduction.Placement)?.index
-
-                // A chain draws its own squares, in order and with arrows between them.
-                // The flat highlight would say "these all matter equally", which is the
-                // one thing a chain is not.
-                chain = (step as? Deduction.Elimination)?.chain
-                evidence = if (chain != null) {
-                    emptySet()
-                } else {
-                    step.supportingCells - setOfNotNull(focus)
-                }
-
-                // The square the chain assumes something about is the square the step is
-                // about, so it gets the same ring every other step's subject gets. Without
-                // it the eye has nowhere to start on a trail of a dozen arrows.
-                chain?.links?.firstOrNull()?.let { focus = it.index }
-            }
+            OverlayMode.SOLUTION -> solutionLayer(grid, answerShown)
+            OverlayMode.CHECK -> checkLayer(grid)
+            OverlayMode.HINT -> hintLayer(grid, style, hintDepth)
+            OverlayMode.LESSON -> lessonLayer(walkthrough, lessonStep)
         }
 
         // What the user has written, wherever the layer on top has not already said
@@ -341,15 +237,161 @@ object PuzzleLogic {
         // already; the reading layer draws it from the grid when the reading is gone.
         // The rest - including no layer at all - showed nothing, so answering a square
         // looked exactly like not answering it.
-        if (mode != OverlayMode.READING) {
-            for (index in entered) {
-                val digit = grid[index].digit ?: continue
-                if (grid[index].source == CellSource.GIVEN) continue
-                if (index in digits) continue
-                digits[index] = OverlayDigit(digit, OverlayRole.WRITTEN)
+        return if (mode == OverlayMode.READING) drawn else drawn.withWritten(grid, entered)
+    }
+
+    /** Nothing to draw. A layer that finds it has nothing to say returns this. */
+    private val NOTHING = Overlay(emptyMap(), emptySet())
+
+    /**
+     * Every cell that is not printed, so a finished puzzle shows the whole answer rather
+     * than the handful of cells recognition happened to miss.
+     *
+     * All three outcomes draw something. Showing nothing when a puzzle has no single
+     * answer is how Solve came to look like a button that did nothing: the one case where
+     * the user most needs to be told is the one where they were told least.
+     */
+    private fun solutionLayer(grid: Grid, answerShown: Int): Overlay {
+        val digits = mutableMapOf<Int, OverlayDigit>()
+        when (val solved = Solver.solve(grid)) {
+            is SolveResult.Unique -> {
+                for (i in 0 until 81) {
+                    if (grid[i].source != CellSource.GIVEN) {
+                        digits[i] = OverlayDigit(solved.solution[i].digit!!, OverlayRole.SOLUTION)
+                    }
+                }
+                return Overlay(digits, emptySet())
+            }
+
+            // One of them, drawn exactly like the answer to a proper puzzle, with the
+            // squares that differ between answers marked so it is clear which parts are
+            // chosen rather than deduced.
+            is SolveResult.Multiple -> {
+                val answers = Solver.solutions(grid, MOST_ANSWERS_OFFERED)
+                val chosen = answers.getOrNull(answerShown.mod(answers.size.coerceAtLeast(1)))
+                    ?: return NOTHING
+                for (i in 0 until 81) {
+                    if (grid[i].source != CellSource.GIVEN) {
+                        digits[i] = OverlayDigit(chosen[i].digit!!, OverlayRole.SOLUTION)
+                    }
+                }
+                return Overlay(digits, solved.ambiguousCells)
+            }
+
+            // Nothing can be drawn in the squares, so what is drawn is the diagnosis: the
+            // fewest printed digits that have to be wrong for this to be a puzzle at all.
+            // Those are the squares to look at, and they are marked as evidence because
+            // that is what they are - the reason it will not solve.
+            is SolveResult.None -> {
+                val evidence = MinimalFix.find(grid).orEmpty()
+                return Overlay(digits, evidence, focus = evidence.minOrNull())
             }
         }
+    }
+
+    /**
+     * Which answers are right and which are wrong.
+     *
+     * The digit carried here is what the app *read*, not what is on the paper. Drawing it
+     * is the whole point: a misread then looks like a misread instead of the app calling a
+     * correct answer wrong.
+     */
+    private fun checkLayer(grid: Grid): Overlay {
+        val checked = AnswerChecker.check(grid) as? AnswerCheck.Checked ?: return NOTHING
+        val digits = mutableMapOf<Int, OverlayDigit>()
+        for (i in checked.correct) {
+            digits[i] = OverlayDigit(grid[i].digit!!, OverlayRole.CORRECT)
+        }
+        for (i in checked.incorrect) {
+            digits[i] = OverlayDigit(grid[i].digit!!, OverlayRole.INCORRECT)
+        }
+        return Overlay(digits, emptySet())
+    }
+
+    /**
+     * The next digit, and as much of the reason for it as the rung asks for.
+     *
+     * Each rung has to change what is on screen, or pressing again looks like nothing
+     * happened - which is what it did. The first rung answers "where should I look" with
+     * the box; every rung after it shows the evidence, which is a different set of squares.
+     */
+    private fun hintLayer(grid: Grid, style: HintStyle, hintDepth: Int): Overlay {
+        val found = hint(grid, style) ?: return NOTHING
+
+        // Asked for the digit and nothing else. Highlighting a region as well would be
+        // answering a question this style exists to skip.
+        if (style == HintStyle.REVEAL) {
+            return Overlay(mapOf(found.index to OverlayDigit(found.digit, OverlayRole.HINT)),
+                emptySet())
+        }
+
+        val supporting = (found as? Hint.Explained)?.supportingCells.orEmpty() - found.index
+        val evidence = if (hintDepth == 0 || supporting.isEmpty()) {
+            Coordinates.boxIndices[Coordinates.boxOf(found.index)].toSet() - found.index
+        } else {
+            supporting
+        }
+        val digits = if (hintDepth >= HINT_DEPTHS - 1) {
+            mapOf(found.index to OverlayDigit(found.digit, OverlayRole.HINT))
+        } else {
+            emptyMap()
+        }
+        return Overlay(digits, evidence, focus = if (hintDepth >= 2) found.index else null)
+    }
+
+    /**
+     * One step of a walkthrough.
+     *
+     * Nothing is drawn for the introduction: it is about the route, not about any one
+     * square, and highlighting something would be pointing at the wrong thing.
+     */
+    private fun lessonLayer(walkthrough: Walkthrough?, lessonStep: Int): Overlay {
+        val route = walkthrough?.takeIf { it.steps.isNotEmpty() } ?: return NOTHING
+        val at = stepIndex(lessonStep, route) ?: return NOTHING
+
+        // On a route, everything up to and including this step, so the board fills in as it
+        // is walked and each move is seen from the position it was made in. When browsing
+        // one technique the steps are alternatives from a single position, so only the one
+        // being looked at is drawn.
+        val digits = mutableMapOf<Int, OverlayDigit>()
+        val from = if (route.cumulative) 0 else at
+        for (i in from..at) {
+            val placement = route.steps[i] as? Deduction.Placement ?: continue
+            digits[placement.index] = OverlayDigit(placement.digit, OverlayRole.SOLUTION)
+        }
+
+        val step = route.steps[at]
+        var focus = (step as? Deduction.Placement)?.index
+
+        // A chain draws its own squares, in order and with arrows between them. The flat
+        // highlight would say "these all matter equally", which is the one thing a chain
+        // is not.
+        val chain = (step as? Deduction.Elimination)?.chain
+        val evidence = if (chain != null) {
+            emptySet()
+        } else {
+            step.supportingCells - setOfNotNull(focus)
+        }
+
+        // The square the chain assumes something about is the square the step is about, so
+        // it gets the same ring every other step's subject gets. Without it the eye has
+        // nowhere to start on a trail of a dozen arrows.
+        chain?.links?.firstOrNull()?.let { focus = it.index }
+
         return Overlay(digits, evidence, focus, chain)
+    }
+
+    /** The squares the user typed in, added wherever the layer left them blank. */
+    private fun Overlay.withWritten(grid: Grid, entered: Set<Int>): Overlay {
+        if (entered.isEmpty()) return this
+        val out = digits.toMutableMap()
+        for (index in entered) {
+            val digit = grid[index].digit ?: continue
+            if (grid[index].source == CellSource.GIVEN) continue
+            if (index in out) continue
+            out[index] = OverlayDigit(digit, OverlayRole.WRITTEN)
+        }
+        return copy(digits = out)
     }
 
     /**
