@@ -16,9 +16,10 @@ import kotlin.test.assertTrue
  * skip and only the rules nobody has questioned make the trip. These are drawn, so they run
  * everywhere and their ground truth is exact rather than transcribed.
  *
- * They are deliberately easy - no crease, no shadow, no camera - and are held to the
- * standard an easy page deserves: every printed digit sorted as print and read correctly. A
- * photograph is a different question and the corpus is still the only thing that can ask it.
+ * They are deliberately easy in the ways a photograph is hard - no crease, no fold, no lens
+ * - and are held to the standard that earns: every printed digit sorted as print and read
+ * correctly, whatever the font, the figure style, the weight, the lamp or the hand over it.
+ * A photograph is a different question and the corpus is still the only thing that asks it.
  */
 class SyntheticGridTest {
 
@@ -33,48 +34,60 @@ class SyntheticGridTest {
     /** What a finished page has written on it: the solution, less the printed digits. */
     private val written = String(CharArray(81) { if (givens[it] == '.') solution[it] else '.' })
 
-    private fun read(image: GrayImage): List<CellReading> {
+    /** Half solved, which is how a page in a newspaper is usually found. */
+    private val halfWritten =
+        String(CharArray(81) { if (givens[it] == '.' && it % 2 == 0) solution[it] else '.' })
+
+    private val families = listOf(Font.SANS_SERIF, Font.SERIF, Font.MONOSPACED)
+
+    private fun read(image: GrayImage): Map<Int, CellReading> {
         OpenCvNatives.ensureLoaded { nu.pattern.OpenCV.loadShared() }
         val cells = CellExtractor.extract(image, CellGeometry.evenNinths(SyntheticGrid.SIDE))
-        return when (val result = GridReader().read(cells)) {
-            is ReadResult.Accepted -> result.readings
-            is ReadResult.NeedsConfirmation -> result.readings
-            is ReadResult.Unreadable -> error("the reader refused a drawn grid: ${result.reason}")
+        val result = when (val outcome = GridReader().read(cells)) {
+            is ReadResult.Accepted -> outcome.readings
+            is ReadResult.NeedsConfirmation -> outcome.readings
+            is ReadResult.Unreadable -> error("the reader refused a drawn grid: ${outcome.reason}")
         }
+        return result.associateBy { it.index }
     }
 
-    private fun checkPrinted(readings: List<CellReading>, label: String) {
-        val byIndex = readings.associateBy { it.index }
+    private fun checkPrinted(readings: Map<Int, CellReading>, label: String) {
         val wrongKind = (0 until 81).filter {
-            givens[it] != '.' && byIndex[it]?.ink != Ink.PRINTED
+            givens[it] != '.' && readings[it]?.ink != Ink.PRINTED
         }
         assertTrue(
             wrongKind.isEmpty(),
-            "$label: printed digits sorted as ${wrongKind.map { byIndex[it]?.ink }} at $wrongKind",
+            "$label: printed digits sorted as ${wrongKind.map { readings[it]?.ink }} at $wrongKind",
         )
         val misread = (0 until 81).filter {
-            givens[it] != '.' && byIndex[it]?.digit != givens[it] - '0'
+            givens[it] != '.' && readings[it]?.digit != givens[it] - '0'
         }
         assertTrue(
             misread.isEmpty(),
             "$label: printed digits misread at $misread " +
-                "(${misread.map { "${givens[it]} read ${byIndex[it]?.digit}" }})",
+                "(${misread.map { "${givens[it]} read ${readings[it]?.digit}" }})",
         )
     }
 
     @Test
-    fun `an unsolved page reads whatever its figures are`() {
+    fun `an unsolved page reads whatever its figures, font and weight`() {
         for (figures in SyntheticGrid.Figures.entries) {
-            for (family in listOf(Font.SANS_SERIF, Font.SERIF, Font.MONOSPACED)) {
-                val label = "$figures $family"
-                val readings = read(
-                    SyntheticGrid.rectified(givens, figures = figures, family = family)
-                )
-                checkPrinted(readings, label)
-                assertEquals(
-                    30, readings.count { it.ink == Ink.PRINTED },
-                    "$label: expected thirty printed digits",
-                )
+            for (family in families) {
+                for (bold in listOf(false, true)) {
+                    val label = "$figures $family bold=$bold"
+                    val readings = read(
+                        SyntheticGrid.rectified(
+                            SyntheticGrid.Page(
+                                givens, figures = figures, family = family, bold = bold,
+                            )
+                        )
+                    )
+                    checkPrinted(readings, label)
+                    assertEquals(
+                        30, readings.values.count { it.ink == Ink.PRINTED },
+                        "$label: expected thirty printed digits",
+                    )
+                }
             }
         }
     }
@@ -84,8 +97,10 @@ class SyntheticGridTest {
         // The fault this whole family of tests exists for: 1 and 2 at x-height are three
         // quarters the height of the tall figures, which is well outside the printed band.
         val readings = read(
-            SyntheticGrid.rectified(givens, figures = SyntheticGrid.Figures.OLD_STYLE)
-        ).associateBy { it.index }
+            SyntheticGrid.rectified(
+                SyntheticGrid.Page(givens, figures = SyntheticGrid.Figures.OLD_STYLE)
+            )
+        )
         val short = (0 until 81).filter { givens[it] == '1' || givens[it] == '2' }
         assertTrue(short.isNotEmpty(), "the puzzle must contain the short figures")
         for (i in short) {
@@ -95,18 +110,98 @@ class SyntheticGridTest {
 
     @Test
     fun `a finished page keeps the pen and the press apart`() {
-        val readings = read(SyntheticGrid.rectified(givens, answers = written, seed = 7))
-            .associateBy { it.index }
-        val wrong = (0 until 81).filter { written[it] != '.' && readings[it]?.ink != Ink.ANSWER }
-        assertTrue(
-            wrong.size <= 2,
-            "answers sorted as ${wrong.map { readings[it]?.ink }} at $wrong",
+        for (hand in SyntheticGrid.Hand.entries) {
+            val readings = read(
+                SyntheticGrid.rectified(
+                    SyntheticGrid.Page(givens, answers = written, hand = hand, seed = 7)
+                )
+            )
+            checkPrinted(readings, "solved by a $hand hand")
+            val wrong = (0 until 81).filter {
+                written[it] != '.' && readings[it]?.ink != Ink.ANSWER
+            }
+            assertTrue(
+                wrong.size <= 2,
+                "$hand: answers sorted as ${wrong.map { readings[it]?.ink }} at $wrong",
+            )
+        }
+    }
+
+    @Test
+    fun `a page half filled in is still a page of two kinds`() {
+        val readings = read(
+            SyntheticGrid.rectified(
+                SyntheticGrid.Page(
+                    givens, answers = halfWritten, hand = SyntheticGrid.Hand.LOOSE, seed = 11,
+                )
+            )
         )
+        checkPrinted(readings, "half solved")
+    }
+
+    @Test
+    fun `pencilled candidates are not answers`() {
+        val readings = read(
+            SyntheticGrid.rectified(SyntheticGrid.Page(givens, marks = 0.6, seed = 5))
+        )
+        checkPrinted(readings, "with candidate marks")
+        val mistaken = (0 until 81).filter {
+            givens[it] == '.' && readings[it]?.ink == Ink.PRINTED
+        }
+        assertTrue(mistaken.isEmpty(), "pencil marks taken for print at $mistaken")
+    }
+
+    @Test
+    fun `an answer written over a rubbed-out digit is still one digit`() {
+        // The same-ink rule under a different light: the ghost is close enough to touch and
+        // faint enough not to belong, and gathering it would make a plus sign of a 7.
+        val readings = read(
+            SyntheticGrid.rectified(
+                SyntheticGrid.Page(givens, answers = written, ghosts = 0.5, seed = 13)
+            )
+        )
+        checkPrinted(readings, "over erasures")
+    }
+
+    @Test
+    fun `a lamp off to one side does not change what is print`() {
+        // Contrast is measured against the paper of each square rather than of the page, so
+        // a gradient across the sheet should move a digit and its background together.
+        val readings = read(
+            SyntheticGrid.rectified(SyntheticGrid.Page(givens, shadow = 0.45, seed = 2))
+        )
+        checkPrinted(readings, "under a lamp")
     }
 
     @Test
     fun `a blurred and speckled page still reads`() {
-        val readings = read(SyntheticGrid.rectified(givens, blur = 1.0, noise = 12.0, seed = 3))
+        val readings = read(
+            SyntheticGrid.rectified(
+                SyntheticGrid.Page(givens, blur = 1.0, noise = 12.0, seed = 3)
+            )
+        )
         checkPrinted(readings, "blurred")
+    }
+
+    @Test
+    fun `the hardest of them together`() {
+        val readings = read(
+            SyntheticGrid.rectified(
+                SyntheticGrid.Page(
+                    givens,
+                    answers = halfWritten,
+                    figures = SyntheticGrid.Figures.OLD_STYLE,
+                    family = Font.SERIF,
+                    hand = SyntheticGrid.Hand.LOOSE,
+                    marks = 0.35,
+                    ghosts = 0.4,
+                    shadow = 0.3,
+                    blur = 1.0,
+                    noise = 8.0,
+                    seed = 17,
+                )
+            )
+        )
+        checkPrinted(readings, "everything at once")
     }
 }

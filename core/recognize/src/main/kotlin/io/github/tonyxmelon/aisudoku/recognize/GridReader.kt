@@ -190,9 +190,12 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
      * the corpus the printed digits of a page spread by 0.011 to 0.047 and the handwriting
      * by 0.09 to 0.21, and the only handwriting tighter than that is two cells on a page
      * that has only two. So a group is taken back only if there are [ENOUGH_FOR_A_RANK] of
-     * them, they sit within [ONE_FIGURE_SPREAD] of each other, and they are as dark as the
-     * print rather than as a pen - printed digits sit at 1.00 of their page's core contrast
-     * at the median against handwriting's 0.61.
+     * them, they are as dark as the print rather than as a pen - printed digits sit at 1.00
+     * of their page's core contrast at the median against handwriting's 0.61 - and, once
+     * the pen has been set aside that way, they sit within [ONE_FIGURE_SPREAD] of each
+     * other. The darkness comes first because a page can hold both at once: a puzzle set in
+     * text figures and half filled in has short print and real answers in the same pile,
+     * and asking that pile as a whole to be tight finds nothing.
      *
      * The last guard is the one that makes the rest safe: the rank is only taken back if
      * the page still comes out with a plausible number of givens. On a solved puzzle the
@@ -204,22 +207,24 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         ink: List<CellInk?>,
         core: PrintedCore,
     ): List<CellReading> {
-        val answers = readings.filter { it.ink == Ink.ANSWER }
-        if (answers.size < ENOUGH_FOR_A_RANK) return readings
-        if (readings.count { it.ink == Ink.PRINTED } + answers.size > PLAUSIBLE_GIVENS) {
-            return readings
-        }
+        // Darkness first, because a page can hold both: a puzzle set in text figures and
+        // half filled in has short print and real answers in the same pile, and asking the
+        // pile as a whole to be tight would find nothing. What the press laid down is as
+        // dark as the rest of the print; what a pen laid down is not.
+        val rank = readings
+            .filter { it.ink == Ink.ANSWER }
+            .mapNotNull { reading -> ink[reading.index]?.blob?.let { reading to it } }
+            .filter { (_, blob) -> blob.contrast / core.contrast >= RANK_CONTRAST }
+        if (rank.size < ENOUGH_FOR_A_RANK) return readings
+        if (readings.count { it.ink == Ink.PRINTED } + rank.size > PLAUSIBLE_GIVENS) return readings
 
-        val blobs = answers.mapNotNull { ink[it.index]?.blob }
-        if (blobs.size != answers.size) return readings
-
-        val heights = blobs.map { it.heightRatio / core.height }
+        val heights = rank.map { (_, blob) -> blob.heightRatio / core.height }
         val mean = heights.average()
         val spread = Math.sqrt(heights.sumOf { (it - mean) * (it - mean) } / heights.size)
         if (spread > ONE_FIGURE_SPREAD) return readings
-        if (median(blobs.map { it.contrast / core.contrast }) < RANK_CONTRAST) return readings
 
-        return readings.map { if (it.ink == Ink.ANSWER) it.copy(ink = Ink.PRINTED) else it }
+        val taken = rank.mapTo(mutableSetOf()) { (reading, _) -> reading.index }
+        return readings.map { if (it.index in taken) it.copy(ink = Ink.PRINTED) else it }
     }
 
     private fun settle(
@@ -651,11 +656,20 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
          *
          * Contrast is about what made the mark. Across the corpus, printed digits sit at
          * 1.00 of their page's core at the median and 0.77 at the fifth percentile;
-         * handwriting sits at 0.61 and reaches 0.75 only at its seventy-fifth. The pages
-         * where a hand does reach the print - the writer bearing down as hard as the press
-         * - are solved pages, where the count guard has already refused the rule.
+         * handwriting sits at 0.61 and reaches 0.75 only at its seventy-fifth.
+         *
+         * This sits a little under the print's fifth percentile rather than above
+         * handwriting's seventy-fifth, which looks like the wrong side to err on and is
+         * not: the drawn pages put a monospaced 2 at 0.755, and a printed digit that faint
+         * is a thing the corpus has too. What carries the separation is the tightness test
+         * this filter feeds, not the filter itself - the filter only has to set aside the
+         * pen on a page that holds both. Measured at 0.80 and 0.72 the corpus does not
+         * move: triage 1949/2025 either way.
+         *
+         * The pages where a hand does reach the print - the writer bearing down as hard as
+         * the press - are solved pages, and there the count guard refuses the rule first.
          */
-        private const val RANK_CONTRAST = 0.80
+        private const val RANK_CONTRAST = 0.72
 
         private const val ENOUGH_TO_SETTLE = 20
 

@@ -4,6 +4,7 @@ import io.github.tonyxmelon.aisudoku.vision.GrayImage
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Font
+import java.awt.Graphics2D
 import java.awt.RenderingHints
 import java.awt.geom.AffineTransform
 import java.awt.image.BufferedImage
@@ -21,10 +22,10 @@ import kotlin.random.Random
  *
  * These are drawn rather than photographed, which means they can be committed, they run
  * everywhere, and the ground truth is exact rather than transcribed. They are not a
- * substitute for photographs - nothing here has a crease, a shadow, a rubbed-out pencil
- * mark or a camera - and they are not scored as if they were. What they are good for is
- * the assumptions: one font against another, one figure style against another, print with
- * and without a hand over it.
+ * substitute for photographs and are not scored as if they were - a drawn page has no
+ * camera behind it, and the shortcomings of a real one are not guessable. What they are
+ * good for is assumptions: one figure style against another, a hand that presses hard
+ * against one that does not, pencil under ink, and a lamp off to one side.
  *
  * The figure styles are drawn by scaling the glyphs rather than by asking for a font that
  * has them, because the fonts on a CI runner are not the fonts on a laptop and a test that
@@ -52,73 +53,108 @@ object SyntheticGrid {
         ),
     }
 
-    /** A pen is fainter and thinner than a press, which is what the ink measure is for. */
-    private const val PEN_GREY = 95
-    private const val PRESS_GREY = 0
+    /**
+     * How the answers are written, when there are any.
+     *
+     * [NEAT] is a careful hand at a steady size. [LOOSE] is the one that matters: bigger
+     * than the print, leaning, and never the same size twice, which is what the corpus's
+     * writer actually does and what the size rule was built on.
+     */
+    enum class Hand(
+        val size: ClosedFloatingPointRange<Double>,
+        val slant: ClosedFloatingPointRange<Double>,
+        val wobble: Double,
+    ) {
+        NEAT(0.52..0.66, -0.05..0.05, 1.5),
+        LOOSE(0.60..0.86, -0.28..0.20, 4.0),
+    }
 
     /**
-     * Draws one grid.
+     * One page to draw.
      *
-     * [givens] and [answers] are 81 characters each, a digit or a dot. The answers are
-     * drawn as a hand would: a different size in every square, turned a little, and in a
-     * pen that leaves less ink than the press.
+     * Everything that varies between real pages and can be drawn honestly. What cannot -
+     * a crease, a fold, the shape of a phone lens - is left to the photographs.
      */
-    fun rectified(
-        givens: String,
-        answers: String? = null,
-        figures: Figures = Figures.LINING,
-        family: String = Font.SANS_SERIF,
-        blur: Double = 0.0,
-        noise: Double = 0.0,
-        seed: Long = 1,
-    ): GrayImage {
-        require(givens.length == 81) { "givens must be 81 characters" }
-        require(answers == null || answers.length == 81) { "answers must be 81 characters" }
+    data class Page(
+        val givens: String,
+        val answers: String? = null,
+        val figures: Figures = Figures.LINING,
+        val family: String = Font.SANS_SERIF,
+        val bold: Boolean = false,
+        val hand: Hand = Hand.NEAT,
+        /** How dark the pen is against the paper, where the press is 255. */
+        val pen: Int = 150,
+        /** Fraction of the empty squares carrying pencilled candidate marks. */
+        val marks: Double = 0.0,
+        /** Fraction of the answers written over a rubbed-out digit. */
+        val ghosts: Double = 0.0,
+        /** A lamp off to one side: 0 is flat, 1 takes a third of the light off one corner. */
+        val shadow: Double = 0.0,
+        val blur: Double = 0.0,
+        val noise: Double = 0.0,
+        val seed: Long = 1,
+    ) {
+        init {
+            require(givens.length == 81) { "givens must be 81 characters" }
+            require(answers == null || answers.length == 81) { "answers must be 81 characters" }
+        }
+    }
 
+    private const val PRESS = 0
+
+    fun rectified(page: Page): GrayImage {
         val image = BufferedImage(SIDE, SIDE, BufferedImage.TYPE_BYTE_GRAY)
         val g = image.createGraphics()
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-            RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+        g.setRenderingHint(
+            RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON
+        )
         g.color = Color.WHITE
         g.fillRect(0, 0, SIDE, SIDE)
 
         val cell = SIDE / 9.0
         g.color = Color.BLACK
         for (i in 0..9) {
-            val at = (i * cell).toFloat()
-            val width = if (i % 3 == 0) 5f else 2f
-            g.stroke = BasicStroke(width)
-            g.drawLine(at.roundToInt(), 0, at.roundToInt(), SIDE)
-            g.drawLine(0, at.roundToInt(), SIDE, at.roundToInt())
+            val at = (i * cell).roundToInt()
+            g.stroke = BasicStroke(if (i % 3 == 0) 5f else 2f)
+            g.drawLine(at, 0, at, SIDE)
+            g.drawLine(0, at, SIDE, at)
         }
 
-        val printed = Font(family, Font.PLAIN, (cell * 0.62).roundToInt())
-        val random = Random(seed)
+        val weight = if (page.bold) Font.BOLD else Font.PLAIN
+        val printed = Font(page.family, weight, (cell * 0.62).roundToInt())
+        val random = Random(page.seed)
 
         for (index in 0 until 81) {
-            val row = index / 9
-            val column = index % 9
-            val centreX = (column + 0.5) * cell
-            val centreY = (row + 0.5) * cell
+            val centreX = (index % 9 + 0.5) * cell
+            val centreY = (index / 9 + 0.5) * cell
 
-            val given = givens[index]
+            val given = page.givens[index]
             if (given != '.') {
-                draw(g, given, printed, centreX, centreY, PRESS_GREY,
-                    tall = figures.heights.getValue(given), turn = 0.0)
+                draw(g, given, printed, centreX, centreY, PRESS, page.figures.heights.getValue(given))
                 continue
             }
-            val answer = answers?.get(index) ?: continue
-            if (answer == '.') continue
 
-            // A hand: never the same size twice, never quite straight, and in a pen.
-            val hand = Font(family, Font.PLAIN, (cell * random.nextDouble(0.52, 0.72)).roundToInt())
-            draw(
-                g, answer, hand,
-                centreX + random.nextDouble(-cell * 0.06, cell * 0.06),
-                centreY + random.nextDouble(-cell * 0.05, cell * 0.05),
-                PEN_GREY, tall = 1.0, turn = random.nextDouble(-0.12, 0.12),
-            )
+            val answer = page.answers?.get(index)?.takeIf { it != '.' }
+            if (answer == null) {
+                if (page.marks > 0 && random.nextDouble() < page.marks) {
+                    pencilMarks(g, page, cell, centreX, centreY, random)
+                }
+                continue
+            }
+
+            // The ghost goes down first, and the answer over it - which is the order it
+            // happened in, and the reason the two touch.
+            if (page.ghosts > 0 && random.nextDouble() < page.ghosts) {
+                val rubbed = ('1' + random.nextInt(9))
+                written(
+                    g, rubbed, page, cell,
+                    centreX + random.nextDouble(-cell * 0.08, cell * 0.08),
+                    centreY + random.nextDouble(-cell * 0.06, cell * 0.06),
+                    grey = 255 - ((255 - page.pen) * 0.28).roundToInt(), random = random,
+                )
+            }
+            written(g, answer, page, cell, centreX, centreY, page.pen, random)
         }
         g.dispose()
 
@@ -127,20 +163,21 @@ object SyntheticGrid {
         for (y in 0 until SIDE) {
             for (x in 0 until SIDE) pixels[y * SIDE + x] = raster.getSample(x, y, 0).toByte()
         }
-        if (blur > 0) pixels = blurred(pixels, blur)
-        if (noise > 0) pixels = speckled(pixels, noise, Random(seed + 1))
+        if (page.shadow > 0) pixels = lit(pixels, page.shadow)
+        if (page.blur > 0) pixels = blurred(pixels, page.blur)
+        if (page.noise > 0) pixels = speckled(pixels, page.noise, Random(page.seed + 1))
         return GrayImage(SIDE, SIDE, pixels)
     }
 
+    /** A printed digit: one size, one weight, sitting where the press put it. */
     private fun draw(
-        g: java.awt.Graphics2D,
+        g: Graphics2D,
         digit: Char,
         font: Font,
         centreX: Double,
         centreY: Double,
         grey: Int,
         tall: Double,
-        turn: Double,
     ) {
         val text = digit.toString()
         val metrics = g.getFontMetrics(font)
@@ -152,7 +189,6 @@ object SyntheticGrid {
         g.font = font
         val move = AffineTransform()
         move.translate(centreX, centreY)
-        move.rotate(turn)
         // Height only. A short old-style figure is not a squashed lining one, but it does
         // keep the weight of its strokes, which uniform scaling would take away with it -
         // and the weight is half of what the reader measures as ink.
@@ -162,21 +198,115 @@ object SyntheticGrid {
         g.transform = old
     }
 
+    /**
+     * An answer, written rather than printed.
+     *
+     * Four things separate a hand from a press and all four are drawn: it is a different
+     * size in every square, it leans, it is not centred, and it is fainter because a pen
+     * leaves less on the paper than a press does. The wobble is a small rotation on top of
+     * the slant - a hand does not repeat itself, which is the whole basis of the rule that
+     * takes a rank of identical figures back from the handwriting.
+     */
+    private fun written(
+        g: Graphics2D,
+        digit: Char,
+        page: Page,
+        cell: Double,
+        centreX: Double,
+        centreY: Double,
+        grey: Int,
+        random: Random,
+    ) {
+        val hand = page.hand
+        val size = (cell * random.nextDouble(hand.size.start, hand.size.endInclusive)).roundToInt()
+        val font = Font(page.family, Font.PLAIN, size)
+        val text = digit.toString()
+        val metrics = g.getFontMetrics(font)
+        val bounds = metrics.getStringBounds(text, g)
+        val ascent = metrics.getLineMetrics(text, g).ascent.toDouble()
+
+        val old = g.transform
+        g.color = Color(grey, grey, grey)
+        g.font = font
+        val move = AffineTransform()
+        move.translate(
+            centreX + random.nextDouble(-cell * 0.06, cell * 0.06),
+            centreY + random.nextDouble(-cell * 0.05, cell * 0.05),
+        )
+        move.rotate(random.nextDouble(-hand.wobble, hand.wobble) * Math.PI / 180)
+        move.shear(random.nextDouble(hand.slant.start, hand.slant.endInclusive), 0.0)
+        g.transform(move)
+        g.drawString(text, (-bounds.width / 2).toFloat(), (ascent - bounds.height / 2).toFloat())
+        g.transform = old
+    }
+
+    /**
+     * Pencilled candidates: small, faint, and along the top of the square.
+     *
+     * Where they sit is the point. The reader tells a mark from an answer by height and by
+     * how much ink it carries, and marks are written above the middle of the cell in a
+     * pencil that leaves a fraction of what a pen does.
+     */
+    private fun pencilMarks(
+        g: Graphics2D,
+        page: Page,
+        cell: Double,
+        centreX: Double,
+        centreY: Double,
+        random: Random,
+    ) {
+        val grey = 255 - ((255 - page.pen) * 0.30).roundToInt()
+        val font = Font(page.family, Font.PLAIN, (cell * 0.26).roundToInt())
+        val how = 2 + random.nextInt(3)
+        val digits = (1..9).shuffled(random).take(how).sorted()
+        val step = cell * 0.20
+        val start = centreX - step * (how - 1) / 2.0
+        for ((i, digit) in digits.withIndex()) {
+            draw(g, '0' + digit, font, start + i * step, centreY - cell * 0.30, grey, 1.0)
+        }
+    }
+
+    /** A lamp off to one side, so no two squares share a background. */
+    private fun lit(pixels: ByteArray, strength: Double): ByteArray {
+        val out = ByteArray(pixels.size)
+        for (y in 0 until SIDE) {
+            for (x in 0 until SIDE) {
+                val across = (x + y) / (2.0 * SIDE)
+                val scale = 1.0 - strength * across
+                val value = (pixels[y * SIDE + x].toInt() and 0xFF) * scale
+                out[y * SIDE + x] = value.coerceIn(0.0, 255.0).roundToInt().toByte()
+            }
+        }
+        return out
+    }
+
     private fun blurred(pixels: ByteArray, radius: Double): ByteArray {
         val out = ByteArray(pixels.size)
         val r = radius.roundToInt().coerceAtLeast(1)
+        val wide = IntArray(pixels.size)
+        for (y in 0 until SIDE) {
+            for (x in 0 until SIDE) {
+                var total = 0
+                var count = 0
+                for (dx in -r..r) {
+                    val nx = x + dx
+                    if (nx in 0 until SIDE) {
+                        total += pixels[y * SIDE + nx].toInt() and 0xFF
+                        count++
+                    }
+                }
+                wide[y * SIDE + x] = total / count
+            }
+        }
         for (y in 0 until SIDE) {
             for (x in 0 until SIDE) {
                 var total = 0
                 var count = 0
                 for (dy in -r..r) {
-                    for (dx in -r..r) {
-                        val ny = y + dy
-                        val nx = x + dx
-                        if (ny in 0 until SIDE && nx in 0 until SIDE) {
-                            total += pixels[ny * SIDE + nx].toInt() and 0xFF
-                            count++
-                        }
+                    val ny = y + dy
+                    if (ny in 0 until SIDE) {
+                        total += wide[ny * SIDE + x]
+                        count++
                     }
                 }
                 out[y * SIDE + x] = (total / count).toByte()
