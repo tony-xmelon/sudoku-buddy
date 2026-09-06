@@ -36,8 +36,8 @@ class RecognitionAccuracyTest {
          * printed digits than any sudoku has. Sorting every page that way costs printed
          * digits on pages where nothing was wrong, and lost three of them outright.
          *
-         * What is left is 77 cells on twelve pages. The count is a ceiling rather than a
-         * target, and it has moved for four different reasons, which is worth separating.
+         * What is left is 62 cells on twelve pages. The count is a ceiling rather than a
+         * target, and it has moved for five different reasons, which is worth separating.
          *
          * It grew by pages joining: 94 on ten, 109 on eleven, 125 on twelve. Each time the
          * new cells were the new page's own and nothing that sorted correctly before
@@ -61,13 +61,17 @@ class RecognitionAccuracyTest {
          * And then fell from 110 to 77, which is the first time the collision itself has
          * given ground rather than the accounting changing. No new threshold: the two
          * populations are simply allowed to settle into the two clusters they lie in
-         * instead of being cut apart by a bar. See [GridReader.settle]. Being unable to solve a puzzle is no longer
+         * instead of being cut apart by a bar. See [GridReader.settle].
+         *
+         * And from 77 to 62, when the size floor stopped being the only way into the
+         * answer band: blur breaks a digit into pieces, and the biggest piece of a whole
+         * digit can measure a third of one. See [GridReader.INKY_ENOUGH_ANYWAY]. Being unable to solve a puzzle is no longer
          * treated as being unable to read one, and blue-3 - whose printed digits do not
          * make one puzzle - comes back as a grid to be questioned rather than as nothing
          * at all. It brings ten of these cells with it. Nothing that was counted before
          * moved.
          */
-        const val SAME_SIZE_HANDWRITING_MISSORTS = 77
+        const val SAME_SIZE_HANDWRITING_MISSORTS = 62
 
         /**
          * Printed digits misread on the one page whose ink is barely there.

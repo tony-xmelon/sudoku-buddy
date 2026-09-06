@@ -301,8 +301,8 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
             relative in PRINTED_MIN..PRINTED_MAX && blob.verticalOffset >= PRINTED_TOP_LIMIT &&
                 (!sortByInk || inkOf(blob, core) >= PRINT_INK) -> Ink.PRINTED
 
-            relative >= ANSWER_MIN && blob.verticalOffset >= ANSWER_TOP_LIMIT &&
-                !isPencilledMark(ink, core) ->
+            (relative >= ANSWER_MIN || inkOf(blob, core) >= INKY_ENOUGH_ANYWAY) &&
+                blob.verticalOffset >= ANSWER_TOP_LIMIT && !isPencilledMark(ink, core) ->
                 if (isResidue(ink)) Ink.MARK else Ink.ANSWER
 
             else -> Ink.MARK
@@ -524,6 +524,24 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
          * are pencil while answers sit centred and are pen.
          */
         private const val ANSWER_MIN = 0.80
+
+        /**
+         * Ink that makes a blob a digit whatever its size.
+         *
+         * The size floor above assumes a digit is drawn whole. Blur does not oblige: on a
+         * photograph of a screen taken out of focus the threshold breaks digits into
+         * pieces, and the largest piece of a 1.00-height digit measures 0.29 to 0.79 - so
+         * forty-eight of the fifty-three digits the triage was filing as pencil marks were
+         * lost to size alone, several of them carrying more ink than the print itself.
+         *
+         * A blob carrying this much ink is not a pencil mark whatever its size, and 0.25
+         * is where that stops being an opinion: genuine marks run to 0.255 at the
+         * ninetieth percentile, so this is the edge of their population rather than a
+         * number picked to fit. It is also exactly where the corpus turns - 0.30 leaves
+         * 1929 cells sorted and 0.25 leaves 1932, while 0.22 costs a cell on a page that
+         * is correct today.
+         */
+        private const val INKY_ENOUGH_ANYWAY = 0.25
 
         /**
          * How far above the centre of its cell a blob may sit and still be a digit.

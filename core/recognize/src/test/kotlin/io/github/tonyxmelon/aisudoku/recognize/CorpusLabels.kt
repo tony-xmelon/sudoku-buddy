@@ -23,7 +23,7 @@ object CorpusLabels {
      * Finding the printed digits first rested on their being the one population that
      * shares a font, a colour and a size. On these ten the reader wrote at the size of
      * the print, so the printed band swallowed the answers. Sorting them by ink as well
-     * as by size has taken the cost from 220 cells to 77 over the twelve; the cause and
+     * as by size has taken the cost from 220 cells to 62 over the twelve; the cause and
      * what is left are set out in [RecognitionAccuracyTest]. They are named here because
      * every test that walks the corpus meets them.
      *
@@ -57,7 +57,15 @@ object CorpusLabels {
      * One so far: an advertisement photographed off a phone screen, out of focus, its
      * digits light blue on white with a tan overlay across a corner. The grid is found
      * and straightened and most of the puzzle is read, and about thirty of its squares
-     * come back with no ink in them at all - not misread, not found.
+     * are still filed wrongly.
+     *
+     * The name is a half-truth and worth correcting rather than renaming: the ink is
+     * found. What blur does to this page is break each digit into pieces, so the largest
+     * piece of a full-height digit measures a third to three quarters of one, and the
+     * triage was filing them as pencil marks on size. Admitting anything inky enough
+     * regardless of size recovers a good part of that. What is left is that the pieces
+     * are pieces - too small to sit in the printed band, so a page of nothing but print
+     * has most of its digits offered as handwriting instead.
      *
      * It is kept because that is a failure worth having in front of us, and because the
      * app no longer needs a page to be perfect to be useful: what it reads goes to the
