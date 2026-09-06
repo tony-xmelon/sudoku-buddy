@@ -190,9 +190,9 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
      * the corpus the printed digits of a page spread by 0.011 to 0.047 and the handwriting
      * by 0.09 to 0.21, and the only handwriting tighter than that is two cells on a page
      * that has only two. So a group is taken back only if there are [ENOUGH_FOR_A_RANK] of
-     * them, they sit within [ONE_FIGURE_SPREAD] of each other, and they carry the print's
-     * own ink rather than a pen's - printed digits carry 0.98 of the core at the median
-     * against handwriting's 0.43.
+     * them, they sit within [ONE_FIGURE_SPREAD] of each other, and they are as dark as the
+     * print rather than as a pen - printed digits sit at 1.00 of their page's core contrast
+     * at the median against handwriting's 0.61.
      *
      * The last guard is the one that makes the rest safe: the rank is only taken back if
      * the page still comes out with a plausible number of givens. On a solved puzzle the
@@ -217,7 +217,7 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         val mean = heights.average()
         val spread = Math.sqrt(heights.sumOf { (it - mean) * (it - mean) } / heights.size)
         if (spread > ONE_FIGURE_SPREAD) return readings
-        if (median(blobs.map { inkOf(it, core) }) < RANK_INK) return readings
+        if (median(blobs.map { it.contrast / core.contrast }) < RANK_CONTRAST) return readings
 
         return readings.map { if (it.ink == Ink.ANSWER) it.copy(ink = Ink.PRINTED) else it }
     }
@@ -641,14 +641,21 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         private const val ONE_FIGURE_SPREAD = 0.03
 
         /**
-         * How much of the print's own ink a rank must carry to be print.
+         * How dark a rank must be, against the print of its own page, to be print.
          *
-         * Printed digits carry 0.98 of the core at the median, the tenth percentile 0.69;
-         * handwriting carries 0.43, its ninetieth percentile 0.72. This sits below the
-         * print's tenth percentile because a short figure is a thinner glyph - Georgia's 1
-         * carries about 0.75 - and the tightness test is what carries the separation.
+         * Contrast rather than [inkOf], and the difference matters. inkOf multiplies
+         * contrast by stroke width, and stroke width is mostly a fact about which digit it
+         * is: a 1 is thin because a 1 is thin. On a drawn old-style page the 1s carry 0.48
+         * of the core by that measure and the 2s 0.78, while a printed 7 on the same page
+         * carries 0.58 - so the measure was sorting glyphs, not pens.
+         *
+         * Contrast is about what made the mark. Across the corpus, printed digits sit at
+         * 1.00 of their page's core at the median and 0.77 at the fifth percentile;
+         * handwriting sits at 0.61 and reaches 0.75 only at its seventy-fifth. The pages
+         * where a hand does reach the print - the writer bearing down as hard as the press
+         * - are solved pages, where the count guard has already refused the rule.
          */
-        private const val RANK_INK = 0.60
+        private const val RANK_CONTRAST = 0.80
 
         private const val ENOUGH_TO_SETTLE = 20
 
