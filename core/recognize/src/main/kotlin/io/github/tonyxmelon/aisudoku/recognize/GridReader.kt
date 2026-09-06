@@ -223,6 +223,7 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         val spread = Math.sqrt(heights.sumOf { (it - mean) * (it - mean) } / heights.size)
         if (spread > ONE_FIGURE_SPREAD) return readings
 
+
         val taken = rank.mapTo(mutableSetOf()) { (reading, _) -> reading.index }
         return readings.map { if (it.index in taken) it.copy(ink = Ink.PRINTED) else it }
     }
@@ -418,6 +419,16 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
      */
     internal fun classify(ink: CellInk, core: PrintedCore, sortByInk: Boolean = false): Ink {
         val blob = ink.blob
+
+        // Something has to have been written here. Every other test below asks how big the
+        // ink is or where it sits, and none of them asks whether it is ink - so a smear of
+        // moire off a monitor, or what a rectification leaves of a grid line, is the height
+        // of a digit, sits where a digit sits, and is read as one. Photographing a page set
+        // in Georgia produced fourteen of them, every one read as a printed 1, each with a
+        // contrast against its own paper of about three grey levels where the digits on
+        // that page carry a hundred and thirty.
+        if (core.contrast > 0 && blob.contrast < core.contrast * REAL_INK) return Ink.MARK
+
         val relative = blob.heightRatio / core.height
         return when {
             relative in PRINTED_MIN..PRINTED_MAX && blob.verticalOffset >= PRINTED_TOP_LIMIT &&
@@ -611,6 +622,22 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         }
 
         /** Below this a blob is speckle or a mark, and never joins the printed search. */
+        /**
+         * How dark a blob must be, against the print of its own page, to be anything.
+         *
+         * Not a threshold between print and pen - that is [RANK_CONTRAST] and it sits far
+         * higher - but the line under which a blob is not a mark anybody made. The faintest
+         * genuine printed digit in the corpus carries 0.463 of its page's core and the
+         * faintest handwriting 0.34, so this clears both by a wide margin; the phantoms
+         * that prompted it carry 0.02 to 0.06.
+         *
+         * It has to be a fraction of the page rather than a number of grey levels, because
+         * the pages that need it most are the faint ones: the photograph of a screen has a
+         * core contrast of 34 where a newspaper has 150, and a fixed floor would either
+         * pass the noise there or throw away the digits.
+         */
+        private const val REAL_INK = 0.10
+
         private const val MARK_FLOOR = 0.25
 
         /** The proven minimum number of givens for a puzzle with one solution. */
