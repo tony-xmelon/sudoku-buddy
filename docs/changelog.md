@@ -8,6 +8,39 @@ by Firebase at 16,384 characters. It used to hold all of this, growing every rou
 one day it went over the limit and the upload failed after a full CI build had already
 run. Keep that file short and put the history here.
 
+THE CLASSIFIER IS BEING SHOWN FRAGMENTS, AND MENDING THEM MADE IT WORSE.
+A measurement that contradicted the pictures, kept because the pictures were mine.
+
+Tony looked at the sixty-three digits a held-out model reads wrongly and said most of
+them are plainly legible, so there is no reason for the model to fail them. He was
+looking at the squares. Rendering the same sixty-three as the classifier actually
+receives them - the twenty-eight by twenty-eight it is handed, not the cell - shows
+something else: a plus sign, a bare horizontal stroke, half a loop, the crossbar of a
+seven alone. The threshold breaks a digit, everything but the biggest piece is dropped,
+and that piece is stretched to fill the square as though it were the whole digit.
+
+So the picture was drawn from the largest piece and everything touching it, with every
+measurement left on the largest piece alone - the distinction that matters, because
+changing the measurements too had already cost the newsprint pages 57 wrong to 107 in an
+earlier attempt. The new pictures are plainly better: the bare stroke is a five, the half
+loops are eights and threes, the screen page's are all legible.
+
+And it reads 74 digits wrongly against 63. Held out page by page, handwriting falls from
+93.5% to 92.2%.
+
+Nearly all of the loss is one photograph. IMG20260830142203 goes from 4 wrong to 21,
+while every other page improves by six between them - the screen page alone by five.
+Tightening the reach from a twentieth of a cell to a hundred and fiftieth, about a pixel
+and a half, leaves that page at 15, so it is not neighbouring pencil marks being gathered
+up. Reverted at 63.
+
+What this is really about is worth keeping. A picture being legible to a person and being
+what this classifier was trained on are two different things: it learns from MNIST and
+from rendered fonts, which are clean single glyphs, and ink gathered back together brings
+the speckle around it too. Whatever mends the fragments has to leave them as clean as a
+fragment was.
+
+
 A DIGIT WRITTEN HIGH IN ITS SQUARE IS NOT A PENCIL MARK.
 Two more digits reach the screen, and the one that is genuinely misread is not the
 classifier's fault either.

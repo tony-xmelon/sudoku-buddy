@@ -115,6 +115,30 @@ object CellAnalyzer {
     private const val LINE_THICKNESS = 0.20
 
     /**
+     * Why the classifier is shown the largest piece of the ink and not all of it.
+     *
+     * It is shown a fragment more often than is comfortable. Rendering the sixty-three
+     * digits a held-out model reads wrongly, as the classifier receives them rather than
+     * as they appear in the square, shows what it is being asked: a plus sign, a bare
+     * horizontal stroke, half a loop, the crossbar of a seven on its own. The threshold
+     * breaks a digit and everything but the biggest piece is dropped, and the piece is then
+     * stretched to fill the twenty-eight square as though it were the whole digit. Every
+     * one of those cells is legible to a person.
+     *
+     * Drawing the picture from the largest piece and everything touching it fixes exactly
+     * that, and the pictures come out plainly better - and it is worse. Held out page by
+     * page it reads 74 digits wrongly against 63. Almost all of the loss is one photograph,
+     * IMG20260830142203, which goes from 4 wrong to 21 while every other page improves by
+     * six between them; tightening the reach from a twentieth of a cell to a hundred and
+     * fiftieth leaves it at 15, so it is not neighbouring pencil marks being swallowed.
+     *
+     * The lesson is not that the fragments are fine. It is that a picture being legible to
+     * a person and being what this classifier was trained on are different things: it
+     * learns from MNIST and from rendered fonts, which are clean single glyphs, and ink
+     * gathered back together brings the speckle around it too. Whatever fixes this has to
+     * make the whole digit *and* leave it as clean as a fragment was.
+     */
+    /**
      * The largest blob of every cell, already normalised for the classifier.
      *
      * What each blob *is* - print, an answer, or a candidate mark - is not decided here.
