@@ -146,14 +146,15 @@ object CellAnalyzer {
      */
     fun inspect(cells: List<GrayImage>): List<CellInk?> = cells.map { cell ->
         val gray = Mat(cell.height, cell.width, CvType.CV_8UC1).also { it.put(0, 0, cell.pixels) }
-        val blobs = findBlobs(gray, cell)
+        val ink = labelInk(gray)
+        val blobs = findBlobs(ink, cell)
         val largest = blobs.maxByOrNull { it.area } ?: return@map null
 
         val darkest = blobs.minOf { it.darkness }
 
         CellInk(
             blob = largest,
-            normalised = normalise(gray, largest, wholeGlyph(largest, blobs, cell), cell),
+            normalised = normalise(ink, largest, wholeGlyph(largest, blobs, cell), cell),
             outshoneBy = largest.darkness - darkest,
             company = blobs.count { it !== largest && it.heightRatio >= largest.heightRatio / 2 },
         )
@@ -209,11 +210,19 @@ object CellAnalyzer {
             apart(a.top, a.top + a.height, b.top, b.top + b.height) <= gap
     }
 
-    internal fun findBlobs(gray: Mat, cell: GrayImage): List<Blob> {
-        // The median of the cell is its paper: ink is the minority of any square, even a
-        // crowded one.
-        val paper = cell.pixels.map { it.toInt() and 0xFF }.sorted()[cell.pixels.size / 2]
+    /**
+     * The pieces of ink in a cell, each pixel labelled with the piece it belongs to.
+     *
+     * Built once per cell and handed to everything that needs it. It used to be built
+     * twice - identically, twenty lines at a time - because [normalise] needs the labels
+     * and was given only the grey image to work from, so it repeated the blur, the
+     * threshold, the opening and the labelling to get back what [findBlobs] had just
+     * thrown away. Two of the four are convolutions over every pixel of every one of
+     * eighty-one cells.
+     */
+    private class InkMask(val labels: Mat, val stats: Mat, val count: Int)
 
+    private fun labelInk(gray: Mat): InkMask {
         val grayF = Mat()
         gray.convertTo(grayF, CvType.CV_32F)
 
@@ -236,8 +245,21 @@ object CellAnalyzer {
 
         val labels = Mat()
         val stats = Mat()
-        val centroids = Mat()
-        val count = Imgproc.connectedComponentsWithStats(opened, labels, stats, centroids)
+        return InkMask(
+            labels, stats,
+            Imgproc.connectedComponentsWithStats(opened, labels, stats, Mat()),
+        )
+    }
+
+    internal fun findBlobs(gray: Mat, cell: GrayImage): List<Blob> = findBlobs(labelInk(gray), cell)
+
+    private fun findBlobs(ink: InkMask, cell: GrayImage): List<Blob> {
+        // The median of the cell is its paper: ink is the minority of any square, even a
+        // crowded one.
+        val paper = cell.pixels.map { it.toInt() and 0xFF }.sorted()[cell.pixels.size / 2]
+        val labels = ink.labels
+        val stats = ink.stats
+        val count = ink.count
 
         val out = mutableListOf<Blob>()
         for (label in 1 until count) {
@@ -304,24 +326,8 @@ object CellAnalyzer {
      * is tried again, the thing to beat is 45 on the reference augmentation, and the
      * comparison has to hold that augmentation fixed.
      */
-    private fun normalise(gray: Mat, blob: Blob, parts: Set<Int>, cell: GrayImage): FloatArray {
-        val grayF = Mat()
-        gray.convertTo(grayF, CvType.CV_32F)
-        val local = Mat()
-        Imgproc.blur(grayF, local, Size(LOCAL_WINDOW.toDouble(), LOCAL_WINDOW.toDouble()),
-            org.opencv.core.Point(-1.0, -1.0), Core.BORDER_REFLECT)
-        val threshold = Mat()
-        Core.subtract(local, org.opencv.core.Scalar(INK_MARGIN), threshold)
-        val mask = Mat()
-        Core.compare(grayF, threshold, mask, Core.CMP_LT)
-        val opened = Mat()
-        Imgproc.morphologyEx(
-            mask, opened, Imgproc.MORPH_OPEN,
-            Imgproc.getStructuringElement(Imgproc.MORPH_RECT, Size(2.0, 2.0)),
-        )
-        val labels = Mat()
-        val stats = Mat()
-        Imgproc.connectedComponentsWithStats(opened, labels, stats, Mat())
+    private fun normalise(ink: InkMask, blob: Blob, parts: Set<Int>, cell: GrayImage): FloatArray {
+        val labels = ink.labels
 
         var left = blob.left
         var top = blob.top
