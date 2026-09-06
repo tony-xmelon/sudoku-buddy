@@ -2,6 +2,7 @@ package io.github.tonyxmelon.aisudoku.app
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -256,29 +257,13 @@ internal fun BoxScope.TutorPanel(
                     )
 
                     if (open) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
+                        Stepping(
+                            at = at,
+                            last = last,
+                            steps = route.steps.size,
+                            onStep = ::stepBy,
                             modifier = Modifier.align(Alignment.Center),
-                        ) {
-                            // Swiping is quick and coarse; these land on one step exactly.
-                            IconButton(onClick = { stepBy(-1) }, enabled = at > 0) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                    contentDescription = "Previous step",
-                                )
-                            }
-                            Text(
-                                "$at / ${route.steps.size}",
-                                style = MaterialTheme.typography.labelLarge,
-                                maxLines = 1,
-                            )
-                            IconButton(onClick = { stepBy(1) }, enabled = at < last) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = "Next step",
-                                )
-                            }
-                        }
+                        )
                     }
                 }
             }
@@ -287,80 +272,127 @@ internal fun BoxScope.TutorPanel(
             // its chapters and the step's own text all cost a solve, and none of it can be
             // seen.
             if (heightPx > peekPx + 1f) {
-                // One line for what is being walked, what the colours mean, and how far
-                // through this run of the technique you are. The technique's name was
-                // being printed twice - once here and once in the key beside the colour of
-                // its own squares - and the key is the one that earns it.
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    TutorPicker(state, onChange, state.routeLength, Modifier)
-                    Legend(
-                        state.legend,
-                        modifier = Modifier.weight(1f),
-                        evidenceLabel = state.evidenceLabel,
-                    )
-                    ChapterCount(state.chapters, at - 1)
-                }
+                OpenPanel(
+                    state = state,
+                    onChange = onChange,
+                    at = at,
+                    scroll = scroll,
+                    asking = asking,
+                    onAsk = { asking = !asking },
+                    stepAt = stepAt,
+                    onStep = ::stepBy,
+                )
+            }
+        }
+    }
+}
 
-                // Minus one, because the strip is a picture of the route and the route
-                // starts at step one; step zero is the tutor talking about it.
-                ChapterStrip(state.chapters, at - 1) { onChange(state.stepTo(it + 1)) }
+/** Back and forward by exactly one step, for when swiping is too coarse. */
+@Composable
+private fun Stepping(at: Int, last: Int, steps: Int, onStep: (Int) -> Unit, modifier: Modifier) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
+        IconButton(onClick = { onStep(-1) }, enabled = at > 0) {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                contentDescription = "Previous step",
+            )
+        }
+        Text("$at / $steps", style = MaterialTheme.typography.labelLarge, maxLines = 1)
+        IconButton(onClick = { onStep(1) }, enabled = at < last) {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Next step",
+            )
+        }
+    }
+}
 
-                // Sideways for the next step, so the common move needs no button at all.
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f, fill = false)
-                        // A thread of a scrollbar, so it is visible that there is more
-                        // below without anything being spent on saying so.
-                        .drawWithContent {
-                            drawContent()
-                            if (scroll.maxValue > 0) {
-                                val track = size.height
-                                val thumb = (track * track / (track + scroll.maxValue))
-                                    .coerceAtLeast(24.dp.toPx())
-                                val width = 3.dp.toPx()
-                                drawRoundRect(
-                                    color = bar,
-                                    topLeft = Offset(
-                                        size.width - width,
-                                        (track - thumb) *
-                                            (scroll.value.toFloat() / scroll.maxValue),
-                                    ),
-                                    size = Size(width, thumb),
-                                    cornerRadius = CornerRadius(width / 2f),
-                                )
-                            }
+/**
+ * A thread of a scrollbar, so it is visible that there is more below without anything
+ * being spent on saying so.
+ */
+private fun Modifier.scrollThread(scroll: ScrollState, colour: Color) = drawWithContent {
+    drawContent()
+    if (scroll.maxValue <= 0) return@drawWithContent
+    val track = size.height
+    val thumb = (track * track / (track + scroll.maxValue)).coerceAtLeast(24.dp.toPx())
+    val width = 3.dp.toPx()
+    drawRoundRect(
+        color = colour,
+        topLeft = Offset(
+            size.width - width,
+            (track - thumb) * (scroll.value.toFloat() / scroll.maxValue),
+        ),
+        size = Size(width, thumb),
+        cornerRadius = CornerRadius(width / 2f),
+    )
+}
+
+/**
+ * The panel once it is open: what is being walked, how far through it you are, and the
+ * step itself.
+ *
+ * Built only when there is room to see it. The route, its chapters and the step's own text
+ * all cost a solve, and none of it can be seen while the panel rests.
+ */
+@Composable
+private fun ColumnScope.OpenPanel(
+    state: PuzzleState,
+    onChange: (PuzzleState) -> Unit,
+    at: Int,
+    scroll: ScrollState,
+    asking: Boolean,
+    onAsk: () -> Unit,
+    stepAt: Float,
+    onStep: (Int) -> Unit,
+) {
+    // One line for what is being walked, what the colours mean, and how far through this
+    // run of the technique you are. The technique's name was being printed twice - once
+    // here and once in the key beside the colour of its own squares - and the key is the
+    // one that earns it.
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        TutorPicker(state, onChange, state.routeLength, Modifier)
+        Legend(state.legend, modifier = Modifier.weight(1f), evidenceLabel = state.evidenceLabel)
+        ChapterCount(state.chapters, at - 1)
+    }
+
+    // Minus one, because the strip is a picture of the route and the route starts at step
+    // one; step zero is the tutor talking about it.
+    ChapterStrip(state.chapters, at - 1) { onChange(state.stepTo(it + 1)) }
+
+    // Sideways for the next step, so the common move needs no button at all.
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .weight(1f, fill = false)
+            .scrollThread(scroll, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
+            .verticalScroll(scroll)
+            .pointerInput(at, stepAt) {
+                var swiped = 0f
+                detectHorizontalDragGestures(
+                    onDragStart = { swiped = 0f },
+                    onDragEnd = {
+                        when {
+                            swiped < -stepAt -> onStep(1)
+                            swiped > stepAt -> onStep(-1)
                         }
-                        .verticalScroll(scroll)
-                        .pointerInput(at, last) {
-                            var swiped = 0f
-                            detectHorizontalDragGestures(
-                                onDragStart = { swiped = 0f },
-                                onDragEnd = {
-                                    when {
-                                        swiped < -stepAt -> stepBy(1)
-                                        swiped > stepAt -> stepBy(-1)
-                                    }
-                                },
-                            ) { _, amount -> swiped += amount }
-                        },
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Spacer(Modifier.height(2.dp))
-                    Lesson(state) {
-                        state.guidance?.howTo?.let { HowTo(asking) { asking = !asking } }
-                    }
+                    },
+                ) { _, amount -> swiped += amount }
+            },
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Spacer(Modifier.height(2.dp))
+        Lesson(state) {
+            state.guidance?.howTo?.let { HowTo(asking, onAsk) }
+        }
 
-                    if (asking) {
-                        state.guidance?.howTo?.let {
-                            Text(
-                                it,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
+        if (asking) {
+            state.guidance?.howTo?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }

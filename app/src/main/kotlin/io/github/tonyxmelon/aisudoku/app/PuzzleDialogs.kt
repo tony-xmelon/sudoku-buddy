@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import io.github.tonyxmelon.aisudoku.model.Cell
 import io.github.tonyxmelon.aisudoku.model.CellSource
 import io.github.tonyxmelon.aisudoku.solver.Techniques
 /*
@@ -167,48 +168,17 @@ internal fun CellEditor(state: PuzzleState, index: Int, onChange: (PuzzleState) 
             style = MaterialTheme.typography.titleMedium,
         )
         val report = state.reports?.getOrNull(index)
-        val corrected = state.reports != null && report == null
         Text(
-            when {
-                report != null -> report.describe()
-                corrected -> when {
-                    !cell.isFilled -> "You cleared this square."
-                    cell.source == CellSource.GIVEN -> "You set this to a printed ${cell.digit}."
-                    else -> "You set this to a handwritten ${cell.digit}."
-                }
-
-                !cell.isFilled -> "Empty."
-                cell.source == CellSource.GIVEN -> "A printed ${cell.digit}."
-                else -> "A handwritten ${cell.digit}."
-            },
+            describeCell(cell, report, corrected = state.reports != null && report == null),
             style = MaterialTheme.typography.bodyMedium,
         )
         report?.secondGuess()?.let {
             Text(it, style = MaterialTheme.typography.bodySmall)
         }
 
-        for (row in 0 until 3) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                for (column in 0 until 3) {
-                    val digit = row * 3 + column + 1
-                    val chosen = cell.digit == digit
-                    val press = {
-                        val source =
-                            if (cell.source == CellSource.EMPTY) CellSource.GUESS else cell.source
-                        onChange(state.withCell(index, digit, source).copy(selectedCell = null))
-                    }
-                    if (chosen) {
-                        Button(onClick = press, modifier = Modifier.weight(1f)) { Text("$digit") }
-                    } else {
-                        OutlinedButton(onClick = press, modifier = Modifier.weight(1f)) {
-                            Text("$digit")
-                        }
-                    }
-                }
-            }
+        Keypad(chosen = cell.digit) { digit ->
+            val source = if (cell.source == CellSource.EMPTY) CellSource.GUESS else cell.source
+            onChange(state.withCell(index, digit, source).copy(selectedCell = null))
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
@@ -222,10 +192,9 @@ internal fun CellEditor(state: PuzzleState, index: Int, onChange: (PuzzleState) 
             if (cell.isFilled) {
                 OutlinedButton(
                     onClick = {
-                        val flipped =
-                            if (cell.source == CellSource.GIVEN) CellSource.GUESS else CellSource.GIVEN
                         onChange(
-                            state.withCell(index, cell.digit, flipped).copy(selectedCell = null)
+                            state.withCell(index, cell.digit, flipped(cell.source))
+                                .copy(selectedCell = null)
                         )
                     },
                     modifier = Modifier.weight(1f),
@@ -247,6 +216,62 @@ internal fun CellEditor(state: PuzzleState, index: Int, onChange: (PuzzleState) 
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) { Text("That is right") }
+        }
+    }
+}
+
+/**
+ * What the square holds, in a sentence.
+ *
+ * Three cases and they are easy to confuse, which is why this is a function of its own
+ * rather than a `when` inside a layout: what the reader said about the square, what the
+ * user has since made of it, and - when there was never a reading at all - what is simply
+ * there. A square the user corrected has no report any more, and saying "Empty" about a
+ * square somebody had just cleared read as though the correction had not taken.
+ */
+internal fun describeCell(cell: Cell, report: CellReport?, corrected: Boolean): String = when {
+    report != null -> report.describe()
+
+    corrected -> when {
+        !cell.isFilled -> "You cleared this square."
+        cell.source == CellSource.GIVEN -> "You set this to a printed ${cell.digit}."
+        else -> "You set this to a handwritten ${cell.digit}."
+    }
+
+    !cell.isFilled -> "Empty."
+    cell.source == CellSource.GIVEN -> "A printed ${cell.digit}."
+    else -> "A handwritten ${cell.digit}."
+}
+
+/** Printed becomes handwritten and back, which is the only pair there is to swap between. */
+internal fun flipped(source: CellSource): CellSource =
+    if (source == CellSource.GIVEN) CellSource.GUESS else CellSource.GIVEN
+
+/**
+ * The digits, in the shape of the thing being chosen.
+ *
+ * Three by three rather than a flat row of nine: the first version put nine buttons and
+ * four more in flat rows at the bottom of a scrolling page, where the last of them wrapped
+ * one letter per line.
+ */
+@Composable
+private fun Keypad(chosen: Int?, onPick: (Int) -> Unit) {
+    for (row in 0 until 3) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            for (column in 0 until 3) {
+                val digit = row * 3 + column + 1
+                val press = { onPick(digit) }
+                if (digit == chosen) {
+                    Button(onClick = press, modifier = Modifier.weight(1f)) { Text("$digit") }
+                } else {
+                    OutlinedButton(onClick = press, modifier = Modifier.weight(1f)) {
+                        Text("$digit")
+                    }
+                }
+            }
         }
     }
 }
