@@ -1,4 +1,4 @@
-Thirteen things this build does that the last one would not.
+Fourteen things this build does that the last one would not.
 
 A PAGE YOU FILLED IN AT THE SIZE OF THE PRINT NOW SCANS
 
@@ -195,6 +195,20 @@ A pencilled note is faint. So anything carrying half as much ink as the printed
 digits is now allowed to sit as high as the print does, and only fainter ink is held
 to the old line. Two more digits reach the screen, and nothing that was right before
 has changed.
+
+IT READS THE WHOLE DIGIT NOW, NOT THE BIGGEST PIECE OF IT
+
+When the app separates ink from paper it sometimes breaks a digit into pieces - on
+newsprint, out of focus, or where the pen was light. It was keeping only the largest
+piece and then blowing it up to full size, so what it tried to recognise was often a
+single stroke or half a loop rather than a digit.
+
+It now puts the pieces back together, but only pieces written in the same ink. That
+matters on your pages: where you have rubbed a digit out and written over it, the
+ghost of the old one is still faintly there, and sweeping it up with the new one was
+worse than the original fault.
+
+Measured on photos the reader has never seen, wrong digits fall from 63 to 45.
 
 THE READER
 

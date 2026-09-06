@@ -8,6 +8,34 @@ by Firebase at 16,384 characters. It used to hold all of this, growing every rou
 one day it went over the limit and the upload failed after a full CI build had already
 run. Keep that file short and put the history here.
 
+MENDING THE FRAGMENTS, THIS TIME WITHOUT THE ERASURES.
+63 digits wrong on unseen pages to 45, and the entry below it is now half wrong.
+
+The finding below stands: the classifier was being handed fragments - a plus sign, a
+bare horizontal stroke, half a loop - because only the largest piece of ink in a square
+survives and is then stretched to fill the picture. What was wrong was the conclusion
+that gathering the pieces cannot be made to work.
+
+It failed on one photograph, and looking at that photograph says why. It is covered in
+erased pencil: rubbed-out digits still faintly there, touching and sometimes overlapping
+the answers written over them. Gathering by nearness gathers the ghost, and tightening
+the reach to a pixel and a half does not help because the ghost is not further away. It
+is fainter.
+
+So a piece joins the glyph only if it carries eighty per cent of the main piece's
+contrast. A broken stroke is the same pen; a ghost is not. Held out page by page:
+
+  63 digits wrong to 45, handwriting 93.5% to 95.5%
+
+The erasure page improves from 4 wrong to 3 - better than it was before any of this -
+and no page is worse by more than one. The screen photograph, worst in the corpus, goes
+from 14 to 8; newsprint-red-3 from 7 to 3; red-mistakes from 2 to none.
+
+The measurement that mattered was Tony's, and it was not a number: he looked at the
+sixty-three failing squares and said they are plainly readable, so there is no reason
+for the model to fail them. There was not. The model was never being shown them.
+
+
 THE CLASSIFIER IS BEING SHOWN FRAGMENTS, AND MENDING THEM MADE IT WORSE.
 A measurement that contradicted the pictures, kept because the pictures were mine.
 

@@ -115,28 +115,28 @@ object CellAnalyzer {
     private const val LINE_THICKNESS = 0.20
 
     /**
-     * Why the classifier is shown the largest piece of the ink and not all of it.
+     * Why the picture the classifier is shown is gathered, and why only from the same pen.
      *
-     * It is shown a fragment more often than is comfortable. Rendering the sixty-three
-     * digits a held-out model reads wrongly, as the classifier receives them rather than
-     * as they appear in the square, shows what it is being asked: a plus sign, a bare
-     * horizontal stroke, half a loop, the crossbar of a seven on its own. The threshold
-     * breaks a digit and everything but the biggest piece is dropped, and the piece is then
-     * stretched to fill the twenty-eight square as though it were the whole digit. Every
-     * one of those cells is legible to a person.
+     * It used to be shown a fragment, far more often than was comfortable. Rendering the
+     * sixty-three digits a held-out model read wrongly - as the classifier receives them
+     * rather than as they appear in the square - showed what it was being asked: a plus
+     * sign, a bare horizontal stroke, half a loop, the crossbar of a seven on its own. The
+     * threshold breaks a digit, everything but the biggest piece is dropped, and that piece
+     * is stretched to fill the twenty-eight square as though it were the whole digit. Every
+     * one of those cells is legible to a person, which is how the fault came to light.
      *
-     * Drawing the picture from the largest piece and everything touching it fixes exactly
-     * that, and the pictures come out plainly better - and it is worse. Held out page by
-     * page it reads 74 digits wrongly against 63. Almost all of the loss is one photograph,
-     * IMG20260830142203, which goes from 4 wrong to 21 while every other page improves by
-     * six between them; tightening the reach from a twentieth of a cell to a hundred and
-     * fiftieth leaves it at 15, so it is not neighbouring pencil marks being swallowed.
+     * Gathering the largest piece and everything touching it was the obvious repair and it
+     * was worse: 74 wrong against 63, almost all of it one photograph that went from 4 to
+     * 21. That page is covered in erased pencil - rubbed-out digits still faintly there,
+     * touching and sometimes overlapping the answers written over them - so gathering by
+     * nearness gathers the ghost. Tightening the reach to a pixel and a half did not help,
+     * because the ghost is not further away. It is fainter.
      *
-     * The lesson is not that the fragments are fine. It is that a picture being legible to
-     * a person and being what this classifier was trained on are different things: it
-     * learns from MNIST and from rendered fonts, which are clean single glyphs, and ink
-     * gathered back together brings the speckle around it too. Whatever fixes this has to
-     * make the whole digit *and* leave it as clean as a fragment was.
+     * Which is the whole of it: a broken stroke is the same pen and a ghost is not. A piece
+     * joins the glyph only if it carries [SAME_INK_FRACTION] of the main piece's contrast,
+     * and the erasures fall out on their own. Held out page by page that is 45 wrong
+     * against 63, handwriting from 93.5% to 95.5%, with the erasure page itself improving
+     * from 4 to 3 and no page worse by more than one.
      */
     /**
      * The largest blob of every cell, already normalised for the classifier.
@@ -153,10 +153,60 @@ object CellAnalyzer {
 
         CellInk(
             blob = largest,
-            normalised = normalise(gray, largest, cell),
+            normalised = normalise(gray, largest, wholeGlyph(largest, blobs, cell), cell),
             outshoneBy = largest.darkness - darkest,
             company = blobs.count { it !== largest && it.heightRatio >= largest.heightRatio / 2 },
         )
+    }
+
+    /** How close another piece must be to be part of the same digit, in cell heights. */
+    private const val SAME_GLYPH_GAP = 0.05
+
+    /**
+     * How much of the main piece's contrast another piece must carry to be the same pen.
+     *
+     * Swept over the three photographs that show both directions - the erasure page that
+     * plain gathering wrecked, and the two that gained most: 0.40 leaves 22 of them wrong,
+     * 0.60 leaves 21, 0.80 leaves 14, 0.85 leaves 15, 0.90 leaves 16, and 0.95 drifts back
+     * to 19 as it stops gathering anything at all, which is the check that the two ends
+     * behave as they should. Confirmed over the whole corpus at 0.80.
+     */
+    private const val SAME_INK_FRACTION = 0.80
+
+    /**
+     * Every piece of the digit, for the picture the classifier is shown.
+     *
+     * The measurements stay on the largest piece. Only the picture is gathered, because
+     * changing both was tried and cost the newsprint pages 57 wrong to 107.
+     */
+    private fun wholeGlyph(largest: Blob, blobs: List<Blob>, cell: GrayImage): Set<Int> {
+        if (blobs.size == 1) return setOf(largest.maskLabel)
+        val gap = SAME_GLYPH_GAP * cell.height
+        val floor = largest.contrast * SAME_INK_FRACTION
+        val taken = mutableListOf(largest)
+        var grew = true
+        while (grew) {
+            grew = false
+            for (piece in blobs) {
+                if (taken.any { it.maskLabel == piece.maskLabel }) continue
+                if (piece.contrast < floor) continue
+                if (taken.none { near(it, piece, gap) }) continue
+                val merged = taken + piece
+                val width = merged.maxOf { it.left + it.width } - merged.minOf { it.left }
+                val height = merged.maxOf { it.top + it.height } - merged.minOf { it.top }
+                if (width > height) continue
+                taken += piece
+                grew = true
+            }
+        }
+        return taken.map { it.maskLabel }.toSet()
+    }
+
+    private fun near(a: Blob, b: Blob, gap: Double): Boolean {
+        fun apart(lowA: Int, highA: Int, lowB: Int, highB: Int) =
+            maxOf(0, maxOf(lowA, lowB) - minOf(highA, highB))
+        return apart(a.left, a.left + a.width, b.left, b.left + b.width) <= gap &&
+            apart(a.top, a.top + a.height, b.top, b.top + b.height) <= gap
     }
 
     internal fun findBlobs(gray: Mat, cell: GrayImage): List<Blob> {
@@ -239,7 +289,7 @@ object CellAnalyzer {
      * The MNIST convention: the digit scaled so its longest side is 20 pixels, then
      * centred by mass in a 28x28 box. Matching this matters more than the model does.
      */
-    private fun normalise(gray: Mat, blob: Blob, cell: GrayImage): FloatArray {
+    private fun normalise(gray: Mat, blob: Blob, parts: Set<Int>, cell: GrayImage): FloatArray {
         val grayF = Mat()
         gray.convertTo(grayF, CvType.CV_32F)
         val local = Mat()
@@ -258,18 +308,33 @@ object CellAnalyzer {
         val stats = Mat()
         Imgproc.connectedComponentsWithStats(opened, labels, stats, Mat())
 
-        val ink = Mat.zeros(blob.height, blob.width, CvType.CV_32F)
-        for (y in 0 until blob.height) {
-            for (x in 0 until blob.width) {
-                if (labels.get(blob.top + y, blob.left + x)[0].toInt() == blob.maskLabel) {
-                    ink.put(y, x, 1.0)
+        var left = blob.left
+        var top = blob.top
+        var right = blob.left + blob.width
+        var bottom = blob.top + blob.height
+        for (y in 0 until cell.height) {
+            for (x in 0 until cell.width) {
+                if (labels.get(y, x)[0].toInt() in parts) {
+                    if (x < left) left = x
+                    if (y < top) top = y
+                    if (x + 1 > right) right = x + 1
+                    if (y + 1 > bottom) bottom = y + 1
                 }
             }
         }
+        val width = right - left
+        val height = bottom - top
 
-        val scale = 20.0 / maxOf(blob.width, blob.height)
-        val newWidth = maxOf(1, Math.round(blob.width * scale).toInt())
-        val newHeight = maxOf(1, Math.round(blob.height * scale).toInt())
+        val ink = Mat.zeros(height, width, CvType.CV_32F)
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                if (labels.get(top + y, left + x)[0].toInt() in parts) ink.put(y, x, 1.0)
+            }
+        }
+
+        val scale = 20.0 / maxOf(width, height)
+        val newWidth = maxOf(1, Math.round(width * scale).toInt())
+        val newHeight = maxOf(1, Math.round(height * scale).toInt())
         val small = Mat()
         // INTER_AREA, not INTER_LINEAR. A cell is around ninety pixels across and this
         // shrinks it to twenty, and at that reduction INTER_LINEAR is the wrong operation:
@@ -302,13 +367,13 @@ object CellAnalyzer {
         val centreY = if (mass > 0) massY / mass else newHeight / 2.0
         val centreX = if (mass > 0) massX / mass else newWidth / 2.0
 
-        val top = Math.round(14 - centreY).toInt().coerceIn(0, 28 - newHeight)
-        val left = Math.round(14 - centreX).toInt().coerceIn(0, 28 - newWidth)
+        val restY = Math.round(14 - centreY).toInt().coerceIn(0, 28 - newHeight)
+        val restX = Math.round(14 - centreX).toInt().coerceIn(0, 28 - newWidth)
 
         val out = FloatArray(28 * 28)
         for (y in 0 until newHeight) {
             for (x in 0 until newWidth) {
-                out[(top + y) * 28 + (left + x)] = buffer[y * newWidth + x]
+                out[(restY + y) * 28 + (restX + x)] = buffer[y * newWidth + x]
             }
         }
         return out
