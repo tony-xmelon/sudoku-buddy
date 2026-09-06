@@ -28,14 +28,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import io.github.tonyxmelon.aisudoku.vision.OpenCvNatives
@@ -102,6 +105,25 @@ private fun AppRoot() {
     var entryId by remember { mutableStateOf<Long?>(null) }
 
     val drawer = rememberDrawerState(DrawerValue.Closed)
+
+    // A drawer that was shut must stay shut when the phone is turned.
+    //
+    // It did not. Turning the phone from portrait to landscape opened the drawer on its
+    // own, over whatever was on screen, and only in that direction - which is what gives
+    // it away. The drawer is anchored in pixels: shut sits at minus its own width, about
+    // -907 on this screen. Widen the screen and shut becomes about -2026 while the offset
+    // stays where it was, so the nearest anchor is no longer the one it is resting on, and
+    // it settles open. Going the other way the offset is beyond shut and clamps to it,
+    // which is why turning back was always harmless.
+    //
+    // So the value is put back after every width change. What the drawer was doing before
+    // the change is tracked rather than assumed, because an open drawer should stay open.
+    val wide = LocalConfiguration.current.screenWidthDp
+    val wanted = remember { mutableStateOf(DrawerValue.Closed) }
+    LaunchedEffect(wide) {
+        drawer.snapTo(wanted.value)
+        snapshotFlow { drawer.currentValue }.collect { wanted.value = it }
+    }
 
     fun closeDrawer() {
         scope.launch { drawer.close() }

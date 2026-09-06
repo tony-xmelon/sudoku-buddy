@@ -60,6 +60,20 @@ android {
     }
 
     buildTypes {
+        /**
+         * Installed beside the distributed build rather than over it.
+         *
+         * A debug build cannot replace a release one anyway - the signature differs, so
+         * Android refuses the update - and the only way to force it is to uninstall,
+         * which takes every puzzle, photograph and setting with it. That is too high a
+         * price for looking at a layout, and it is a price that gets paid by whoever
+         * happens to have the phone. Its own id means both can sit on the same device.
+         */
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+
         release {
             isMinifyEnabled = false
             signingConfig = signingConfigs.findByName("release")
