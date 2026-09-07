@@ -1,0 +1,26 @@
+{
+  "photo": "aisudoku-2026-09-07-newsprint-mepham-marker.jpg",
+  "givens": [
+    ".9.......",
+    "184..5..9",
+    "..6...2..",
+    ".5.4.8...",
+    ".63.1.98.",
+    "...6.7.2.",
+    "..8...5..",
+    "6..7..431",
+    ".......9."
+  ],
+  "written": [
+    "592876143",
+    "184325769",
+    "376941258",
+    "259438617",
+    "763512984",
+    "841697325",
+    "938164572",
+    "625789431",
+    "417253896"
+  ],
+  "notes": "A syndicated newspaper sudoku, finished in black marker by a second reader - the first hand in this corpus that is not the one who filled the twelve newsprint pages. Twenty-seven printed clues, all fifty-four squares answered, and pencilled candidates left standing in the corners of most of them, one to three digits high above the answer.\n\nThe page is a harder scene than any photograph here so far. There are two grids on it: the puzzle, and last week's solution printed underneath at about half the size, wholly filled with print. Above the puzzle is a masthead in outlined display type and a row of four boxed level markers, each a small digit in a box, which is nine squares of something that is not a sudoku. Anything that finds a grid here has to choose the right one.\n\nThe split between print and hand was the part worth checking twice, and the first attempt got it wrong. Read off the page it came to thirty-five clues, and the puzzle still solved uniquely, because adding a clue to a puzzle that has one answer leaves it with one answer - so the arithmetic could not catch it. What caught it was cropping every cell called printed and looking at them side by side: eight were plainly marker against the even, halftone-dotted newsprint, including a bare vertical stroke for a 1 where the printed 1 on this page carries a flag. At twenty-seven the puzzle still has exactly one solution and it equals the completed grid, which is the check that does bite - dropping a genuine clue would usually cost uniqueness.\n\nCopyright the Mepham Group, distributed by Tribune Content Agency, dated 1/7/24. Like every photograph here it stays on this machine; only this label is committed."
+}

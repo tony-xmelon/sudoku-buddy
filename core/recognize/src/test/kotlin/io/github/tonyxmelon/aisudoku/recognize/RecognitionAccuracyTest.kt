@@ -121,6 +121,10 @@ class RecognitionAccuracyTest {
                 is ReadResult.Unreadable -> null
             } ?: continue
 
+            // A page whose grid the reader picked wrongly cannot say anything about how it
+            // reads. See [CorpusLabels.twoGridsOnThePage].
+            if (file.name in CorpusLabels.twoGridsOnThePage) continue
+
             for (i in 0 until 81) {
                 total++
                 val expected = truth[i].source
@@ -176,6 +180,9 @@ class RecognitionAccuracyTest {
         for (file in CorpusFixtures.photos) {
             val truth = CorpusLabels.forPhoto(file.name) ?: continue
             val verdict = assertIs<GateVerdict.Usable>(StructuralGate.assess(CorpusFixtures.load(file)))
+            // The reader picked the other grid on this page; see [CorpusLabels.twoGridsOnThePage].
+            if (file.name in CorpusLabels.twoGridsOnThePage) continue
+
             CellAnalyzer.inspect(verdict.cells).forEachIndexed { index, ink ->
                 val expected = truth[index].digit ?: return@forEachIndexed
                 val probabilities = classifier.classify((ink ?: return@forEachIndexed).normalised)

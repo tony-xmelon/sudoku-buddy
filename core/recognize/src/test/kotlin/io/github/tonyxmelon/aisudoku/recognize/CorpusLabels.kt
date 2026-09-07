@@ -75,6 +75,30 @@ object CorpusLabels {
      * offered as answers rather than print. Every digit is present and right; they are
      * editable where they should be fixed, which is the mildest form this fault takes.
      */
+    /**
+     * Pages carrying more than one grid, where the reader takes the wrong one.
+     *
+     * A syndicated newspaper puzzle prints last week's solution underneath this week's
+     * puzzle, at about half the size and filled entirely with print. Asked to find a grid,
+     * the reader finds that one: the locator keeps the highest-scoring square it can see,
+     * and the solution grid scores better because nothing crosses its rules, where the
+     * puzzle has a marker answer in every square and pencilled candidates in the corners.
+     *
+     * So the cells that come back are a different grid from the one the label describes,
+     * and scoring them against it says nothing about reading. The page is excluded from the
+     * tallies until the locator chooses between grids rather than merely finding one, and
+     * it is kept because it is the only page here that poses the question. The label is of
+     * the puzzle, which is what a person photographing this page means.
+     *
+     * The fix is not a threshold. Both grids are grids and both score well; what decides
+     * between them is that a person points a camera at the puzzle they are solving, so the
+     * one they mean is the larger in the frame. That is a change to how candidates are
+     * ranked and wants measuring against every page here, which is a job of its own.
+     */
+    val twoGridsOnThePage = setOf(
+        "aisudoku-2026-09-07-newsprint-mepham-marker.jpg",
+    )
+
     val faintOnScreen = setOf(
         "aisudoku-2026-09-05-screen-ambiguous.jpg",
     )
