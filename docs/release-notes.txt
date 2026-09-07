@@ -1,35 +1,36 @@
-Two things this build does that the last one would not.
+One thing this build does that the last one would not.
 
-A NEWSPAPER PAGE THAT PRINTS LAST WEEK'S ANSWER NOW READS THE PUZZLE
+PENCILLED NOTES ARE NO LONGER READ AS ANSWERS
 
-Photograph a syndicated newspaper sudoku and you usually photograph two grids:
-this week's puzzle, and last week's solution printed underneath it at about half
-the size. The app read the solution.
+Photograph a puzzle booklet part way through and you photograph two kinds of
+pencil: the answers, and the little lists of candidates squeezed into the squares
+you have not settled yet. The app read some of the lists as answers, and a wrong
+answer in a square is worse than no answer at all - it is a digit you did not
+write, in a puzzle you now have to correct by hand.
 
-It had a reason. Faced with more than one grid it kept the best one, and the
-solution grid is the better grid by every measure it had: it is filled with clean
-print and nothing crosses its rules, where the puzzle you are solving has an
-answer written in every square and pencilled candidates in the corners. Measured
-on such a page the solution scored 0.875 and the puzzle 0.681, so the app
-straightened the wrong one and read out last week's answers.
+It had a reason. A candidate mark is normally faint and normally sits along the
+top of its square, and either of those gives it away. But a list written firmly
+into a cramped square is neither: it is pressed nearly as hard as an answer, it
+goes wherever there is room, and where one figure touches its neighbour the pair
+measures two thirds the height of a printed digit, which is tall enough to pass
+for something written.
 
-It now keeps the biggest grid rather than the best one, among those that are
-clearly grids at all. Size is the one thing that says what you meant: you pointed
-the camera at the puzzle you are solving, so the one you meant is the one filling
-the frame. Nothing merely large can win this way - the app asks a grid for the
-twenty rules a grid must have, and the border of a page or the edge of a table has
-none of them and scores zero.
+Nothing about such a mark on its own says what it is. What says so is the rest of
+the page. Where your handwriting is plainly bigger than the print - which is what
+a booklet gets, a small printed face in a large square - that hand has no small
+figures in it, and something at two thirds the height of the print did not come
+from it. So the page is now asked where its own handwriting lies, and anything far
+below that is put back to being a note.
 
-MORE GRIDS ARE FOUND WHEN ONE RULE IS MISSING
+The same measure was going wrong in the other direction and is fixed with it. A
+printed clue with a stray pencil stroke fused to it, or a clue somebody has drawn
+a ring round, measures too tall to be print and was offered as an answer. Its size
+really is wrong and no size rule can save it; what is still right about it is the
+ink, because a press lays down more than a pencil can and a stray stroke is not
+heavy enough to dilute that. Those clues are given back to the press.
 
-The app already forgave a single missing rule, on the sensible ground that a rule
-nobody can see is still where the grid says it is - a thumb over a corner, a
-highlight across a screen. But it only forgave it when the grid had been found by
-tracing its outline, and not when the grid had been found by its cells instead,
-which is what happens whenever the border is too faint or too broken to trace.
-
-That was the wrong way round if anything: a grid found by its cells is fitted to
-scores of them and knows where its edges are rather better than a traced outline
-does. Both now get the same allowance. A puzzle with a hairline border, whose
-bottom rule fell a shade outside what the app had fitted, went from being refused
-outright to being read.
+Four photographs of one booklet page, taken over three hours as it was solved,
+found all of this. Every printed clue on all four is read, every answer on all
+four is read, and one square out of three hundred and twenty-four is still sorted
+wrongly - a note written so large and so firmly, over the grey of two rubbed-out
+marks, that only its colour would tell you.

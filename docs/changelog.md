@@ -8,6 +8,62 @@ by Firebase at 16,384 characters. It used to hold all of this, growing every rou
 one day it went over the limit and the upload failed after a full CI build had already
 run. Keep that file short and put the history here.
 
+A BOOKLET SOLVED IN PENCIL, AND THE ONE WAY IT WENT WRONG.
+Four photographs of one page of a puzzle booklet, taken over about three hours as
+it was solved. A second hand, a second phone, and the first pages here that
+arrived through a messaging app rather than off a camera - cropped square to the
+grid, recompressed, EXIF stripped. The twenty-four clues have one solution and
+every written figure across all four agrees with it, so they are one puzzle at
+four depths: six, thirteen, twenty-four and twenty-five answers.
+
+Everything that might have been expected to fail did not. All four are located and
+straightened, all ninety-six printed clues are read, all sixty-eight answers are
+read, and the misread list is unchanged to the letter - the classifier had never
+seen this hand and did not care. That is also why nothing was retrained: there was
+no evidence to retrain on.
+
+What they brought was one new way to be wrong, nine times and in one direction. A
+candidate list pressed firmly into a cramped square is not faint enough for the
+ink test nor far enough up the square for the position test, and where one figure
+fuses to its neighbour it measures two thirds of a printed digit, which clears the
+floor an answer has to clear.
+
+Nothing about such a mark on its own says it is one; the rest of the page says it.
+The corpus splits cleanly on where a page's handwriting sits: pages where hand and
+press are the same size have a median answer of 1.00 to 1.18 of the printed
+height, and pages where the hand is plainly larger run 1.42 to 1.59, with nothing
+between. So the page is asked where its own handwriting lies and everything far
+below that is put back. Both thresholds sit mid-plateau rather than on an edge:
+0.60 through 0.70 takes the same nine cells and costs nothing, and 0.75 begins to
+cost real answers.
+
+The same measure goes wrong the other way and is fixed with it. A printed digit
+with a pencil stroke fused to it, or a red ring drawn round it to teach something,
+is too tall for the printed band and is offered as an answer; what is still right
+about it is the ink. Over the eleven pages with a large hand the whole of the
+handwriting carries at most 0.73 of the print's ink and the two fused givens carry
+0.78 and 0.82, so the line goes between them. That is a narrower margin than the
+rest of this class and is confined to those pages for that reason.
+
+Triage went 2487 to 2498 of 2592, with printed 851/851 and handwriting 895/904
+unmoved. Both changes were swept over the whole corpus before either was written,
+and both took exactly what the sweep said and nothing else.
+
+Three candidates were measured and refused. Aspect ratio separates nothing - real
+clues are as wide, where digits have fused or the page is a screen. A tighter
+vertical limit for print has real clues straddling the target. An ink floor for
+print has a clean plateau but only a 0.30 to 0.34 margin, thinner than anything
+else the reader decides on, and the cell it saves is still wrong afterwards.
+
+One cell is left, and is recorded as one cell rather than by exempting its page,
+so the other eighty stay scored: a "19" written large and firmly across the top of
+a square over the grey of two rubbed-out marks. It is worth a fifth photograph of
+that page before it is worth a threshold.
+
+The drawn grid gained a hand plainly larger than its press, and firm candidate
+lists to go under it, so the rule is guarded on CI where no photograph goes.
+Checked by mutation: with the rule switched off the new test fails.
+
 SEVEN PAGES ON A MONITOR, AND THREE FAULTS THEY FOUND.
 Two of them were assumptions nobody had questioned, and one was a bug older than
 the corpus.
