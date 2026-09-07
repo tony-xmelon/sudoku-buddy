@@ -48,3 +48,4 @@ feedback/
 *.jks
 *.keystore
 corpus-rectified/*.jpg
+corpus-illustrated/

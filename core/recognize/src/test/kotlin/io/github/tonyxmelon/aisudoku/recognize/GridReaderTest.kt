@@ -116,9 +116,6 @@ class GridReaderTest {
             // is kept in the corpus as a page the app now gets a grid from and reads most
             // of, which is the point of it. See [CorpusLabels.faintOnScreen].
             if (file.name in CorpusLabels.faintOnScreen) continue
-            // The reader picked the other grid on this page, so its cells are not the ones
-            // the label describes. See [CorpusLabels.twoGridsOnThePage].
-            if (file.name in CorpusLabels.twoGridsOnThePage) continue
             for (i in 0 until 81) {
                 if (truth[i].source != CorpusLabels.Source.GIVEN) continue
                 assertTrue(

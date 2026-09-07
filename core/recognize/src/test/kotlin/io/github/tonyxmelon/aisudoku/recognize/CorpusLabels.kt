@@ -32,9 +32,13 @@ object CorpusLabels {
      * keep: the tally [RecognitionAccuracyTest] prints for them is measured on every run
      * rather than quoted here, because it moves whenever the model is retrained.
      *
-     * All twelve came from the same reader, which is worth saying plainly: this is one
-     * person's handwriting, not a law about newsprint. What it establishes is that the
-     * size assumption fails for at least one real hand, which is enough.
+     * Twelve of the thirteen came from the same reader, which is worth saying plainly:
+     * that much is one person's handwriting, not a law about newsprint. The thirteenth is
+     * a second hand and it settles the question the other twelve could not - a syndicated
+     * newspaper puzzle finished in black marker by somebody else, with pencilled
+     * candidates left in the corners. Seven of its eighty-one squares are sorted wrongly,
+     * five of them printed digits taken for answers, which is the same failure in the same
+     * direction. The size assumption fails for at least two real hands.
      */
     val sameSizeHandwriting = setOf(
         "aisudoku-2026-09-04-newsprint-blue-1.jpg",
@@ -49,6 +53,7 @@ object CorpusLabels {
         "aisudoku-2026-09-04-newsprint-partial.jpg",
         "aisudoku-2026-09-04-newsprint-welded-border.jpg",
         "aisudoku-2026-09-04-newsprint-curled.jpg",
+        "aisudoku-2026-09-07-newsprint-mepham-marker.jpg",
     )
 
     /**
@@ -75,30 +80,6 @@ object CorpusLabels {
      * offered as answers rather than print. Every digit is present and right; they are
      * editable where they should be fixed, which is the mildest form this fault takes.
      */
-    /**
-     * Pages carrying more than one grid, where the reader takes the wrong one.
-     *
-     * A syndicated newspaper puzzle prints last week's solution underneath this week's
-     * puzzle, at about half the size and filled entirely with print. Asked to find a grid,
-     * the reader finds that one: the locator keeps the highest-scoring square it can see,
-     * and the solution grid scores better because nothing crosses its rules, where the
-     * puzzle has a marker answer in every square and pencilled candidates in the corners.
-     *
-     * So the cells that come back are a different grid from the one the label describes,
-     * and scoring them against it says nothing about reading. The page is excluded from the
-     * tallies until the locator chooses between grids rather than merely finding one, and
-     * it is kept because it is the only page here that poses the question. The label is of
-     * the puzzle, which is what a person photographing this page means.
-     *
-     * The fix is not a threshold. Both grids are grids and both score well; what decides
-     * between them is that a person points a camera at the puzzle they are solving, so the
-     * one they mean is the larger in the frame. That is a change to how candidates are
-     * ranked and wants measuring against every page here, which is a job of its own.
-     */
-    val twoGridsOnThePage = setOf(
-        "aisudoku-2026-09-07-newsprint-mepham-marker.jpg",
-    )
-
     val faintOnScreen = setOf(
         "aisudoku-2026-09-05-screen-ambiguous.jpg",
     )

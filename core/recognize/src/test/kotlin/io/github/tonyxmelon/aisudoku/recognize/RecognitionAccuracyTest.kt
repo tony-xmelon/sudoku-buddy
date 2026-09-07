@@ -75,8 +75,13 @@ class RecognitionAccuracyTest {
          * make one puzzle - comes back as a grid to be questioned rather than as nothing
          * at all. It brings ten of these cells with it. Nothing that was counted before
          * moved.
+         *
+         * And from 57 to 63 on a thirteenth page, which is an addition rather than a
+         * regression: a newspaper puzzle finished by a second reader in black marker. Six
+         * of its squares land here, five of them printed digits taken for answers. The
+         * twelve pages counted before it stand at the same 57 they did.
          */
-        const val SAME_SIZE_HANDWRITING_MISSORTS = 57
+        const val SAME_SIZE_HANDWRITING_MISSORTS = 63
 
         /**
          * Cells sorted wrongly on the one photograph of a screen.
@@ -120,10 +125,6 @@ class RecognitionAccuracyTest {
                 is ReadResult.NeedsConfirmation -> result.grid
                 is ReadResult.Unreadable -> null
             } ?: continue
-
-            // A page whose grid the reader picked wrongly cannot say anything about how it
-            // reads. See [CorpusLabels.twoGridsOnThePage].
-            if (file.name in CorpusLabels.twoGridsOnThePage) continue
 
             for (i in 0 until 81) {
                 total++
@@ -180,8 +181,6 @@ class RecognitionAccuracyTest {
         for (file in CorpusFixtures.photos) {
             val truth = CorpusLabels.forPhoto(file.name) ?: continue
             val verdict = assertIs<GateVerdict.Usable>(StructuralGate.assess(CorpusFixtures.load(file)))
-            // The reader picked the other grid on this page; see [CorpusLabels.twoGridsOnThePage].
-            if (file.name in CorpusLabels.twoGridsOnThePage) continue
 
             CellAnalyzer.inspect(verdict.cells).forEachIndexed { index, ink ->
                 val expected = truth[index].digit ?: return@forEachIndexed

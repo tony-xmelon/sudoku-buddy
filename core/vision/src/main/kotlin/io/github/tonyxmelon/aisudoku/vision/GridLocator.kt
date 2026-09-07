@@ -48,6 +48,18 @@ object GridLocator {
      */
     private const val MIN_SCORING_SIZE = 288
 
+    /**
+     * How well a larger grid must score, against the best on the page, to be preferred.
+     *
+     * Only consulted when a page offers more than one thing that is a grid, which before
+     * the newspaper page arrived had never happened. There the puzzle scores 0.681 against
+     * the printed solution's 0.875 - 0.78 of it - so the bar sits below that and well
+     * above nothing. It is not a threshold on grid-ness, which [MIN_GRID_SCORE] already
+     * is; it is how much worse a grid may look before its being twice the size stops
+     * counting for anything.
+     */
+    private const val AS_GOOD_AS_THE_BEST = 0.75
+
     /** How many of the failed candidates to look at again, best score first. */
     private const val RESCUE_CANDIDATES = 3
 
@@ -132,7 +144,35 @@ object GridLocator {
         // is most of the work this function used to do on every frame.
         val scored = candidates.map { quad -> quad to GridScorer.score(rectify(full, quad, scoringSize(quad))) }
 
-        val winner = scored.maxByOrNull { it.second }
+        val strongest = scored.maxByOrNull { it.second }
+
+        // The biggest grid on the page, not the best one.
+        //
+        // A newspaper prints last week's solution under this week's puzzle, and the
+        // solution scores better: it is filled with print and nothing crosses its rules,
+        // where the puzzle being solved has a marker answer in every square and pencilled
+        // candidates in the corners. Measured on such a page, the solution grid scores
+        // 0.875 against the puzzle's 0.681 while being less than half its area - so the
+        // reader straightened a grid nobody meant and read out last week's answers.
+        //
+        // Size is what tells them apart, because it is what the person holding the camera
+        // decided: they pointed it at the puzzle they are solving, so the one they mean is
+        // the one that fills the frame. Nothing else here can express that - both are
+        // grids, and by every measure of grid-ness the wrong one is the better.
+        //
+        // Safe because a score is not a shape. [GridScorer] asks for the twenty lines a
+        // grid must have, so anything that is merely large and rectangular - the border of
+        // the page, a photograph's own edge - scores zero and never enters this at all: on
+        // that same page the two big rectangles round the whole panel both score 0.000. A
+        // candidate has to be a grid first, and clearly one, before its size is consulted.
+        val winner = scored
+            .filter { it.second >= MIN_GRID_SCORE }
+            .let { clearing ->
+                val best = clearing.maxOfOrNull { it.second } ?: return@let null
+                clearing.filter { it.second >= best * AS_GOOD_AS_THE_BEST }
+                    .maxByOrNull { it.first.area }
+            }
+            ?: strongest
 
         // The outline first, then the same outlines grown a little, and only then the
         // cells. In that order because the first two are what every photograph that reads
@@ -142,7 +182,7 @@ object GridLocator {
         val best = winner?.takeIf { it.second >= MIN_GRID_SCORE }
             ?: rescueByGrowing(full, scored)
             ?: return GridLocation.NoGrid(
-                winner?.second ?: 0.0, candidates.size, winner?.first,
+                strongest?.second ?: 0.0, candidates.size, strongest?.first,
             )
 
         val rectified = rectify(full, best.first, RECTIFIED_SIZE.toDouble())
