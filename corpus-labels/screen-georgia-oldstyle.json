@@ -1,0 +1,27 @@
+{
+  "photo": "screen-georgia-oldstyle.jpg",
+  "rectified": true,
+  "givens": [
+    "53..7....",
+    "6..195...",
+    ".98....6.",
+    "8...6...3",
+    "4..8.3..1",
+    "7...2...6",
+    ".6....28.",
+    "...419..5",
+    "....8..79"
+  ],
+  "written": [
+    ".........",
+    ".........",
+    ".........",
+    ".........",
+    ".........",
+    ".........",
+    ".........",
+    ".........",
+    "........."
+  ],
+  "notes": "Georgia, old-style figures, unsolved. The page that found the height assumption. Its 1 and 2 sit at x-height, about three quarters of the tall figures.\n\nPhotographed off a monitor with the phone, so every square is combed with fine moire striping from the sensor beating against the screen's pixels. What is kept here is the rectified square the app itself stores, not the photograph - the app keeps no photograph - so this cannot be asked whether a grid can be found in it, only what is made of the grid once found. The puzzle is the same on all seven and was machine-checked to have exactly one solution, so a difference between them is the page."
+}

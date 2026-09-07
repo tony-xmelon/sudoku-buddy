@@ -47,3 +47,4 @@ feedback/
 # the repository's secrets. See docs/signing.md.
 *.jks
 *.keystore
+corpus-rectified/*.jpg

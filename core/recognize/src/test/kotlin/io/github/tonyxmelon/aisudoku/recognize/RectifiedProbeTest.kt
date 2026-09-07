@@ -2,6 +2,7 @@ package io.github.tonyxmelon.aisudoku.recognize
 
 import io.github.tonyxmelon.aisudoku.vision.CellExtractor
 import io.github.tonyxmelon.aisudoku.vision.CellGeometry
+import io.github.tonyxmelon.aisudoku.vision.GridLineFitter
 import io.github.tonyxmelon.aisudoku.vision.GrayImage
 import io.github.tonyxmelon.aisudoku.vision.OpenCvNatives
 import java.io.File
@@ -36,7 +37,12 @@ class RectifiedProbeTest {
             }
         }
         val rectified = GrayImage(image.width, image.height, pixels)
-        val cells = CellExtractor.extract(rectified, CellGeometry.evenNinths(image.width))
+        // The same geometry the app uses, and the same fallback: fitting the lines that are
+        // actually there beats assuming even ninths whenever the rectification is a little
+        // off, which on a photograph it always is.
+        val fitted = GridLineFitter.fit(rectified)
+        println("PROBE geometry ${if (fitted != null) "fitted" else "even ninths"}")
+        val cells = CellExtractor.extract(rectified, fitted ?: CellGeometry.evenNinths(image.width))
 
         val reader = GridReader()
         val readings = when (val result = reader.read(cells)) {
