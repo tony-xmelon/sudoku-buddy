@@ -102,10 +102,15 @@ jobs:
       - name: Check a Firebase credential is configured
         id: firebase
         env:
+          APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          if [ -n "$TOKEN" ]; then
+          if [ -z "$APP_ID" ]; then
+            echo "kind=none" >> "$GITHUB_OUTPUT"
+            echo "::warning::No FIREBASE_APP_ID for org.freevia.aisudoku, so this build was not distributed."
+            echo "::warning::Register the new package in Firebase and set the FIREBASE_APP_ID secret."
+          elif [ -n "$TOKEN" ]; then
             echo "kind=token" >> "$GITHUB_OUTPUT"
           elif [ -n "$KEY" ]; then
             echo "kind=key" >> "$GITHUB_OUTPUT"
@@ -134,6 +139,7 @@ jobs:
         if: steps.firebase.outputs.kind == 'token'
         env:
           BUILD_NUMBER: ${{ github.run_number }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           SIGNING_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -144,6 +150,7 @@ jobs:
         if: steps.firebase.outputs.kind == 'key'
         env:
           BUILD_NUMBER: ${{ github.run_number }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           SIGNING_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
