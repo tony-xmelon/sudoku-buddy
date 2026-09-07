@@ -165,6 +165,8 @@ class SyntheticGridTest {
                 SyntheticGrid.Page(
                     givens,
                     answers = halfWritten,
+                    press = 0.44,
+                    bold = true,
                     hand = SyntheticGrid.Hand.LARGE,
                     firmMarks = 0.9,
                     seed = 23,

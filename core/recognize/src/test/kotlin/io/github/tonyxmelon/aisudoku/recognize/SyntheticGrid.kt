@@ -69,15 +69,20 @@ object SyntheticGrid {
         LOOSE(0.60..0.86, -0.28..0.20, 4.0),
 
         /**
-         * A hand plainly larger than the press, which is what a booklet gets.
+         * A hand that fills the square, for use with a small [Page.press].
          *
          * Where a newspaper prints a big grid and a small face, so that a solver writes at
          * about the size of the press, a puzzle booklet prints a small face in a large
          * square and the hand fills it: half again the height of a printed digit, which is
          * what four photographs of one booklet page measure. The reader leans on that gap
          * and this is the only hand here that has it.
+         *
+         * The gap is made by shrinking the press rather than by swelling the hand. Drawn
+         * at the size that ratio would otherwise need, the figures came close enough to
+         * the rules that a font metric one platform apart put them into it, which failed
+         * on CI and not here. Everything drawn stays inside the sizes the other pages use.
          */
-        LARGE(0.86..1.02, -0.12..0.12, 3.0),
+        LARGE(0.62..0.74, -0.12..0.12, 3.0),
     }
 
     /**
@@ -90,6 +95,14 @@ object SyntheticGrid {
         val givens: String,
         val answers: String? = null,
         val figures: Figures = Figures.LINING,
+        /**
+         * The printed face, as a fraction of the square.
+         *
+         * A newspaper fills its squares and a booklet does not, and the difference is the
+         * whole reason a hand can be plainly larger than the press. Left at the newspaper
+         * size unless a page says otherwise.
+         */
+        val press: Double = 0.62,
         val family: String = Font.SANS_SERIF,
         val bold: Boolean = false,
         val hand: Hand = Hand.NEAT,
@@ -144,7 +157,7 @@ object SyntheticGrid {
         }
 
         val weight = if (page.bold) Font.BOLD else Font.PLAIN
-        val printed = Font(page.family, weight, (cell * 0.62).roundToInt())
+        val printed = Font(page.family, weight, (cell * page.press).roundToInt())
         val random = Random(page.seed)
 
         for (index in 0 until 81) {
@@ -306,10 +319,10 @@ object SyntheticGrid {
         random: Random,
     ) {
         val grey = 255 - ((255 - page.pen) * 0.95).roundToInt()
-        val font = Font(page.family, Font.BOLD, (cell * 0.44).roundToInt())
+        val font = Font(page.family, Font.BOLD, (cell * page.press * 0.72).roundToInt())
         val how = 2 + random.nextInt(2)
         val digits = (1..9).shuffled(random).take(how).sorted()
-        val step = cell * 0.30
+        val step = cell * page.press * 0.48
         val start = centreX - step * (how - 1) / 2.0
         // Wherever there was room, which is not always the top: across the four booklet
         // photographs these sit anywhere from a fifth of a square above centre to a
