@@ -65,7 +65,7 @@ fun AboutScreen(onClose: () -> Unit) {
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
-                        "AI Sudoku is published by FreeSoft EOOD under the Freevia name. " +
+                        "AI Sudoku is published by Freevia. " +
                             "Privacy policy: https://freevia.org/aisudoku/privacy\n" +
                             "Contact: info@freevia.org",
                         style = MaterialTheme.typography.bodyMedium,

@@ -2,7 +2,7 @@
 
 Last updated 7 September 2026.
 
-AI Sudoku is published by **Freevia EOOD**.
+AI Sudoku is published by **Freevia**.
 Questions about this policy or the app's handling of data can be sent to
 [info@freevia.org](mailto:info@freevia.org).
 

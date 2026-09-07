@@ -7,8 +7,8 @@ This is the registration path for publishing free Android apps under the Freevia
 - Google account: `info@freevia.org`
 - Account type: **Organization**
 - Public developer name: **Freevia**
-- Legal entity: **FreeSoft EOOD (ФрийСофт ЕООД)** — use the exact spelling and address
-  shown on the company-registration record and payments profile
+- Organization name: **Freevia** — enter it exactly as shown in the organization's official
+  records and payments profile
 - Website: `https://freevia.org`
 - Public developer/support email: `info@freevia.org`
 - A telephone number that can receive Google's verification code
