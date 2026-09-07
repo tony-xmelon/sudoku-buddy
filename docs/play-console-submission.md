@@ -161,9 +161,9 @@ confirm its application ID is `org.freevia.aisudoku` before upload.
 ## Items still requiring a person or Play Console
 
 - D-U-N-S number and organization verification
+- The organization's main telephone number, matching public or D&B records
 - A public, OTP-capable developer telephone number
 - A private contact telephone number for Google
 - One-time developer registration payment
 - Four real in-app phone screenshots
 - Final answers to any new declarations Play Console adds after this checklist was prepared
-
