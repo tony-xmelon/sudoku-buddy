@@ -280,6 +280,33 @@ object GridLocator {
                 ?.takeIf { it.second >= MIN_GRID_SCORE }
             if (best != null) return best
         }
+
+        // And the same allowance for a grid the cells found, which it never had.
+        //
+        // The tolerance above exists because a rule nobody can see is still at a place
+        // everybody can compute. That is just as true of a grid found by its cells - more
+        // so, since a lattice is fitted to scores of them and knows where its edges are
+        // even when one of them falls outside what was traced. It was only ever offered to
+        // outlines because outlines were all there was when it was written.
+        //
+        // Measured on an illustrated puzzle whose cells are shaded and whose border is a
+        // hairline: the lattice is found, it is the right grid, and nineteen of its twenty
+        // rules score 0.89 or better. The twentieth, the bottom border, scores 0.16 because
+        // the lattice's estimate clips it - so the weakest of twenty is 0.16 and a page
+        // that is plainly a grid comes back as no grid at all. With one rule forgiven it
+        // scores 0.89.
+        for (workingEdge in QuadDetector.workingEdges()) {
+            val best = CellGrid.lattices(image, workingEdge)
+                .map { lattice ->
+                    val quad = lattice.quad()
+                    quad to GridScorer.score(
+                        rectify(full, quad, scoringSize(quad)), OBSCURED_LINES_ALLOWED,
+                    )
+                }
+                .maxByOrNull { it.second }
+                ?.takeIf { it.second >= MIN_GRID_SCORE }
+            if (best != null) return best
+        }
         return null
     }
 
