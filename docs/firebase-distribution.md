@@ -4,20 +4,20 @@ Product: **Sudoku Buddy**
 
 Android package: **`org.freevia.sudokubuddy`**
 
-Firebase / Google Cloud project ID: **`sudoku-buddy-freevia`** (pending creation)
+Firebase / Google Cloud project ID: **`sudoku-buddy-freevia`**
+
+Project number: **`1032115531436`**
+
+Firebase Android App ID: **`1:1032115531436:android:a1c0f2b6d7edbea2257909`**
 
 Firebase App Distribution is a build-time service only. The application does not include
 Firebase SDKs, has no `INTERNET` permission, and sends no user data to Firebase.
 
 ## Required Firebase setup
 
-1. Sign in to Firebase as `info@freevia.org`.
-2. Create the project **Sudoku Buddy** with project ID `sudoku-buddy-freevia`.
-3. Register an Android app with package name `org.freevia.sudokubuddy` and nickname
-   **Sudoku Buddy Android**.
-4. Open App Distribution, enable it for that Android app, and create the tester group
-   `testers`.
-5. Copy the generated Firebase App ID from Project settings -> General.
+The project is owned through `info@freevia.org`. Its registered Android app uses package
+name `org.freevia.sudokubuddy` and nickname **Sudoku Buddy Android**. App Distribution is
+enabled and the `testers` group exists.
 
 The package name is permanent for a Firebase Android registration. Do not reuse a
 registration belonging to another package.
