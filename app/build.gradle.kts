@@ -13,7 +13,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "io.github.tonyxmelon.aisudoku"
+        applicationId = "org.freevia.aisudoku"
         minSdk = 26
         targetSdk = 36
         // CI supplies a build number so every distributed build is distinct;

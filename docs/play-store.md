@@ -9,7 +9,7 @@ against the state of the repository on 2 September 2026.
 | --- | --- |
 | App bundle | `./gradlew :app:bundleRelease` produces `app/build/outputs/bundle/release/app-release.aab` |
 | 16 KB page alignment | every native library passes; guarded by `checkNativeAlignment` |
-| Target API level | 36, above Play's current floor of 35 |
+| Target API level | 36, Play's requirement for new phone apps from 31 August 2026 |
 | Minimum API level | 26 |
 | Signing | release builds are signed with the key in `docs/signing.md` |
 | Version code | `github.run_number`, so it only ever increases |
@@ -40,16 +40,15 @@ These cannot be done from the repository.
 
 1. **Register**, pay the one-off fee, and complete identity verification. Verification can
    take a few days, so it is worth starting before the listing is ready.
-2. **Create the app** with package name `io.github.tonyxmelon.aisudoku`. This is permanent
+2. **Create the app** with package name `org.freevia.aisudoku`. This is permanent
    — it cannot be changed after the first upload, and it is the identity every future
    update is matched against.
 3. **Enrol in Play App Signing.** Play then holds the *app signing key* and the key in
    `docs/signing.md` becomes the *upload key* — it keeps signing what we send, and Play
    re-signs for distribution. Keep it exactly as safe as before: losing it means asking
    Google to reset the upload key.
-4. **Host the privacy policy** somewhere public and paste the URL into the listing. Play
-   requires one because the app requests camera access. GitHub Pages on this repository is
-   enough; so is the raw file URL.
+4. **Host the privacy policy** at `https://freevia.org/aisudoku/privacy` and paste that URL
+   into the listing. Play requires a public, non-PDF privacy policy for every app.
 5. **Data safety form.** The honest answers are: no data collected, no data shared, no
    data sent off the device. The camera is used but nothing from it leaves the phone.
 6. **Content rating questionnaire.** A sudoku reader with no ads, no purchases, no user
@@ -60,8 +59,8 @@ These cannot be done from the repository.
 | Asset | Requirement | State |
 | --- | --- | --- |
 | App icon | 512x512 PNG | `docs/store/icon-512.png` |
-| Feature graphic | 1024x500 PNG | not made |
-| Phone screenshots | at least 2, 16:9 or 9:16, min 320px | not made — these should come off a real phone |
+| Feature graphic | 1024x500 PNG | `docs/store/feature-graphic-1024x500.png` |
+| Phone screenshots | at least 2, 16:9 or 9:16, min 320px | still to capture from a real phone |
 | Title | 30 characters | "AI Sudoku" |
 | Short description | 80 characters | draft below |
 | Full description | 4000 characters | draft below |

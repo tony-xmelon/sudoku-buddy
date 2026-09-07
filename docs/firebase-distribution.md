@@ -1,7 +1,11 @@
 # Distributing test builds through Firebase
 
 Project: **`aisudoku-xmelon`** (number 52623658492)
-Android app: **`1:52623658492:android:dbb8616352a8d44e29f679`**, package `io.github.tonyxmelon.aisudoku`
+The production package is now **`org.freevia.aisudoku`**. Register that package as a new
+Android app in the existing Firebase project, replace the default app ID in
+`app/build.gradle.kts`, and update the `FIREBASE_APP_ID` GitHub secret before the next
+Firebase distribution. The previous Firebase registration belongs to
+`io.github.tonyxmelon.aisudoku` and cannot receive builds with the new package name.
 
 ## What is already set up
 

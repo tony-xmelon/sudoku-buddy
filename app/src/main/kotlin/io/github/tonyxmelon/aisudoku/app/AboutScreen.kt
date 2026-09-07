@@ -54,14 +54,20 @@ fun AboutScreen(onClose: () -> Unit) {
                 Section("Your photos and your privacy") {
                     Text(
                         "Everything happens on this phone. The app has no internet permission " +
-                            "at all, so your photographs cannot leave the device even by " +
-                            "accident, and nothing is collected, tracked or uploaded. There " +
-                            "are no accounts and no analytics.",
+                            "at all, and nothing is collected, tracked or uploaded. The app " +
+                            "only hands a photograph to another app when you explicitly press " +
+                            "Share. There are no accounts and no analytics.",
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
                         "Photographs you keep are stored in this app's private storage and are " +
                             "removed when you delete them or uninstall the app.",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Text(
+                        "AI Sudoku is published by FreeSoft EOOD under the Freevia name. " +
+                            "Privacy policy: https://freevia.org/aisudoku/privacy\n" +
+                            "Contact: info@freevia.org",
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
