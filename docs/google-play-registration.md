@@ -59,3 +59,7 @@ Google's current references:
 
 Do not create a merchant account or add monetization merely to publish a free app. Those
 steps can be added later if Freevia introduces paid apps, subscriptions, or in-app products.
+
+One pricing rule is permanent: after an app has been offered for free, Google Play will not
+let that same package become a paid download. In-app products or subscriptions can still be
+added later, but charging up front would require a new app and package name.
