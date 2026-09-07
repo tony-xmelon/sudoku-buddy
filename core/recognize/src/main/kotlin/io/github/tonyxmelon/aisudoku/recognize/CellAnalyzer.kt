@@ -144,20 +144,28 @@ object CellAnalyzer {
      * What each blob *is* - print, an answer, or a candidate mark - is not decided here.
      * That needs all 81 cells at once, and belongs to [GridReader].
      */
-    fun inspect(cells: List<GrayImage>): List<CellInk?> = cells.map { cell ->
-        val gray = Mat(cell.height, cell.width, CvType.CV_8UC1).also { it.put(0, 0, cell.pixels) }
-        val ink = labelInk(gray)
-        val blobs = findBlobs(ink, cell)
-        val largest = blobs.maxByOrNull { it.area } ?: return@map null
+    fun inspect(cells: List<GrayImage>): List<CellInk?> {
+        val masks = cells.map { cell ->
+            labelInk(Mat(cell.height, cell.width, CvType.CV_8UC1).also { it.put(0, 0, cell.pixels) })
+        }
+        val combed = combed(masks, cells)
 
-        val darkest = blobs.minOf { it.darkness }
+        return cells.mapIndexed { index, cell ->
+            val ink = masks[index]
+            val blobs = findBlobs(ink, cell, combed)
+            val largest = blobs.maxByOrNull { it.area } ?: return@mapIndexed null
 
-        CellInk(
-            blob = largest,
-            normalised = normalise(ink, largest, wholeGlyph(largest, blobs, cell), cell),
-            outshoneBy = largest.darkness - darkest,
-            company = blobs.count { it !== largest && it.heightRatio >= largest.heightRatio / 2 },
-        )
+            val darkest = blobs.minOf { it.darkness }
+
+            CellInk(
+                blob = largest,
+                normalised = normalise(ink, largest, wholeGlyph(largest, blobs, cell), cell),
+                outshoneBy = largest.darkness - darkest,
+                company = blobs.count {
+                    it !== largest && it.heightRatio >= largest.heightRatio / 2
+                },
+            )
+        }
     }
 
     /** How close another piece must be to be part of the same digit, in cell heights. */
@@ -251,9 +259,10 @@ object CellAnalyzer {
         )
     }
 
-    internal fun findBlobs(gray: Mat, cell: GrayImage): List<Blob> = findBlobs(labelInk(gray), cell)
+    internal fun findBlobs(gray: Mat, cell: GrayImage): List<Blob> =
+        findBlobs(labelInk(gray), cell, combed = false)
 
-    private fun findBlobs(ink: InkMask, cell: GrayImage): List<Blob> {
+    private fun findBlobs(ink: InkMask, cell: GrayImage, combed: Boolean): List<Blob> {
         // The median of the cell is its paper: ink is the minority of any square, even a
         // crowded one.
         val paper = cell.pixels.map { it.toInt() and 0xFF }.sorted()[cell.pixels.size / 2]
@@ -276,18 +285,119 @@ object CellAnalyzer {
             if (lineLike) continue
 
             val darkness = meanDarkness(cell, labels, label, left, top, width, height)
+            val body = if (combed) body(labels, label, left, top, width, height)
+            else top until top + height
+            val bodyTop = body.first
+            val bodyHeight = body.last - body.first + 1
             out += Blob(
-                left = left, top = top, width = width, height = height, area = area,
-                aspect = width.toDouble() / height,
-                heightRatio = height.toDouble() / cell.height,
-                strokeWidth = area.toDouble() / maxOf(width, height),
-                verticalOffset = ((top + height / 2.0) - cell.height / 2.0) / cell.height,
+                left = left, top = bodyTop, width = width, height = bodyHeight, area = area,
+                aspect = width.toDouble() / bodyHeight,
+                heightRatio = bodyHeight.toDouble() / cell.height,
+                strokeWidth = area.toDouble() / maxOf(width, bodyHeight),
+                verticalOffset = ((bodyTop + bodyHeight / 2.0) - cell.height / 2.0) / cell.height,
                 darkness = darkness,
                 contrast = paper - darkness,
                 maskLabel = label,
             )
         }
         return out
+    }
+
+    /** How much of a column must be ink before it is a stripe rather than a stroke. */
+    private const val A_COLUMN_OF_INK = 0.60
+
+    /**
+     * How striped a page must be before its digits are measured differently.
+     *
+     * Measured over every page there is. The two combed pages sit at 0.186 and 0.082; every
+     * other page - twenty-five photographs of paper and five more of a screen - sits at
+     * 0.031 or below. This is put in the gap, which is a factor of two and a half wide, so
+     * that a page that is not striped is measured exactly as it was before this existed.
+     */
+    private const val A_COMBED_PAGE = 0.05
+
+    /**
+     * Whether this page came out combed with the striping a camera makes of a monitor.
+     *
+     * The sensor beats against the screen's pixels and every square fills with fine
+     * vertical stripes. On their own they are harmless. Where one touches a digit the two
+     * become a single blob with a hairline standing out of the top, and the blob is then
+     * half again as tall as the print - which is what handwriting looks like. Twelve of the
+     * thirty printed digits on a photograph of a Georgia page went that way, every one read
+     * correctly and sorted as an answer.
+     *
+     * Asked of the whole page rather than of a square, because it is a property of how the
+     * picture was taken: some squares on a combed page are clean, and a rule that fired on
+     * those alone would be a rule about digits. Two attempts that changed every page were
+     * measured before this one - clearing whole columns of the mask does nothing, since the
+     * column that carries the stripe carries the digit too, and trimming every blob's
+     * height costs the corpus twenty-one cells, because handwriting tapers and shrinking it
+     * lands it in the printed band. Both are the same mistake: paying on every page for
+     * something wrong with two.
+     */
+    private fun combed(masks: List<InkMask>, cells: List<GrayImage>): Boolean {
+        val striped = masks.indices.map { index ->
+            val cell = cells[index]
+            val labels = masks[index].labels
+            if (cell.width < 20 || cell.height < 20) return@map 0.0
+            var crossed = 0
+            for (x in 0 until cell.width) {
+                var down = 0
+                for (y in 0 until cell.height) {
+                    if (labels.get(y, x)[0].toInt() != 0) down++
+                }
+                if (down >= cell.height * A_COLUMN_OF_INK) crossed++
+            }
+            crossed.toDouble() / cell.width
+        }
+        return median(striped) > A_COMBED_PAGE
+    }
+
+    private fun median(values: List<Double>): Double {
+        if (values.isEmpty()) return 0.0
+        val sorted = values.sorted()
+        val middle = sorted.size / 2
+        return if (sorted.size % 2 == 1) sorted[middle]
+        else (sorted[middle - 1] + sorted[middle]) / 2
+    }
+
+    /**
+     * How wide a row of a blob must be to count towards its height.
+     *
+     * A hairline: one or two pixels, against the nine to seventeen a printed stroke
+     * measures on these photographs.
+     */
+    private const val MORE_THAN_A_HAIRLINE = 0.15
+
+    /**
+     * The rows of a blob that are the digit, rather than a thread hanging off it.
+     *
+     * Only asked on a combed page. The picture the classifier is shown is left alone,
+     * hairline and all - it reads these correctly as they are, and it was never the reading
+     * that was wrong.
+     */
+    private fun body(
+        labels: Mat,
+        label: Int,
+        left: Int,
+        top: Int,
+        width: Int,
+        height: Int,
+    ): IntRange {
+        val widths = IntArray(height)
+        for (y in 0 until height) {
+            var count = 0
+            for (x in left until left + width) {
+                if (labels.get(top + y, x)[0].toInt() == label) count++
+            }
+            widths[y] = count
+        }
+        val widest = widths.max()
+        val enough = maxOf(2, (widest * MORE_THAN_A_HAIRLINE).toInt())
+        val first = widths.indexOfFirst { it >= enough }
+        val last = widths.indexOfLast { it >= enough }
+        if (first < 0 || last < first) return top until top + height
+        return (top + first)..(top + last)
     }
 
     private fun meanDarkness(

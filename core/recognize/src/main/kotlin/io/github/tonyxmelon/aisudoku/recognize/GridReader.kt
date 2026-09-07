@@ -218,13 +218,30 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         if (rank.size < ENOUGH_FOR_A_RANK) return readings
         if (readings.count { it.ink == Ink.PRINTED } + rank.size > PLAUSIBLE_GIVENS) return readings
 
-        val heights = rank.map { (_, blob) -> blob.heightRatio / core.height }
-        val mean = heights.average()
-        val spread = Math.sqrt(heights.sumOf { (it - mean) * (it - mean) } / heights.size)
-        if (spread > ONE_FIGURE_SPREAD) return readings
+        // Around the middle of them rather than across all of them. One cell that is still
+        // the wrong height - a digit fused to something thicker than a hairline - would
+        // otherwise spoil a rank that is exact everywhere else: on the Georgia page five
+        // short figures sit within 0.01 of each other, and a sixth cell at 1.18 hid all
+        // five of them.
+        val middle = median(rank.map { (_, blob) -> blob.heightRatio / core.height })
 
+        // Short of the printed band, which is the only thing this rule is for. A figure
+        // that is not shorter than the print does not need taking back - if it were the
+        // height of the print it would already be print - and a group that is taller is
+        // handwriting, which is what the size rule is right about. Without this the rule
+        // reaches into the pages where a hand works at the size of the press and makes
+        // two more of them wrong.
+        if (middle >= PRINTED_MIN) return readings
 
-        val taken = rank.mapTo(mutableSetOf()) { (reading, _) -> reading.index }
+        val agreeing = rank.filter { (_, blob) ->
+            Math.abs(blob.heightRatio / core.height - middle) <= ONE_FIGURE_SPREAD
+        }
+        if (agreeing.size < ENOUGH_FOR_A_RANK) return readings
+        if (readings.count { it.ink == Ink.PRINTED } + agreeing.size > PLAUSIBLE_GIVENS) {
+            return readings
+        }
+
+        val taken = agreeing.mapTo(mutableSetOf()) { (reading, _) -> reading.index }
         return readings.map { if (it.index in taken) it.copy(ink = Ink.PRINTED) else it }
     }
 
