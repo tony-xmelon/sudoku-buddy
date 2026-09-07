@@ -8,6 +8,75 @@ by Firebase at 16,384 characters. It used to hold all of this, growing every rou
 one day it went over the limit and the upload failed after a full CI build had already
 run. Keep that file short and put the history here.
 
+SEVEN PAGES ON A MONITOR, AND THREE FAULTS THEY FOUND.
+Two of them were assumptions nobody had questioned, and one was a bug older than
+the corpus.
+
+Seven grids were put on a screen and photographed - Arial, Georgia, Garamond,
+Times with the answers in a script face, Consolas with pencilled candidates,
+Impact, and Century half filled in over erasures. The same puzzle on all seven, so
+a difference between them is the page and not the puzzle.
+
+The first fault was found before the photographs were, and by looking rather than
+measuring: a page rendered in Georgia read as a puzzle missing a third of its
+clues, every digit recognised correctly and thirteen of them filed as handwriting.
+Georgia is the one common web font with old-style figures. Its 1 and 2 sit at
+x-height, 0.74 of the tall figures, and the printed band starts at 0.90. Nothing in
+the corpus is set in such a font, so nothing had ever said the height rule had an
+assumption in it.
+
+A rank of figures is now taken back from the handwriting, on four conditions: at
+least three of them, as dark as the print, shorter than the printed band, and
+sitting within a hundredth of each other once the pen has been set aside by
+darkness. The last is what a font is - it repeats a glyph exactly, where a hand
+spreads ten times as wide - and the count guard is what makes the rest safe, since
+on a solved page the answers plus the clues come to more than any sudoku has.
+
+The second fault was fourteen invented digits on the Georgia photograph, every one
+a printed 1. They carried three grey levels of contrast where that page's digits
+carried a hundred and thirty. The printed band had never asked whether there was
+ink at all - every test it applies is about how big the mark is and where it sits -
+so a smear of moire is the height of a digit and sits where a digit sits. A mark
+now needs a tenth of its page's own print to be anything. A quarter was tried first
+and cost five handwritten cells; a tenth costs none.
+
+The third was the striping itself. A camera beating against a monitor's pixels
+combs every square, and where a stripe touches a digit the two become one mark with
+a thread out of the top - half again as tall as the print, which is what
+handwriting looks like. Twelve of thirty printed digits went that way.
+
+Two fixes were measured and thrown away before the third worked, and both were the
+same mistake: they changed every page to fix what was wrong with two. Clearing full
+columns of the mask does nothing, because the column carrying the stripe carries the
+digit too. Measuring every blob without its hairline rows works on the combed page
+and costs the corpus twenty-one cells, because handwriting tapers more than print
+and shrinking it lands it in the printed band. What works is to notice that striping
+is a property of the photograph and can be seen: the two combed pages are five times
+more striped than any of the other thirty. A page that is not combed is measured
+exactly as it was.
+
+  the corpus     1949 of 2025 cells sorted to 1954, printed 697/697, handwriting 753/753
+  Georgia            12 printed digits missed to 1
+  Garamond            5 to 1
+  the other five      unchanged, cell for cell
+
+Two other things came out of the same week.
+
+Grids can now be drawn to order - figure style, font, weight, a neat hand or a loose
+one, pencilled candidates, erasures, a lamp off to one side, blur and speckle - and
+nine of them are checked on every run. They are not photographs and are not scored
+as if they were, but they run on CI where the corpus does not exist, and they earned
+their place twice on the first day: once catching a rule that measured glyph shape
+where it meant to measure ink, and once catching the fix for it being too narrow.
+
+And the seven photographs are kept, in corpus-rectified/. They are not corpus
+photographs - what a phone stores is the rectified square, not the picture, so they
+cannot be asked whether a grid can be found - but their digits are real, and held
+out page by page the classifier reads them at 99.3%: seven typefaces it has never
+seen, two of them script. Which says plainly where the remaining trouble is not. The
+reading is not the weak part; the sorting is.
+
+
 THE WHOLE SQUARE READS NO BETTER THAN THE INK CUT OUT OF IT.
 A ten-cell win that turned out to be the measuring apparatus, not the change.
 

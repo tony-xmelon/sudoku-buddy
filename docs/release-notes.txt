@@ -1,227 +1,61 @@
-Fourteen things this build does that the last one would not.
+Four things this build does that the last one would not.
 
-A PAGE YOU FILLED IN AT THE SIZE OF THE PRINT NOW SCANS
+A PUZZLE PRINTED IN OLD-STYLE FIGURES NOW READS
 
-The app finds the printed digits first and everything follows from that: what
-is taller is your handwriting, what is smaller is a pencilled candidate. That
-rests on the print being the one thing on the page with a single size, and on
-your writing being bigger than it - which it is, on every page you have sent.
+The app finds the printed digits first, and it decides what is printed largely
+by height: the print is the one thing on the page set at a single size, so
+anything much shorter or taller is something else. That is true of most fonts
+and not of all of them. In an old-style font - text figures, which newspapers
+do set - the 1 and the 2 sit low, about three quarters the height of the 6 and
+the 8, and every one of them was being filed as your handwriting. A puzzle
+would come back missing a third of its clues, with nothing misread: the digits
+were all recognised correctly and simply put in the wrong pile.
 
-On a set of newspaper puzzles from another reader it is not. They write at
-exactly the size of the print, so the app took their answers for givens and
-came out with a puzzle of seventy-odd clues, which is not a puzzle at all. Ten
-such pages simply would not read.
+A whole rank of figures is now taken back, but only on evidence that it is a
+rank rather than a hand. A font repeats itself exactly, so the short figures
+all measure the same to within a hundredth, where handwriting on the same page
+varies ten times as much. They also have to be as dark as the rest of the
+print, be shorter than the print rather than taller, and leave the page with a
+believable number of clues - so on a puzzle you have already filled in, where
+the answers outnumber the clues, the rule cannot fire at all.
 
-They read now. When a page comes back with more printed digits than any sudoku
-has, the app sorts that page again by ink instead of by size: print is toner,
-laid down heavy and even and standing out sharply from the paper beside it,
-where a pen is none of those. It is a finer measure and a riskier one, so it
-is used only on a page that has already shown the cheaper test failed on it -
-your own pages take exactly the path they took before.
+THE APP NO LONGER INVENTS DIGITS OUT OF NOTHING
 
-PHOTOGRAPHS TAKEN FURTHER BACK ARE ACCEPTED
+A photograph of a screen came back with fourteen extra 1s in squares that were
+empty. They were not digits: each was a smear about three grey levels darker
+than the paper around it, where the real digits on that page stood a hundred
+and thirty levels clear. Nothing in the check for a printed digit had ever
+asked whether there was any ink there - every test was about how big the mark
+was and where it sat, and a stripe of noise is the height of a digit and sits
+where a digit sits.
 
-The grid had to be 700 pixels across or the app said it was too small to read.
-That number was chosen from how many pixels a cell ought to want, and it was
-wrong: measured properly, by shrinking every photograph in the collection until
-its grid is a given size and reading it again, printed digits come out perfect
-down to 360 pixels and handwriting down to 440.
+Ink now has to be ink: a mark carrying less than a tenth of the depth of that
+page's own print is not a mark anybody made. It is measured against the page
+rather than as a fixed shade, because the pages that need it most are the faint
+ones - a photograph of a screen can be four times fainter than newsprint all
+over, and a fixed threshold would either pass the noise or throw away the
+digits.
 
-The limit is now 550, which is still well clear of anything that failed. Two
-photographs that were refused at 692 and 681 pixels read perfectly once let
-through.
+A PHOTOGRAPH OF A SCREEN READS BETTER
 
-A GRID THE APP COULD SEE BUT WOULD NOT TAKE
+Photograph a monitor and the camera's sensor beats against the screen's pixels,
+combing every square with fine vertical stripes. On their own they are
+harmless. Where one touches a digit the two become a single mark with a
+one-pixel thread standing out of the top of it - and the mark is then half
+again as tall as the print, which is exactly what handwriting looks like.
+Twelve of the thirty printed digits on one such photograph went that way.
 
-One photograph came back as no grid found while the puzzle sat squarely in
-shot. The outline the app had traced round the grid was a shade inside the
-grid's own printed rule - and since it judges a grid on the weakest of the
-twenty lines one must have, the two outer rules falling just outside that
-outline took the whole score to nothing.
+On a page that is actually combed, a digit's height is now measured across the
+part of it that is wider than a thread. The page has to be measurably striped
+first: the two affected photographs are five times more striped than any other
+page there is, so a photograph of paper takes precisely the path it took
+before. Twelve wrong became one, and on a second such page five became one.
 
-When nothing else has worked, it now tries the best few outlines a couple of
-percent larger before giving up. That photograph reads. It costs nothing on a
-photograph that was already going to read, because it only runs after
-everything else has failed.
+THE DRAWER NO LONGER OPENS ITSELF WHEN YOU TURN THE PHONE
 
-A PUZZLE PRINTED HARD AGAINST THE COLUMN BESIDE IT NOW SCANS
-
-Every way the app had of finding a puzzle started by tracing round its border.
-On a newspaper page the border often is not there to trace: on one of these
-photographs the puzzle's right-hand rule runs into the black bar down the edge
-of it and its left-hand one into the horoscope, and what the app finds is one
-wide shape that is not a puzzle. It said it could see no grid, on a photograph
-you can read at a glance.
-
-It now looks for the squares instead. A border can be lost to whatever is
-printed next to it; a square cannot, because it is a hole inside the grid, and
-eighty-one holes of the same size packed together is not something else on a
-newspaper page. Where the squares are is enough to work out where the puzzle
-is, and that page now reads, with all thirty-one of its printed digits right.
-
-It runs only after everything else has failed, so nothing that scanned before
-takes a different path.
-
-One photograph from that batch still will not scan, and it is fair to say why:
-its page is curved, and enough that no flat shape fits its own squares. That
-one needs a flatter photograph rather than a cleverer app.
-
-A CREASED PAGE NOW SCANS
-
-The photograph of the curled page - the one the app said it could see no grid on -
-now scans. It was not really the curl that beat it.
-
-The app works out where each square sits in the nine by nine, and when two
-squares landed on the same spot one of them was quietly thrown away. On that page
-three squares went, all in the same corner - the corner where the paper lifts off
-the table - and with nothing there to go on, the app could not work out the shape
-of the page just where it bends most. Keeping those three squares is the whole
-fix. The page now straightens flat and reads, and all twenty-eight of its printed
-digits come out right.
-
-ANSWERS YOU WROTE SMALL ARE NO LONGER THROWN AWAY
-
-The app worked out which digits are yours partly by size, on the assumption that
-you write bigger than the paper prints. On the newsprint pages you often do not -
-sometimes you write smaller - and every one of those answers was being discarded
-as if it were a pencilled note in the margin of the square. Forty-seven of them,
-which was more than a third of everything the app was getting wrong.
-
-It now decides by where the digit sits in its square and what it is written in
-rather than by how big it is. Twenty-five of those answers come back.
-
-A PUZZLE IT CANNOT SOLVE IS STILL SHOWN TO YOU
-
-If the printed digits did not make a proper puzzle, the app used to give up and
-tell you it could not read the photo - even when it had read every digit on the
-page correctly. That is two different failures wearing one message, and only one
-of them is your problem.
-
-It now stops only when it genuinely cannot see a puzzle. Anything it has read is
-shown, with the squares it is unsure of marked, and you can see for yourself what
-it made of the page. One of the test photos that used to come back as nothing now
-comes back as a grid.
-
-A PUZZLE WITH SOMETHING ACROSS IT IS STILL FOUND
-
-The app checked that all twenty grid lines were there, and treated any one of them
-being hidden as proof there was no grid. A thumb on a corner, a crease, a
-reflection on a screen - nineteen lines perfect and the twentieth covered, and it
-told you it could see nothing. It also insisted on finding all twenty again before
-it would cut the puzzle into squares.
-
-One line each way may now be hidden. A grid is regular, so a rule you cannot see is
-still somewhere you can work out. The photo that prompted this - a sudoku
-advertisement on a phone screen, out of focus, with a shadow across one corner -
-now scans, where before the app said there was no grid in it at all.
-
-SOLVE WORKS ON PUZZLES THAT DO NOT SOLVE
-
-Now that a photo gets through to the puzzle screen even when what it read is not a
-proper puzzle, the screen had to have something to say about that. It did not, and
-Solve looked like a button that did nothing.
-
-If the puzzle has more than one answer - which means a printed digit was missed -
-Solve now shows you one of them and rings the squares the answers disagree about.
-Press it again for the next answer.
-
-If it has no answer at all, some digit was misread. Solve now rings the fewest
-squares that would fix it, so you can tap one and correct it rather than starting
-over.
-
-There is no tutor drawer on either, and that is not a fault: the tutor walks you to
-the answer, and these do not have one. The line at the top now says so instead of
-leaving you to guess.
-
-THE FOUR BUTTONS
-
-Were half the screen tall. Sorry. They are buttons again.
-
-THE APP ONLY GIVES UP WHEN IT CANNOT FIND THE GRID
-
-It used to turn a photo away for six different reasons: no grid, the grid too
-small, the grid running off the edge, held at too much of an angle, not upright,
-and the lines not clear enough to measure. Five of those are notes about how you
-held the phone, and none of them is a good reason to throw away a puzzle the app
-has already found and straightened.
-
-Now it reads what it found and tells you the note alongside it - "Move closer, the
-grid is too small" appears with the digits rather than instead of them. If the
-reading looks wrong you have the note to explain why, and the photo to correct. And
-if the grid lines cannot be measured, it divides the grid into ninths and reads it
-anyway.
-
-The advice in the camera while you are aiming has not changed, which is when it is
-actually useful.
-
-YOUR ANSWERS AND THE PRINT ARE TOLD APART BETTER
-
-On the newsprint pages from the other reader, the app has never been able to tell
-which digits were printed and which were written, because that hand writes at the
-size of the print and presses as hard. Every measurement it takes of a digit
-overlaps between the two.
-
-It no longer tries to draw a line through any single measurement. It looks at all of
-them together and lets the digits fall into the two groups they actually form, then
-takes the inkier group as the print. That is thirty-three fewer squares filed under
-the wrong heading on those twelve pages.
-
-It only does this on a page that has already shown the simple test fails, so nothing
-that reads correctly today changes.
-
-THE SQUARES ARE CUT IN THE RIGHT PLACES NOW
-
-You spotted this from the pictures: on one photo the app was taking each square out
-of the wrong part of the puzzle, so the eighth column held the ninth column's digit
-and the last column held nothing but a line.
-
-It was looking for each of the ten grid lines near where it would be if the puzzle
-filled the straightened picture exactly. When it does not quite - which happens
-whenever the app has had to work to find the grid at all - the error grows across
-the page until the far columns are a whole square out.
-
-It now works out where the grid starts and how big its squares are before looking
-for any single line. That photo goes from thirty-one squares wrong to twenty, and
-every printed digit in the whole collection is now read correctly.
-
-A DIGIT WRITTEN HIGH IN ITS SQUARE IS STILL A DIGIT
-
-The app decides a square holds a pencilled note rather than a digit partly by where
-the ink sits: notes go along the top of the square, answers in the middle. That is
-usually true and it was throwing away real digits written high in the box - including
-one full-sized 4 that missed the line by a fiftieth.
-
-A pencilled note is faint. So anything carrying half as much ink as the printed
-digits is now allowed to sit as high as the print does, and only fainter ink is held
-to the old line. Two more digits reach the screen, and nothing that was right before
-has changed.
-
-IT READS THE WHOLE DIGIT NOW, NOT THE BIGGEST PIECE OF IT
-
-When the app separates ink from paper it sometimes breaks a digit into pieces - on
-newsprint, out of focus, or where the pen was light. It was keeping only the largest
-piece and then blowing it up to full size, so what it tried to recognise was often a
-single stroke or half a loop rather than a digit.
-
-It now puts the pieces back together, but only pieces written in the same ink. That
-matters on your pages: where you have rubbed a digit out and written over it, the
-ghost of the old one is still faintly there, and sweeping it up with the new one was
-worse than the original fault.
-
-Measured on photos the reader has never seen, wrong digits fall from 63 to 45.
-
-THE READER
-
-Retrained on twenty-four photographs. The collection has grown from six of your
-pages to twenty-four, and the handwriting it is measured against from 180 digits
-to 753 - newsprint, ballpoint, creases, a curled page, a sudoku on a laptop
-screen, and one page finished wrongly, which is the only thing that tests Check
-properly.
-
-Scored the honest way, with every page read by a model that has never seen it,
-handwriting is 709 of 753 squares and print is 651 of 652. It was 174 of 180 when
-the collection was a quarter of the size and all of it was yours; the rate has
-held while the collection tripled and got harder.
-
-Please keep sending photos of anything it gets wrong. Every one of these came
-from a page that failed.
+Shut the list of puzzles, turn the phone from upright to sideways, and it
+opened again by itself over whatever you were looking at. It has done that for
+as long as the app has been allowed to rotate. It only ever happened in that
+one direction, which is what gave the cause away: the drawer is positioned in
+pixels, and a wider screen moves the closed position out from under it, so it
+settled to whichever end it was then nearer.
