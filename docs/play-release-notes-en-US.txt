@@ -1,0 +1,3 @@
+Initial release.
+
+Scan a printed Sudoku, correct recognized digits, and work through the solution with clear, step-by-step hints. Everything runs on your phone, with no accounts, ads, analytics, or uploads.

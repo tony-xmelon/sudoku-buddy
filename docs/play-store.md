@@ -14,8 +14,10 @@ against the state of the repository on 2 September 2026.
 | Signing | release builds are signed with the key in `docs/signing.md` |
 | Version code | `github.run_number`, so it only ever increases |
 | Permissions | `CAMERA` only; `ACCESS_NETWORK_STATE` is explicitly removed |
-| Privacy policy text | `docs/privacy-policy.md` — still needs hosting at a public URL |
+| Privacy policy | Live at `https://freevia.org/aisudoku/privacy` with source in `docs/privacy-policy.md` |
 | Store icon | `docs/store/icon-512.png` |
+| Feature graphic | `docs/store/feature-graphic-1024x500.png` |
+| Console answers | `docs/play-console-submission.md` |
 
 ## The 16 KB problem, and why it is worth knowing about
 
@@ -47,8 +49,8 @@ These cannot be done from the repository.
    `docs/signing.md` becomes the *upload key* — it keeps signing what we send, and Play
    re-signs for distribution. Keep it exactly as safe as before: losing it means asking
    Google to reset the upload key.
-4. **Host the privacy policy** at `https://freevia.org/aisudoku/privacy` and paste that URL
-   into the listing. Play requires a public, non-PDF privacy policy for every app.
+4. **Add the privacy policy** URL `https://freevia.org/aisudoku/privacy` to the listing.
+   It is already public and available as a non-PDF web page.
 5. **Data safety form.** The honest answers are: no data collected, no data shared, no
    data sent off the device. The camera is used but nothing from it leaves the phone.
 6. **Content rating questionnaire.** A sudoku reader with no ads, no purchases, no user
@@ -68,11 +70,11 @@ These cannot be done from the repository.
 Screenshots are worth taking on the phone rather than an emulator: the camera screen is
 most of the app's first impression, and an emulator cannot show it reading a real page.
 
-### Draft short description
+### Short description
 
-> Point your camera at a printed sudoku and get a tutor that explains every step.
+> Scan printed Sudoku puzzles and learn each solution step by step
 
-### Draft full description
+### Full description
 
 > AI Sudoku reads a printed sudoku through your camera and then teaches you how to solve
 > it, one step at a time, in plain language.
