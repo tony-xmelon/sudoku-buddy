@@ -152,6 +152,40 @@ class SyntheticGridTest {
     }
 
     @Test
+    fun `a firm candidate list is not an answer, on a page written large`() {
+        // The failure four photographs of one booklet page produced, and the only kind they
+        // produced: a candidate list pressed nearly as hard as an answer and wrapped onto
+        // two lines, so it is neither faint enough nor far enough up the square to be told
+        // by ink or by position, and tall enough to clear the floor an answer must clear.
+        //
+        // What is left to know it by is the rest of the page. This hand is half again the
+        // height of the press, and a hand that size has no figures at two thirds of it.
+        val readings = read(
+            SyntheticGrid.rectified(
+                SyntheticGrid.Page(
+                    givens,
+                    answers = halfWritten,
+                    hand = SyntheticGrid.Hand.LARGE,
+                    firmMarks = 0.9,
+                    seed = 23,
+                )
+            )
+        )
+        checkPrinted(readings, "with firm candidate lists")
+
+        val mistaken = (0 until 81).filter {
+            givens[it] == '.' && halfWritten[it] == '.' && readings[it]?.ink == Ink.ANSWER
+        }
+        assertTrue(mistaken.isEmpty(), "firm candidate lists taken for answers at $mistaken")
+
+        // And the rule has not eaten the handwriting it was told to measure.
+        val lost = (0 until 81).filter {
+            halfWritten[it] != '.' && readings[it]?.ink != Ink.ANSWER
+        }
+        assertTrue(lost.isEmpty(), "answers lost to the candidate rule at $lost")
+    }
+
+    @Test
     fun `an answer written over a rubbed-out digit is still one digit`() {
         // The same-ink rule under a different light: the ghost is close enough to touch and
         // faint enough not to belong, and gathering it would make a plus sign of a 7.

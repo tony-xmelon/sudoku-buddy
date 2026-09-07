@@ -67,6 +67,17 @@ object SyntheticGrid {
     ) {
         NEAT(0.52..0.66, -0.05..0.05, 1.5),
         LOOSE(0.60..0.86, -0.28..0.20, 4.0),
+
+        /**
+         * A hand plainly larger than the press, which is what a booklet gets.
+         *
+         * Where a newspaper prints a big grid and a small face, so that a solver writes at
+         * about the size of the press, a puzzle booklet prints a small face in a large
+         * square and the hand fills it: half again the height of a printed digit, which is
+         * what four photographs of one booklet page measure. The reader leans on that gap
+         * and this is the only hand here that has it.
+         */
+        LARGE(0.86..1.02, -0.12..0.12, 3.0),
     }
 
     /**
@@ -86,6 +97,17 @@ object SyntheticGrid {
         val pen: Int = 150,
         /** Fraction of the empty squares carrying pencilled candidate marks. */
         val marks: Double = 0.0,
+        /**
+         * Fraction of the empty squares carrying a firm, cramped candidate list.
+         *
+         * The hard kind, and a different thing from [marks]. Those are what a candidate
+         * mark is supposed to be - small, faint, and along the top of the square - and
+         * both size and position give them away. These are what somebody writing quickly
+         * in a small square actually leaves: pressed nearly as hard as an answer, so ink
+         * does not separate them, and wrapped onto a second line, so the list as a whole
+         * reaches two thirds of the height of a printed digit.
+         */
+        val firmMarks: Double = 0.0,
         /** Fraction of the answers written over a rubbed-out digit. */
         val ghosts: Double = 0.0,
         /** A lamp off to one side: 0 is flat, 1 takes a third of the light off one corner. */
@@ -137,7 +159,9 @@ object SyntheticGrid {
 
             val answer = page.answers?.get(index)?.takeIf { it != '.' }
             if (answer == null) {
-                if (page.marks > 0 && random.nextDouble() < page.marks) {
+                if (page.firmMarks > 0 && random.nextDouble() < page.firmMarks) {
+                    firmMarks(g, page, cell, centreX, centreY, random)
+                } else if (page.marks > 0 && random.nextDouble() < page.marks) {
                     pencilMarks(g, page, cell, centreX, centreY, random)
                 }
                 continue
@@ -263,6 +287,36 @@ object SyntheticGrid {
         val start = centreX - step * (how - 1) / 2.0
         for ((i, digit) in digits.withIndex()) {
             draw(g, '0' + digit, font, start + i * step, centreY - cell * 0.30, grey, 1.0)
+        }
+    }
+
+    /**
+     * A candidate list written firmly and cramped onto two lines. See [Page.firmMarks].
+     *
+     * Nothing here is faint and nothing sits far enough up the square to be caught by
+     * where it is. What is left to know it by is that its figures are small, and that
+     * the square is on a page whose handwriting is not.
+     */
+    private fun firmMarks(
+        g: Graphics2D,
+        page: Page,
+        cell: Double,
+        centreX: Double,
+        centreY: Double,
+        random: Random,
+    ) {
+        val grey = 255 - ((255 - page.pen) * 0.95).roundToInt()
+        val font = Font(page.family, Font.BOLD, (cell * 0.44).roundToInt())
+        val how = 2 + random.nextInt(2)
+        val digits = (1..9).shuffled(random).take(how).sorted()
+        val step = cell * 0.30
+        val start = centreX - step * (how - 1) / 2.0
+        // Wherever there was room, which is not always the top: across the four booklet
+        // photographs these sit anywhere from a fifth of a square above centre to a
+        // quarter below it, so position is no more reliable here than ink is.
+        val drop = random.nextDouble(-cell * 0.14, cell * 0.12)
+        for ((i, digit) in digits.withIndex()) {
+            draw(g, '0' + digit, font, start + i * step, centreY + drop, grey, 1.0)
         }
     }
 

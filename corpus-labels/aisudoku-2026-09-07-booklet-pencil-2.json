@@ -1,0 +1,26 @@
+{
+  "photo": "aisudoku-2026-09-07-booklet-pencil-2.jpg",
+  "givens": [
+    ".4.....2.",
+    "...4....3",
+    "....17...",
+    "5....2..4",
+    "2....18..",
+    "4.7.5..9.",
+    ".3.....58",
+    "......3.2",
+    "....786.."
+  ],
+  "written": [
+    ".4..3..2.",
+    "...4....3",
+    "3..2174..",
+    "5....2..4",
+    "2...418.5",
+    "4.7.5329.",
+    ".3..2..58",
+    "...1.53.2",
+    "...37864."
+  ],
+  "notes": "Four photographs of one page of a puzzle booklet, taken over about three hours as it was solved in pencil, by a second hand and a second phone. Grey stock, a heavy printed rule, twenty-four clues in a bold sans press face; the answers and the candidate marks are the same graphite, the same hand and often the same shape, differing only in size and in how firmly they were pressed.\n\nAll four arrived through a messaging app rather than off the camera: every one is exactly 1152 by 1152, cropped square to the grid and recompressed, with the EXIF stripped. That is a real way for a photograph to reach the app and worth having in the corpus - the grid fills the frame with almost no margin, which is the opposite of the newsprint pages here.\n\nThe twenty-four clues have exactly one solution, machine-checked, and every hand-written figure across all four photographs agrees with it, so the four labels are one puzzle at four depths: six, thirteen, twenty-four and twenty-five answers. Candidate marks are not recorded as writing - only figures written at full size in a square are.\n\nThirteen answers, and the candidate marks have multiplied: most empty squares now carry two to four small figures in a corner, several stacked onto a second line where they would not fit on one. Two squares have been rubbed out and rewritten, leaving a grey ghost under the new mark."
+}

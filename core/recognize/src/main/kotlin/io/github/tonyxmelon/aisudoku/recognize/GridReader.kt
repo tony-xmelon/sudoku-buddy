@@ -116,7 +116,9 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
             }
         }
 
-        val settled = takeBackAFigureRank(readings, ink, core)
+        val settled = sortWhatALargeHandCannotHaveWritten(
+            takeBackAFigureRank(readings, ink, core), ink, core,
+        )
 
         val printed = settled.filter { it.ink == Ink.PRINTED }
         if (printed.size < MIN_GIVENS) {
@@ -243,6 +245,67 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
 
         val taken = agreeing.mapTo(mutableSetOf()) { (reading, _) -> reading.index }
         return readings.map { if (it.index in taken) it.copy(ink = Ink.PRINTED) else it }
+    }
+
+    /**
+     * What a page's own handwriting says cannot have come from it, in both directions.
+     *
+     * A pencilled candidate list is small and sits in a corner, so size and position
+     * catch nearly all of them. What escapes is the list somebody has written firmly:
+     * pressed hard, in a cramped square, two or three figures deep. It is faint for
+     * neither test - it carries a quarter to four fifths of the print's ink - and though
+     * each figure is small, one of them fused to its neighbour measures two thirds of the
+     * printed height, which clears the floor an answer has to clear.
+     *
+     * Nothing about such a mark on its own says it is one. What says so is the rest of
+     * the page. Where the writer's hand is plainly larger than the press - answers
+     * running half again the height of a printed digit - that hand has no small figures
+     * in it, and a blob at two thirds of the print did not come from it. Four
+     * photographs of one booklet page, taken as it was solved, produced nine of these and
+     * no other kind of error.
+     *
+     * So the page is asked where its own handwriting lies, and everything far below that
+     * is put back - and, for the same reason, anything among the answers that carries
+     * press ink is given to the press, which is the other way the same measure goes
+     * wrong. See [FROM_THE_PRESS]. This is the mirror of [takeBackAFigureRank], which asks the same
+     * question of the print and promotes what agrees with it, and it is deliberately
+     * confined the same way. It is allowed to run only when the two populations are
+     * plainly apart - a median at [A_LARGER_HAND] of the print or more, which every page
+     * in the corpus is either well above or well below, with nothing between 1.18 and
+     * 1.42 - and it only takes what is below [TOO_SMALL_FOR_THAT_HAND] of that median.
+     * Both thresholds sit in the middle of a plateau rather than on an edge: anything
+     * from 0.60 to 0.70 takes the same nine cells and costs nothing, and 0.75 begins to
+     * cost real answers.
+     */
+    private fun sortWhatALargeHandCannotHaveWritten(
+        readings: List<CellReading>,
+        ink: List<CellInk?>,
+        core: PrintedCore,
+    ): List<CellReading> {
+        val hand = readings
+            .filter { it.ink == Ink.ANSWER }
+            .mapNotNull { reading -> ink[reading.index]?.blob?.heightRatio?.div(core.height) }
+        if (hand.size < ENOUGH_FOR_A_HAND) return readings
+
+        // A median rather than a mean, and over the answers as they stand: the marks this
+        // rule is looking for are among them, and a handful of small intruders must not be
+        // able to drag the measure of the hand down towards themselves.
+        val middle = median(hand)
+        if (middle < A_LARGER_HAND) return readings
+
+        val floor = middle * TOO_SMALL_FOR_THAT_HAND
+        return readings.map { reading ->
+            val blob = ink[reading.index]?.blob
+            if (reading.ink != Ink.ANSWER || blob == null) {
+                reading
+            } else if (blob.heightRatio / core.height < floor) {
+                reading.copy(ink = Ink.MARK, probabilities = null)
+            } else if (inkOf(blob, core) >= FROM_THE_PRESS) {
+                reading.copy(ink = Ink.PRINTED)
+            } else {
+                reading
+            }
+        }
     }
 
     private fun settle(
@@ -714,6 +777,46 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
          * the press - are solved pages, and there the count guard refuses the rule first.
          */
         private const val RANK_CONTRAST = 0.72
+
+        /**
+         * How many answers a page needs before its handwriting has a size worth measuring.
+         *
+         * A median over three or four cells is not a population, and this rule demotes on
+         * the strength of it. Every page it fires on has sixteen or more.
+         */
+        private const val ENOUGH_FOR_A_HAND = 5
+
+        /**
+         * When a page's handwriting counts as plainly larger than its print.
+         *
+         * The corpus splits cleanly here and the number is the middle of the gap: pages
+         * where the hand works at the size of the press have a median answer of 1.00 to
+         * 1.18 of the printed height, and pages where it is plainly larger run 1.42 to
+         * 1.59. Nothing lies between.
+         */
+        private const val A_LARGER_HAND = 1.30
+
+        /** How far below a page's own handwriting a blob may not have come from it. */
+        private const val TOO_SMALL_FOR_THAT_HAND = 0.70
+
+        /**
+         * How much ink says a blob was laid down by the press, whatever its size.
+         *
+         * The other half of the same page. A printed digit with a pencil stroke fused to
+         * it - a stray tail from the square below, a red ring drawn round it to teach
+         * something - measures too tall for the printed band and is offered as an answer.
+         * Its size is genuinely wrong and no size rule can save it; what is still right
+         * about it is the ink, because a press lays down more than a pen or a pencil can
+         * and neither the fused stroke nor the ring is heavy enough to dilute that much.
+         *
+         * Over the eleven large-hand pages the whole of the handwriting carries at most
+         * 0.73 of the print's ink and the two fused givens carry 0.78 and 0.82, so the
+         * line goes between them. It is a narrower margin than the rest of this class and
+         * is written down as such: it takes two cells and costs none, but it has a page
+         * either side of it rather than the corpus, and it is confined to pages where the
+         * hand is plainly larger than the press for that reason.
+         */
+        private const val FROM_THE_PRESS = 0.76
 
         private const val ENOUGH_TO_SETTLE = 20
 

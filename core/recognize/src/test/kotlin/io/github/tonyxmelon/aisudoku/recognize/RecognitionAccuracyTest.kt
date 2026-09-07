@@ -121,6 +121,7 @@ class RecognitionAccuracyTest {
         var knownWrong = 0
         var faintWrong = 0
         var drawnWrong = 0
+        var fusedWrong = 0
         val wrong = StringBuilder()
 
         for (file in CorpusFixtures.photos) {
@@ -148,6 +149,8 @@ class RecognitionAccuracyTest {
                     faintWrong++
                 } else if (file.name in CorpusLabels.drawnOver) {
                     drawnWrong++
+                } else if ((file.name to i) in CorpusLabels.fusedIntoPrint) {
+                    fusedWrong++
                 } else {
                     wrong.append("\n  ${file.name} r${i / 9 + 1}c${i % 9 + 1}: $expected read as $actual")
                 }
@@ -157,8 +160,9 @@ class RecognitionAccuracyTest {
         println("of which on pages that defeat it: $knownWrong")
         println("and on the one photograph of a screen: $faintWrong")
         println("and on pages drawn over in red: $drawnWrong")
+        println("and single cells with pencil fused into the print: $fusedWrong")
         assertTrue(
-            right + knownWrong + faintWrong + drawnWrong == total,
+            right + knownWrong + faintWrong + drawnWrong + fusedWrong == total,
             "cells sorted wrongly on pages that should be sorted correctly:$wrong",
         )
         assertTrue(

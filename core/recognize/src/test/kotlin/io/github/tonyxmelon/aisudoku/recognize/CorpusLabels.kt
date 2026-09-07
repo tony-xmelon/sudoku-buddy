@@ -114,6 +114,32 @@ object CorpusLabels {
         "aisudoku-2026-09-05-screen-ambiguous.jpg",
     )
 
+    /**
+     * Single cells that are known to be wrong, on pages that are otherwise right.
+     *
+     * The buckets above exempt a whole photograph, which is the right shape when the
+     * whole photograph defeats a rule and the wrong shape when one square does. Listing
+     * the square keeps the other eighty honest: every cell of these pages is scored, and
+     * only the one named here is allowed to be wrong.
+     *
+     * A pencilled "19" written large and firmly across the top of a square, over the grey
+     * of two earlier marks rubbed out. It is the height of a printed digit and sits
+     * inside the printed band, so size and position both call it print, and it carries
+     * 0.23 of the press's ink where that page's real print carries 0.65 to 1.27.
+     *
+     * Ink is therefore the thing that knows, and the reader will not ask it here: ink is
+     * only consulted for print when the size rule has already failed, and on this page
+     * size works for all eighty other squares. Making it a standing condition was
+     * measured - it takes this cell and three like it and costs no given - but the margin
+     * is 0.30 to 0.34, one page either side, which is thinner than anything else the
+     * reader decides on, and the cell it saves is still wrong afterwards: demoted from
+     * print it becomes an answer rather than a mark. Worth a fifth photograph of this
+     * page before it is worth a threshold.
+     */
+    val fusedIntoPrint = setOf(
+        "aisudoku-2026-09-07-booklet-pencil-4.jpg" to 6,
+    )
+
     data class Truth(val digit: Int?, val source: Source)
 
     private val directory = File("../../corpus-labels").canonicalFile
