@@ -1,61 +1,35 @@
-Four things this build does that the last one would not.
+Two things this build does that the last one would not.
 
-A PUZZLE PRINTED IN OLD-STYLE FIGURES NOW READS
+A NEWSPAPER PAGE THAT PRINTS LAST WEEK'S ANSWER NOW READS THE PUZZLE
 
-The app finds the printed digits first, and it decides what is printed largely
-by height: the print is the one thing on the page set at a single size, so
-anything much shorter or taller is something else. That is true of most fonts
-and not of all of them. In an old-style font - text figures, which newspapers
-do set - the 1 and the 2 sit low, about three quarters the height of the 6 and
-the 8, and every one of them was being filed as your handwriting. A puzzle
-would come back missing a third of its clues, with nothing misread: the digits
-were all recognised correctly and simply put in the wrong pile.
+Photograph a syndicated newspaper sudoku and you usually photograph two grids:
+this week's puzzle, and last week's solution printed underneath it at about half
+the size. The app read the solution.
 
-A whole rank of figures is now taken back, but only on evidence that it is a
-rank rather than a hand. A font repeats itself exactly, so the short figures
-all measure the same to within a hundredth, where handwriting on the same page
-varies ten times as much. They also have to be as dark as the rest of the
-print, be shorter than the print rather than taller, and leave the page with a
-believable number of clues - so on a puzzle you have already filled in, where
-the answers outnumber the clues, the rule cannot fire at all.
+It had a reason. Faced with more than one grid it kept the best one, and the
+solution grid is the better grid by every measure it had: it is filled with clean
+print and nothing crosses its rules, where the puzzle you are solving has an
+answer written in every square and pencilled candidates in the corners. Measured
+on such a page the solution scored 0.875 and the puzzle 0.681, so the app
+straightened the wrong one and read out last week's answers.
 
-THE APP NO LONGER INVENTS DIGITS OUT OF NOTHING
+It now keeps the biggest grid rather than the best one, among those that are
+clearly grids at all. Size is the one thing that says what you meant: you pointed
+the camera at the puzzle you are solving, so the one you meant is the one filling
+the frame. Nothing merely large can win this way - the app asks a grid for the
+twenty rules a grid must have, and the border of a page or the edge of a table has
+none of them and scores zero.
 
-A photograph of a screen came back with fourteen extra 1s in squares that were
-empty. They were not digits: each was a smear about three grey levels darker
-than the paper around it, where the real digits on that page stood a hundred
-and thirty levels clear. Nothing in the check for a printed digit had ever
-asked whether there was any ink there - every test was about how big the mark
-was and where it sat, and a stripe of noise is the height of a digit and sits
-where a digit sits.
+MORE GRIDS ARE FOUND WHEN ONE RULE IS MISSING
 
-Ink now has to be ink: a mark carrying less than a tenth of the depth of that
-page's own print is not a mark anybody made. It is measured against the page
-rather than as a fixed shade, because the pages that need it most are the faint
-ones - a photograph of a screen can be four times fainter than newsprint all
-over, and a fixed threshold would either pass the noise or throw away the
-digits.
+The app already forgave a single missing rule, on the sensible ground that a rule
+nobody can see is still where the grid says it is - a thumb over a corner, a
+highlight across a screen. But it only forgave it when the grid had been found by
+tracing its outline, and not when the grid had been found by its cells instead,
+which is what happens whenever the border is too faint or too broken to trace.
 
-A PHOTOGRAPH OF A SCREEN READS BETTER
-
-Photograph a monitor and the camera's sensor beats against the screen's pixels,
-combing every square with fine vertical stripes. On their own they are
-harmless. Where one touches a digit the two become a single mark with a
-one-pixel thread standing out of the top of it - and the mark is then half
-again as tall as the print, which is exactly what handwriting looks like.
-Twelve of the thirty printed digits on one such photograph went that way.
-
-On a page that is actually combed, a digit's height is now measured across the
-part of it that is wider than a thread. The page has to be measurably striped
-first: the two affected photographs are five times more striped than any other
-page there is, so a photograph of paper takes precisely the path it took
-before. Twelve wrong became one, and on a second such page five became one.
-
-THE DRAWER NO LONGER OPENS ITSELF WHEN YOU TURN THE PHONE
-
-Shut the list of puzzles, turn the phone from upright to sideways, and it
-opened again by itself over whatever you were looking at. It has done that for
-as long as the app has been allowed to rotate. It only ever happened in that
-one direction, which is what gave the cause away: the drawer is positioned in
-pixels, and a wider screen moves the closed position out from under it, so it
-settled to whichever end it was then nearer.
+That was the wrong way round if anything: a grid found by its cells is fitted to
+scores of them and knows where its edges are rather better than a traced outline
+does. Both now get the same allowance. A puzzle with a hairline border, whose
+bottom rule fell a shade outside what the app had fitted, went from being refused
+outright to being read.
