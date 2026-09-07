@@ -1,0 +1,26 @@
+{
+  "photo": "rd-2026-09-07-illustrated-1.jpg",
+  "givens": [
+    ".7......9",
+    "51.42.6..",
+    ".8.3..7..",
+    "..8..137.",
+    ".23.8..4.",
+    "4..9..1..",
+    "9628...3.",
+    "....1.4..",
+    "7..2.3.96"
+  ],
+  "written": [
+    ".7......9",
+    "51.42.6..",
+    ".8.3..7..",
+    "..8..137.",
+    ".23.8..4.",
+    "4..9..1..",
+    "9628...3.",
+    "....1.4..",
+    "7.12.3.96"
+  ],
+  "notes": "An illustration from a puzzle-tips article rather than a photograph: a rendered grid, teal rules and teal digits on near-white, drawn at 680 pixels square. Thirty-three clues, machine-checked to have exactly one solution.\n\nEverything printed is one colour, so unlike a newspaper there is no ink to tell a clue from an answer - the page is simply unsolved. The single exception is the one cell somebody has answered: a black 1 in a yellow circle at r9c3, which the solution agrees with. That is the only handwriting on the page and it is drawn, not written.\n\nOver the top are the article's teaching marks in red: two rings round existing digits, a line down one column and two along a row. They cross cells and rules, which is the reason this page is here - a grid found in spite of somebody drawing over it. The reader locates it at 0.98.\n\nCopyright the publisher; like every photograph here it stays on this machine and only the label is committed."
+}

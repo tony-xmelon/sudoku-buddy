@@ -1,0 +1,26 @@
+{
+  "photo": "wikihow-2026-09-07-paper-highlighted-b.jpg",
+  "givens": [
+    ".3..7.5..",
+    ".21....69",
+    "54....1..",
+    "...9.....",
+    "8942637.5",
+    ".....7...",
+    "..3....21",
+    "17...648.",
+    "..9.3..5."
+  ],
+  "written": [
+    "93..71542",
+    "721....69",
+    "54..2917.",
+    "2.79...3.",
+    "894263715",
+    "3.5..7.9.",
+    "6537..921",
+    "172596483",
+    "489132657"
+  ],
+  "notes": "An illustration from a how-to article: a grid drawn onto a photograph of crumpled paper, with the cells shaded green and orange, a pen laid across the corner, and small pencilled candidates in several squares. Thirty-one clues in black, twenty-nine answers in blue, sixty of the eighty-one squares filled.\n\nThe split between clue and answer is measured rather than transcribed. The illustration draws clues in black and answers in blue, so every filled cell was sampled for colour after warping the page by the corners the reader itself found - and the two populations do not touch: black digits sit at -8 to -16 on blue-minus-the-rest, blue ones at +22 to +65, with nothing between. That matters here more than usual, because in grayscale the blue is simply lighter ink, which is the same signal the triage uses to tell a pen from a press. The page is therefore a test of exactly that, drawn instead of photographed.\n\nWhat cannot be verified is the puzzle, because it is not one. The thirty-one clues admit three solutions, and so does the page as drawn with sixty squares filled: the three differ only in the six squares left empty, which are the ones the illustration marks with candidate pairs. So this label carries no uniqueness proof - what it has instead is the colour measurement above, and the fact that no row, column or box on the page contradicts itself. It is fit for scoring what is read and what is sorted, and unfit for anything that assumes a real puzzle.\n\nCopyright the publisher; the picture stays on this machine and only the label is committed."
+}

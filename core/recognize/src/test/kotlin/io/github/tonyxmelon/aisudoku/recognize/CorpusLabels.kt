@@ -39,6 +39,15 @@ object CorpusLabels {
      * candidates left in the corners. Seven of its eighty-one squares are sorted wrongly,
      * five of them printed digits taken for answers, which is the same failure in the same
      * direction. The size assumption fails for at least two real hands.
+     *
+     * The fifteenth page is not a hand at all and is here because it is the limit of the
+     * same problem. An illustrated puzzle draws its clues in black and its answers in
+     * blue, in one font at one size - so the two differ in colour and in nothing else, and
+     * colour is the one thing a grayscale reader cannot see. What is left of the
+     * difference is that blue ink is lighter, which is a real signal and not a sufficient
+     * one: twenty-three of its sixty filled squares are sorted wrongly, eighteen clues
+     * taken for answers and five the other way. It is the honest floor of sorting by size
+     * and ink, and nothing short of reading colour will move it far.
      */
     val sameSizeHandwriting = setOf(
         "aisudoku-2026-09-04-newsprint-blue-1.jpg",
@@ -54,6 +63,7 @@ object CorpusLabels {
         "aisudoku-2026-09-04-newsprint-welded-border.jpg",
         "aisudoku-2026-09-04-newsprint-curled.jpg",
         "aisudoku-2026-09-07-newsprint-mepham-marker.jpg",
+        "wikihow-2026-09-07-paper-highlighted-b.jpg",
     )
 
     /**
@@ -80,6 +90,26 @@ object CorpusLabels {
      * offered as answers rather than print. Every digit is present and right; they are
      * editable where they should be fixed, which is the mildest form this fault takes.
      */
+    /**
+     * Pages somebody has drawn over, where the drawing crosses the digits.
+     *
+     * Illustrations from puzzle articles, where the point being taught is marked on the
+     * grid in red: a ring round a digit, a line down a column, a line along a row. The
+     * lines are drawn through the cells rather than beside them, so in grayscale a digit
+     * and the line through it are one mark - taller than the print, which is what
+     * handwriting looks like, and a different shape, so a 7 with a line down it reads as
+     * a 1.
+     *
+     * It is the same mechanism as the striping a camera makes of a monitor, and it is not
+     * fixed the same way: that is a hairline and this is a stroke as heavy as the digit.
+     * Whether it is worth fixing is a fair question - a red pen through a printed digit is
+     * an editorial mark rather than something a solver does - but it is measured here
+     * rather than assumed away.
+     */
+    val drawnOver = setOf(
+        "rd-2026-09-07-illustrated-1.jpg",
+    )
+
     val faintOnScreen = setOf(
         "aisudoku-2026-09-05-screen-ambiguous.jpg",
     )

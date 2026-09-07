@@ -116,6 +116,7 @@ class GridReaderTest {
             // is kept in the corpus as a page the app now gets a grid from and reads most
             // of, which is the point of it. See [CorpusLabels.faintOnScreen].
             if (file.name in CorpusLabels.faintOnScreen) continue
+            if (file.name in CorpusLabels.drawnOver) continue
             for (i in 0 until 81) {
                 if (truth[i].source != CorpusLabels.Source.GIVEN) continue
                 assertTrue(

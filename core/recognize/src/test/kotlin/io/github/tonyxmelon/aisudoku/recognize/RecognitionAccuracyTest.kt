@@ -80,8 +80,13 @@ class RecognitionAccuracyTest {
          * regression: a newspaper puzzle finished by a second reader in black marker. Six
          * of its squares land here, five of them printed digits taken for answers. The
          * twelve pages counted before it stand at the same 57 they did.
+         *
+         * And from 63 to 86 on a fifteenth, which is the same addition again and a larger
+         * one: an illustrated puzzle whose clues and answers are one font at one size,
+         * differing only in a colour the reader cannot see. Twenty-three of its sixty
+         * filled squares. The fourteen pages counted before it are unmoved.
          */
-        const val SAME_SIZE_HANDWRITING_MISSORTS = 63
+        const val SAME_SIZE_HANDWRITING_MISSORTS = 86
 
         /**
          * Cells sorted wrongly on the one photograph of a screen.
@@ -115,6 +120,7 @@ class RecognitionAccuracyTest {
         var total = 0
         var knownWrong = 0
         var faintWrong = 0
+        var drawnWrong = 0
         val wrong = StringBuilder()
 
         for (file in CorpusFixtures.photos) {
@@ -140,6 +146,8 @@ class RecognitionAccuracyTest {
                     knownWrong++
                 } else if (file.name in CorpusLabels.faintOnScreen) {
                     faintWrong++
+                } else if (file.name in CorpusLabels.drawnOver) {
+                    drawnWrong++
                 } else {
                     wrong.append("\n  ${file.name} r${i / 9 + 1}c${i % 9 + 1}: $expected read as $actual")
                 }
@@ -148,8 +156,9 @@ class RecognitionAccuracyTest {
         println("triage: $right/$total cells sorted correctly")
         println("of which on pages that defeat it: $knownWrong")
         println("and on the one photograph of a screen: $faintWrong")
+        println("and on pages drawn over in red: $drawnWrong")
         assertTrue(
-            right + knownWrong + faintWrong == total,
+            right + knownWrong + faintWrong + drawnWrong == total,
             "cells sorted wrongly on pages that should be sorted correctly:$wrong",
         )
         assertTrue(
@@ -181,6 +190,9 @@ class RecognitionAccuracyTest {
         for (file in CorpusFixtures.photos) {
             val truth = CorpusLabels.forPhoto(file.name) ?: continue
             val verdict = assertIs<GateVerdict.Usable>(StructuralGate.assess(CorpusFixtures.load(file)))
+
+            // A digit with a line drawn through it is a different shape. See [CorpusLabels.drawnOver].
+            if (file.name in CorpusLabels.drawnOver) continue
 
             CellAnalyzer.inspect(verdict.cells).forEachIndexed { index, ink ->
                 val expected = truth[index].digit ?: return@forEachIndexed
