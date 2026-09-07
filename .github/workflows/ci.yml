@@ -61,7 +61,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: aisudoku-apk
+          name: sudoku-buddy-apk
           path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
 
@@ -77,7 +77,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: aisudoku-bundle
+          name: sudoku-buddy-bundle
           path: app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
 
@@ -108,7 +108,7 @@ jobs:
         run: |
           if [ -z "$APP_ID" ]; then
             echo "kind=none" >> "$GITHUB_OUTPUT"
-            echo "::warning::No FIREBASE_APP_ID for org.freevia.aisudoku, so this build was not distributed."
+            echo "::warning::No FIREBASE_APP_ID for org.freevia.sudokubuddy, so this build was not distributed."
             echo "::warning::Register the new package in Firebase and set the FIREBASE_APP_ID secret."
           elif [ -n "$TOKEN" ]; then
             echo "kind=token" >> "$GITHUB_OUTPUT"

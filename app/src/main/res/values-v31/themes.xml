@@ -5,7 +5,7 @@
         icon's foreground layer over this background. The foreground carries the whole
         mark, so putting the icon's own paper behind it makes the splash the icon.
     -->
-    <style name="Theme.AiSudoku" parent="android:Theme.Material.NoActionBar">
+    <style name="Theme.SudokuBuddy" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/brand_ink</item>
         <item name="android:windowSplashScreenBackground">@color/brand_paper</item>
     </style>

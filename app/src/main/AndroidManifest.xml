@@ -22,7 +22,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AiSudoku">
+        android:theme="@style/Theme.SudokuBuddy">
         <!--
           No fixed orientation. From Android 16 a locked one is ignored on large screens
           anyway, so the choice was never whether to support landscape - only whether to
@@ -37,7 +37,7 @@
             android:name=".app.MainActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
-            android:theme="@style/Theme.AiSudoku">
+            android:theme="@style/Theme.SudokuBuddy">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

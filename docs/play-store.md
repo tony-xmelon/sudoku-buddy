@@ -1,4 +1,4 @@
-# Getting AI Sudoku onto Google Play
+# Getting Sudoku Buddy onto Google Play
 
 What is done, what needs a developer account, and what still needs a decision. Written
 against the state of the repository on 2 September 2026.
@@ -14,7 +14,7 @@ against the state of the repository on 2 September 2026.
 | Signing | release builds are signed with the key in `docs/signing.md` |
 | Version code | `github.run_number`, so it only ever increases |
 | Permissions | `CAMERA` only; `ACCESS_NETWORK_STATE` is explicitly removed |
-| Privacy policy | Live at `https://freevia.org/aisudoku/privacy` with source in `docs/privacy-policy.md` |
+| Privacy policy | Live at `https://freevia.org/sudoku-buddy/privacy` with source in `docs/privacy-policy.md` |
 | Store icon | `docs/store/icon-512.png` |
 | Feature graphic | `docs/store/feature-graphic-1024x500.png` |
 | Console answers | `docs/play-console-submission.md` |
@@ -42,14 +42,14 @@ These cannot be done from the repository.
 
 1. **Register**, pay the one-off fee, and complete identity verification. Verification can
    take a few days, so it is worth starting before the listing is ready.
-2. **Create the app** with package name `org.freevia.aisudoku`. This is permanent
+2. **Create the app** with package name `org.freevia.sudokubuddy`. This is permanent
    — it cannot be changed after the first upload, and it is the identity every future
    update is matched against.
 3. **Enrol in Play App Signing.** Play then holds the *app signing key* and the key in
    `docs/signing.md` becomes the *upload key* — it keeps signing what we send, and Play
    re-signs for distribution. Keep it exactly as safe as before: losing it means asking
    Google to reset the upload key.
-4. **Add the privacy policy** URL `https://freevia.org/aisudoku/privacy` to the listing.
+4. **Add the privacy policy** URL `https://freevia.org/sudoku-buddy/privacy` to the listing.
    It is already public and available as a non-PDF web page.
 5. **Data safety form.** The honest answers are: no data collected, no data shared, no
    data sent off the device. The camera is used but nothing from it leaves the phone.
@@ -63,7 +63,7 @@ These cannot be done from the repository.
 | App icon | 512x512 PNG | `docs/store/icon-512.png` |
 | Feature graphic | 1024x500 PNG | `docs/store/feature-graphic-1024x500.png` |
 | Phone screenshots | at least 2, 16:9 or 9:16, min 320px | still to capture from a real phone |
-| Title | 30 characters | "AI Sudoku" |
+| Title | 30 characters | "Sudoku Buddy" |
 | Short description | 80 characters | draft below |
 | Full description | 4000 characters | draft below |
 
@@ -76,7 +76,7 @@ most of the app's first impression, and an emulator cannot show it reading a rea
 
 ### Full description
 
-> AI Sudoku reads a printed sudoku through your camera and then teaches you how to solve
+> Sudoku Buddy reads a printed sudoku through your camera and then teaches you how to solve
 > it, one step at a time, in plain language.
 >
 > Photograph a puzzle from a newspaper or a book. The app finds the grid, reads the printed

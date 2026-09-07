@@ -1,7 +1,7 @@
 # Camera Sudoku Solver — Design
 
 **Date:** 2026-08-30
-**Repo:** https://github.com/tony-xmelon/aisudoku
+**Repo:** https://github.com/tony-xmelon/sudoku-buddy
 **Status:** Approved, ready for implementation planning
 
 ## 1. Purpose
@@ -568,8 +568,8 @@ Exact versions get resolved and locked during M0 rather than guessed here.
 
 ## 12. Distribution
 
-Test builds go out through **Firebase App Distribution**, project `aisudoku-xmelon`
-(https://console.firebase.google.com/u/2/project/aisudoku-xmelon/overview). This applies from the
+Test builds go out through **Firebase App Distribution**, project `sudoku-buddy-freevia`
+(https://console.firebase.google.com/u/2/project/sudoku-buddy-freevia/overview). This applies from the
 first installable build onward and is a concern of the Android plans, not the core engine.
 
 Two things to get right when that work starts:
@@ -578,7 +578,7 @@ Two things to get right when that work starts:
   service account key is a credential** and must never be. It is already in `.gitignore`; in CI it
   belongs in a repository secret.
 - App Distribution needs the applicationId to match the Firebase app registration, which fixes
-  `io.github.tonyxmelon.aisudoku` in place earlier than a Play release would. Changing it later
+  `org.freevia.sudokubuddy` in place earlier than a Play release would. Changing it later
   means re-registering the app.
 
 Nothing here implies analytics, Crashlytics or any other Firebase service. The app makes no network

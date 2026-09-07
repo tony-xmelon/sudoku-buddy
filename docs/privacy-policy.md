@@ -1,14 +1,14 @@
-# Privacy policy for AI Sudoku
+# Privacy policy for Sudoku Buddy
 
 Last updated 7 September 2026.
 
-AI Sudoku is published by **Freevia**.
+Sudoku Buddy is published by **Freevia**.
 Questions about this policy or the app's handling of data can be sent to
 [info@freevia.org](mailto:info@freevia.org).
 
 ## The short version
 
-AI Sudoku does not collect anything. It has no accounts, no analytics, no advertising and
+Sudoku Buddy does not collect anything. It has no accounts, no analytics, no advertising and
 no network permission at all, so there is no server for your data to reach.
 
 ## What the app stores, and where
@@ -72,4 +72,4 @@ is public in the repository it lives in.
 ## Contact
 
 Email [info@freevia.org](mailto:info@freevia.org). You can also raise a public technical
-issue at https://github.com/tony-xmelon/aisudoku/issues.
+issue at https://github.com/tony-xmelon/sudoku-buddy/issues.

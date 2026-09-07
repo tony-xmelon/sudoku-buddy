@@ -58,7 +58,7 @@ Everything in this section was run against `corpus/` on this machine. Treat it a
 
 ```
 core/vision/build.gradle.kts
-core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/
+core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/
     GrayImage.kt          plain Kotlin image type. The module's only input.
     OpenCvNatives.kt      the load-once seam; differs on JVM and Android
     Mats.kt               internal GrayImage <-> Mat conversion. Not public.
@@ -70,7 +70,7 @@ core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/
     CellExtractor.kt      CellGeometry -> 81 cell images
     ImageQuality.kt       sharpness, luma, glare
     StructuralGate.kt     the early-out verdict of spec 4.1
-core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/
+core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/
     CorpusFixtures.kt     locates corpus/, skips when absent
     Degrade.kt            synthesises reject cases from good photos
     ...one test file per class above, plus CorpusHarnessTest
@@ -85,8 +85,8 @@ tools/dump-cells/         a runnable task that writes rectified grids and cell c
 
 **Files:**
 - Create: `core/vision/build.gradle.kts`
-- Create: `core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/OpenCvNatives.kt`
-- Test: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/OpenCvNativesTest.kt`
+- Create: `core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/OpenCvNatives.kt`
+- Test: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/OpenCvNativesTest.kt`
 - Modify: `settings.gradle.kts`, `gradle/libs.versions.toml`
 
 - [ ] **Step 1: Add the version catalog entries**
@@ -144,7 +144,7 @@ tasks.test {
 - [ ] **Step 4: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import org.opencv.core.CvType
 import org.opencv.core.Mat
@@ -184,7 +184,7 @@ Expected: FAIL — `Unresolved reference: OpenCvNatives`.
 - [ ] **Step 6: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 /**
  * Loads the OpenCV native library exactly once.
@@ -236,15 +236,15 @@ supply the AAR. Same org.opencv API either way."
 `GrayImage` is the module's only input type, so nothing above it ever touches OpenCV. `CorpusFixtures` is what lets corpus tests exist at all given the photos are not in git.
 
 **Files:**
-- Create: `core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/GrayImage.kt`
-- Create: `core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/Mats.kt`
-- Test: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/CorpusFixtures.kt`
-- Test: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/GrayImageTest.kt`
+- Create: `core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/GrayImage.kt`
+- Create: `core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/Mats.kt`
+- Test: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/CorpusFixtures.kt`
+- Test: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/GrayImageTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -295,7 +295,7 @@ Expected: FAIL — `Unresolved reference: GrayImage`.
 - [ ] **Step 3: Write `GrayImage.kt`**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 /**
  * An 8-bit grayscale image, row-major, one byte per pixel.
@@ -323,7 +323,7 @@ class GrayImage(val width: Int, val height: Int, val pixels: ByteArray) {
 - [ ] **Step 4: Write `Mats.kt`**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import org.opencv.core.CvType
 import org.opencv.core.Mat
@@ -348,7 +348,7 @@ internal fun Mat.toGrayImage(): GrayImage {
 - [ ] **Step 5: Write the corpus fixture helper**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import java.awt.image.BufferedImage
@@ -415,7 +415,7 @@ Expected: `BUILD SUCCESSFUL`.
 - [ ] **Step 7: Add a corpus sanity test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -456,13 +456,13 @@ tests skip rather than fail."
 ## Task 3: `Quad` — four corners and the questions asked of them
 
 **Files:**
-- Create: `core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/Quad.kt`
-- Test: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/QuadTest.kt`
+- Create: `core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/Quad.kt`
+- Test: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/QuadTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -529,7 +529,7 @@ Expected: FAIL — `Unresolved reference: Quad`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -644,13 +644,13 @@ git commit -m "Add Quad with the geometric checks of the acceptance gate"
 Produces *candidates*, deliberately not a decision. Task 5 chooses. Keeping them apart is what makes the paper-versus-grid problem solvable.
 
 **Files:**
-- Create: `core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/QuadDetector.kt`
-- Test: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/QuadDetectorTest.kt`
+- Create: `core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/QuadDetector.kt`
+- Test: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/QuadDetectorTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -710,7 +710,7 @@ Expected: FAIL — `Unresolved reference: QuadDetector`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
@@ -817,14 +817,14 @@ sheet of paper is a larger, cleaner quad than the grid printed on it."
 The heart of this plan. `GridScorer` answers "does this rectification actually contain a 9x9 grid"; `GridLocator` uses it to pick.
 
 **Files:**
-- Create: `core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/GridScorer.kt`
-- Create: `core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/GridLocator.kt`
-- Test: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/GridLocatorTest.kt`
+- Create: `core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/GridScorer.kt`
+- Create: `core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/GridLocator.kt`
+- Test: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/GridLocatorTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -898,7 +898,7 @@ Expected: FAIL — `Unresolved reference: GridLocator`.
 - [ ] **Step 3: Write `GridScorer.kt`**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import org.opencv.core.Mat
 import org.opencv.imgproc.Imgproc
@@ -970,7 +970,7 @@ internal object GridScorer {
 - [ ] **Step 4: Write `GridLocator.kt`**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
@@ -1064,13 +1064,13 @@ peaks; counting rejected three of six good photos."
 Dividing the rectified square into ninths assumes the paper was flat. Two corpus photographs are curled or bowed, so the real lines drift from the ideal ones and evenly-spaced cropping clips digits near the edges.
 
 **Files:**
-- Create: `core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/GridLineFitter.kt`
-- Test: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/GridLineFitterTest.kt`
+- Create: `core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/GridLineFitter.kt`
+- Test: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/GridLineFitterTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.math.abs
 import kotlin.test.Test
@@ -1153,7 +1153,7 @@ Expected: FAIL — `Unresolved reference: GridLineFitter`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import org.opencv.core.Mat
 import org.opencv.imgproc.Imgproc
@@ -1290,13 +1290,13 @@ division, which clips digits when the page is curled or bowed."
 ## Task 7: `CellExtractor` — 81 cell images
 
 **Files:**
-- Create: `core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/CellExtractor.kt`
-- Test: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/CellExtractorTest.kt`
+- Create: `core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/CellExtractor.kt`
+- Test: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/CellExtractorTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -1365,7 +1365,7 @@ Expected: FAIL — `Unresolved reference: CellExtractor`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 /** Cuts the 81 cell images out of a rectified grid. */
 object CellExtractor {
@@ -1422,13 +1422,13 @@ git commit -m "Add cell extraction from fitted grid geometry"
 The photometric half of spec 4.1. Measured over the grid region only, because a sharp background behind a blurred page would otherwise pass.
 
 **Files:**
-- Create: `core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/ImageQuality.kt`
-- Test: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/ImageQualityTest.kt`
+- Create: `core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/ImageQuality.kt`
+- Test: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/ImageQualityTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.random.Random
 import kotlin.test.Test
@@ -1498,10 +1498,10 @@ Expected: FAIL — `Unresolved reference: ImageQuality`. `Degrade` also does not
 
 - [ ] **Step 3: Write the `Degrade.blur` stub**
 
-In `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/Degrade.kt`:
+In `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/Degrade.kt`:
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import org.opencv.core.Mat
 import org.opencv.core.Size
@@ -1524,7 +1524,7 @@ object Degrade {
 - [ ] **Step 4: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import org.opencv.core.Core
 import org.opencv.core.CvType
@@ -1619,13 +1619,13 @@ git commit -m "Add photometric image quality measurements"
 The only proxy check allowed to reject a captured photo on its own, per spec 4.1. Everything softer waits for the certainty verdict in the next plan.
 
 **Files:**
-- Create: `core/vision/src/main/kotlin/io/github/tonyxmelon/aisudoku/vision/StructuralGate.kt`
-- Test: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/StructuralGateTest.kt`
+- Create: `core/vision/src/main/kotlin/org/freevia/sudokubuddy/vision/StructuralGate.kt`
+- Test: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/StructuralGateTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.test.Test
 import kotlin.test.assertIs
@@ -1684,7 +1684,7 @@ Expected: FAIL — `Unresolved reference: StructuralGate`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 /** Why a photograph cannot be used, and what the user should do about it. */
 sealed interface RejectionReason {
@@ -1817,13 +1817,13 @@ everything softer waits for the certainty verdict after recognition."
 Without something to look at, a silent misalignment in cell extraction is invisible — every test can pass while the crops are half a cell off.
 
 **Files:**
-- Create: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/CorpusHarnessTest.kt`
-- Create: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/DumpCorpusTest.kt`
+- Create: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/CorpusHarnessTest.kt`
+- Create: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/DumpCorpusTest.kt`
 
 - [ ] **Step 1: Write the harness**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -1876,7 +1876,7 @@ class CorpusHarnessTest {
 - [ ] **Step 2: Write the dump tool**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import java.awt.image.BufferedImage
 import java.io.File
@@ -1967,13 +1967,13 @@ would notice."
 Every corpus photograph is usable, so nothing so far tests a rejection path. Rather than wait for bad photographs, degrade the good ones: each degradation isolates one fault and names the rejection it should cause.
 
 **Files:**
-- Modify: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/Degrade.kt`
-- Test: `core/vision/src/test/kotlin/io/github/tonyxmelon/aisudoku/vision/SyntheticRejectTest.kt`
+- Modify: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/Degrade.kt`
+- Test: `core/vision/src/test/kotlin/org/freevia/sudokubuddy/vision/SyntheticRejectTest.kt`
 
 - [ ] **Step 1: Complete `Degrade.kt`**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import org.opencv.core.Mat
 import org.opencv.core.Size
@@ -2054,7 +2054,7 @@ object Degrade {
 - [ ] **Step 2: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.vision
+package org.freevia.sudokubuddy.vision
 
 import kotlin.test.Test
 import kotlin.test.assertIs

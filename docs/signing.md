@@ -19,10 +19,10 @@ build can update an installed app and every tester has to uninstall one last tim
 
 ```bash
 keytool -genkeypair -v \
-  -keystore aisudoku-release.jks \
-  -alias aisudoku \
+  -keystore sudoku-buddy-release.jks \
+  -alias sudokubuddy \
   -keyalg RSA -keysize 4096 -validity 10000 \
-  -dname "CN=AI Sudoku, O=AI Sudoku, C=GB"
+  -dname "CN=Sudoku Buddy, O=Sudoku Buddy, C=GB"
 ```
 
 ## Telling CI about it
@@ -30,14 +30,14 @@ keytool -genkeypair -v \
 Four repository secrets. The keystore is binary, so it travels base64-encoded:
 
 ```bash
-base64 -w0 aisudoku-release.jks       # the value for ANDROID_KEYSTORE_BASE64
+base64 -w0 sudoku-buddy-release.jks       # the value for ANDROID_KEYSTORE_BASE64
 ```
 
 | Secret | What it is |
 | --- | --- |
 | `ANDROID_KEYSTORE_BASE64` | the keystore file, base64-encoded |
 | `ANDROID_KEYSTORE_PASSWORD` | the store password |
-| `ANDROID_KEY_ALIAS` | `aisudoku`, if you used the command above |
+| `ANDROID_KEY_ALIAS` | `sudokubuddy`, if you used the command above |
 | `ANDROID_KEY_PASSWORD` | the key password |
 
 The workflow writes the keystore to a temporary file and sets `SIGNING_KEYSTORE` to its
@@ -61,7 +61,7 @@ the machine that made them; the four secrets are on the repository. What follows
 - it is the certificate every genuine build carries, and it is the thing to check an APK
 against if you ever need to know whether it came from here.
 
-    CN=AI Sudoku, O=AI Sudoku, C=BG
+    CN=Sudoku Buddy, O=Sudoku Buddy, C=BG
     SHA-256  a5:10:d8:2b:87:e7:06:9b:53:d5:20:be:ca:91:5b:35:2a:e9:6c:ea:85:0c:68:ca:00:61:17:e3:5d:75:d3:e5
 
 To check a build:

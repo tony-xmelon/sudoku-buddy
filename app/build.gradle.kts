@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "io.github.tonyxmelon.aisudoku"
+    namespace = "org.freevia.sudokubuddy"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "org.freevia.aisudoku"
+        applicationId = "org.freevia.sudokubuddy"
         minSdk = 26
         targetSdk = 36
         // CI supplies a build number so every distributed build is distinct;
@@ -107,12 +107,12 @@ kotlin {
 }
 
 firebaseAppDistributionDefault {
-    // The app id identifies the Firebase app and is not a secret - it is derivable from
-    // any built APK - so it is committed and the build works out of the box. The service
-    // account key IS a credential, so it only ever arrives through the environment and
-    // is never written to the repository.
-    appId = System.getenv("FIREBASE_APP_ID")
-        ?: "1:52623658492:android:dbb8616352a8d44e29f679"
+    // The app id is supplied by CI or the local environment. Keeping it out of the
+    // source tree prevents a renamed package from ever being sent to the retired
+    // Firebase registration by mistake.
+    System.getenv("FIREBASE_APP_ID")
+        ?.takeIf { it.isNotBlank() }
+        ?.let { appId = it }
 
     // Only set this when a file is genuinely supplied. An empty string counts as a
     // configured path, which the plugin resolves against the project directory and then
@@ -266,7 +266,7 @@ tasks.register("composeReleaseNotes") {
         file.parentFile.mkdirs()
         file.writeText(
             buildString {
-                appendLine("AI Sudoku $version")
+                appendLine("Sudoku Buddy $version")
                 if (!subject.isNullOrBlank()) appendLine(subject)
                 appendLine()
                 append(source.asFile.readText())
@@ -301,15 +301,22 @@ tasks.register<Exec>("distributeLocal") {
         listOf("firebase")
     }
 
-    commandLine(
-        firebase + listOf(
+    doFirst {
+        val appId = System.getenv("FIREBASE_APP_ID")?.takeIf { it.isNotBlank() }
+            ?: error(
+                "FIREBASE_APP_ID is required for local distribution. Copy the Sudoku " +
+                    "Buddy Android App ID from Firebase project settings."
+            )
+        commandLine(
+            firebase + listOf(
             "appdistribution:distribute", apk.get().asFile.absolutePath,
-            "--app", "1:52623658492:android:dbb8616352a8d44e29f679",
+            "--app", appId,
             "--release-notes-file", notes.asFile.absolutePath,
             "--groups", "testers",
-            "--project", "aisudoku-xmelon",
+            "--project", "sudoku-buddy-freevia",
+            )
         )
-    )
+    }
 }
 
 /**

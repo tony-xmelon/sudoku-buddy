@@ -1,4 +1,4 @@
-"""Draws the AI Sudoku launcher icon, raster and geometry.
+"""Draws the Sudoku Buddy launcher icon, raster and geometry.
 
 The icon is the thing the app looks at: a printed sudoku on paper, zoomed until one box
 fills the frame, with the ruled lines running off the edges because the grid carries on.

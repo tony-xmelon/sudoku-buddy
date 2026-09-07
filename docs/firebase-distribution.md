@@ -1,104 +1,85 @@
 # Distributing test builds through Firebase
 
-Project: **`aisudoku-xmelon`** (number 52623658492)
-The production package is now **`org.freevia.aisudoku`**. Register that package as a new
-Android app in the existing Firebase project, replace the default app ID in
-`app/build.gradle.kts`, and update the `FIREBASE_APP_ID` GitHub secret before the next
-Firebase distribution. The previous Firebase registration belongs to
-`io.github.tonyxmelon.aisudoku` and cannot receive builds with the new package name.
+Product: **Sudoku Buddy**
 
-## What is already set up
+Android package: **`org.freevia.sudokubuddy`**
 
-- The Android app is registered in the Firebase project.
-- A tester group `testers` exists. It is **empty**, so no build has emailed anybody.
-- Two releases have been distributed successfully, so the path is proven working:
-  `0.1.1 (1)` and `0.1.2 (2)`.
-- The app id is committed in `app/build.gradle.kts`. It is not a secret - it is derivable
-  from any built APK - so a fresh clone can distribute without configuration.
-- CI builds a release APK on every push and uploads it as a workflow artifact.
+Firebase / Google Cloud project ID: **`sudoku-buddy-freevia`** (pending creation)
 
-`google-services.json` is deliberately **not** used. The app links no Firebase SDK and
-makes no network calls; distribution is purely a build-time concern.
+Firebase App Distribution is a build-time service only. The application does not include
+Firebase SDKs, has no `INTERNET` permission, and sends no user data to Firebase.
+
+## Required Firebase setup
+
+1. Sign in to Firebase as `info@freevia.org`.
+2. Create the project **Sudoku Buddy** with project ID `sudoku-buddy-freevia`.
+3. Register an Android app with package name `org.freevia.sudokubuddy` and nickname
+   **Sudoku Buddy Android**.
+4. Open App Distribution, enable it for that Android app, and create the tester group
+   `testers`.
+5. Copy the generated Firebase App ID from Project settings -> General.
+
+The package name is permanent for a Firebase Android registration. Do not reuse a
+registration belonging to another package.
+
+`google-services.json` is deliberately not used. App Distribution only needs the
+Firebase App ID during the release upload.
+
+## GitHub Actions configuration
+
+The repository needs these Actions secrets:
+
+- `FIREBASE_APP_ID`: the generated App ID for `org.freevia.sudokubuddy`.
+- `FIREBASE_TOKEN`: a Firebase CLI refresh token authenticated as `info@freevia.org`.
+- The existing Android signing secrets remain unchanged.
+
+Set the values with:
+
+```bash
+gh secret set FIREBASE_APP_ID --repo tony-xmelon/sudoku-buddy
+gh secret set FIREBASE_TOKEN --repo tony-xmelon/sudoku-buddy
+```
+
+The workflow first checks that both values exist. A push to `main` then builds the
+signed arm64 APK and distributes it to the `testers` group.
 
 ## Distributing from this machine
 
-One command. It uses the locally signed-in Firebase CLI, so it needs no service account
-and no token:
+Authenticate the Firebase CLI as `info@freevia.org`, set the Firebase App ID in the
+environment, and run:
 
 ```bash
-./gradlew :app:distributeLocal
+firebase login
+FIREBASE_APP_ID=<generated-app-id> ./gradlew :app:distributeLocal
 ```
 
-Set `BUILD_NUMBER` to give the release a distinct version, e.g.
-`BUILD_NUMBER=$(date +%s) ./gradlew :app:distributeLocal`.
+On PowerShell:
 
-## The one remaining step: distributing from CI
+```powershell
+$env:FIREBASE_APP_ID = "<generated-app-id>"
+.\gradlew.bat :app:distributeLocal
+```
 
-CI cannot use the signed-in CLI, because that credential lives only on this machine. It
-needs one of two credentials, and CI accepts either. **Take the first one** - it is a
-single command and never touches the Google Cloud console.
+The task deliberately refuses to upload when `FIREBASE_APP_ID` is absent. This prevents
+a renamed build from being sent to an obsolete Firebase app registration.
 
-### Option A: a Firebase token (recommended)
+## Testers
+
+Manage testers at:
+
+https://console.firebase.google.com/project/sudoku-buddy-freevia/appdistribution
+
+Or add a tester from the CLI:
 
 ```bash
-firebase login:ci
+firebase appdistribution:testers:add your.email@example.com --project sudoku-buddy-freevia
 ```
 
-It opens a browser, you sign in as **tony.xmelon@gmail.com**, and it prints a token.
-Put it straight into GitHub without it landing in your shell history - this prompts for
-the value and hides it as you paste:
+Adding a tester sends an invitation email, so only add addresses that Freevia intends to
+invite.
 
-```bash
-gh secret set FIREBASE_TOKEN --repo tony-xmelon/aisudoku
-```
+## Retirement of the previous project
 
-Or add it by hand under `Settings -> Secrets and variables -> Actions -> New repository
-secret`, named **`FIREBASE_TOKEN`**.
-
-That is all. The next push to `main` distributes.
-
-### Option B: a service account key
-
-Only needed if you would rather not use a long-lived token.
-
-If `aisudoku-xmelon` does not appear in the Google Cloud console, it is almost certainly
-one of these, because a Firebase project *is* a Cloud project and this one demonstrably
-exists (number 52623658492):
-
-- **You are signed in as the wrong Google account.** The Firebase console link for this
-  project uses `/u/2/`, meaning the third Google account in your browser. The Cloud
-  console uses a separate index that does not always match, so name the account instead
-  of guessing an index:
-  https://console.cloud.google.com/iam-admin/serviceaccounts?project=aisudoku-xmelon&authuser=tony.xmelon@gmail.com
-- **That account has never accepted the Google Cloud Terms of Service.** Cloud hides every
-  project until it has, including ones owned through Firebase. Opening the link above
-  prompts for it.
-- **The project picker is filtered by organization.** Firebase-created projects sit under
-  *No organization*, which a Workspace account may hide by default. Clear the filter, or
-  just use the direct link above, which bypasses the picker entirely.
-
-Then: create a service account, grant it **Firebase App Distribution Admin**, create a
-JSON key, and add the whole file as the GitHub secret **`FIREBASE_SERVICE_ACCOUNT`**.
-
-**Either credential is deliberately left to you.** Both can publish builds to your
-testers, and neither should pass through anything but your own hands and GitHub's secret
-store.
-
-## Adding testers
-
-The group is empty, which is why no build has notified anyone. Add people in
-[App Distribution → Testers & Groups](https://console.firebase.google.com/project/aisudoku-xmelon/appdistribution),
-or from the CLI:
-
-```bash
-firebase appdistribution:testers:add your.email@example.com --project aisudoku-xmelon
-```
-
-Adding a tester sends them an invitation email, which is why it has been left for you to do.
-
-## Signing
-
-Release builds are signed with the debug key. That is fine for App Distribution, where
-testers install the APK directly, but it is **not** publishable to Google Play, which
-requires a real upload key. When that time comes, add a keystore as further secrets and
-point `signingConfigs` at it.
+Keep the previous Firebase project intact until a signed Sudoku Buddy build has reached
+at least one tester through the new project. After that verification, the previous
+project can be disabled or deleted separately.

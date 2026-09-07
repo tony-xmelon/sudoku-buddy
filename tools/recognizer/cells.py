@@ -71,7 +71,7 @@ def normalised_cells(stem):
 #: The Kotlin that produces those bitmaps. If it changes, they are out of date.
 ANALYZER = os.path.join(
     REPO, "core", "recognize", "src", "main", "kotlin", "io", "github",
-    "tonyxmelon", "aisudoku", "recognize", "CellAnalyzer.kt")
+    "freevia", "sudokubuddy", "recognize", "CellAnalyzer.kt")
 
 
 def export_is_stale():

@@ -27,7 +27,7 @@ These were tested before writing the plan; do not re-litigate them.
 
 ## Naming decision — confirm before Task 1
 
-The plan uses the package root **`io.github.tonyxmelon.aisudoku`**. Reverse-DNS on the GitHub account is unique and valid for Play Store publication. It is cheap to change now and impossible to change after the app is published, so raise it with the user before Task 1 if there is any doubt.
+The plan uses the package root **`org.freevia.sudokubuddy`**. Reverse-DNS on the GitHub account is unique and valid for Play Store publication. It is cheap to change now and impossible to change after the app is published, so raise it with the user before Task 1 if there is any doubt.
 
 ## File structure
 
@@ -40,15 +40,15 @@ gradle.properties                    JVM args, Kotlin flags
 .gitignore                           already present
 
 core/model/build.gradle.kts
-core/model/src/main/kotlin/io/github/tonyxmelon/aisudoku/model/
+core/model/src/main/kotlin/org/freevia/sudokubuddy/model/
     Coordinates.kt                   row/column/box/peer index tables. No state.
     Cell.kt                          Cell and CellSource, with invariants
     Grid.kt                          immutable 81-cell grid, parsing, conflict detection
-core/model/src/test/kotlin/io/github/tonyxmelon/aisudoku/model/
+core/model/src/test/kotlin/org/freevia/sudokubuddy/model/
     CoordinatesTest.kt  CellTest.kt  GridTest.kt
 
 core/solver/build.gradle.kts
-core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/
+core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/
     CandidateSet.kt                  bitmask over digits 1..9
     SolverState.kt                   mutable candidate grid + constraint propagation
     Solver.kt                        backtracking search, solution counting, SolveResult
@@ -60,7 +60,7 @@ core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/
     BoxLineReduction.kt              technique: digit confined to a box within a line
     TechniqueSolver.kt               applies techniques in order, grades difficulty
     HintEngine.kt                    both hint styles, with fallback
-core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/
+core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/
     CandidateSetTest.kt  SolverStateTest.kt  SolverTest.kt
     TechniqueTestSupport.kt          builds a SolverState from explicit candidates
     NakedSingleTest.kt  HiddenSingleTest.kt  PointingPairTest.kt
@@ -96,7 +96,7 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
-rootProject.name = "aisudoku"
+rootProject.name = "sudoku-buddy"
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -238,13 +238,13 @@ A sudoku index is `0..80`, row-major. Every later component asks the same questi
 "Peers" of a cell are the 20 other cells that share its row, column or box. A digit placed in a cell can be eliminated from exactly its peers.
 
 **Files:**
-- Create: `core/model/src/main/kotlin/io/github/tonyxmelon/aisudoku/model/Coordinates.kt`
-- Test: `core/model/src/test/kotlin/io/github/tonyxmelon/aisudoku/model/CoordinatesTest.kt`
+- Create: `core/model/src/main/kotlin/org/freevia/sudokubuddy/model/Coordinates.kt`
+- Test: `core/model/src/test/kotlin/org/freevia/sudokubuddy/model/CoordinatesTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.model
+package org.freevia.sudokubuddy.model
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -314,7 +314,7 @@ Expected: FAIL — compilation error, `Unresolved reference: Coordinates`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.model
+package org.freevia.sudokubuddy.model
 
 /**
  * Index arithmetic for a 9x9 grid stored row-major in `0..80`.
@@ -388,13 +388,13 @@ git commit -m "Add grid coordinate and peer lookup tables"
 Per the spec, a cell is a given (printed), a guess (handwritten), or empty. The invariant worth enforcing is that emptiness and having no digit are the same thing — nothing downstream should ever have to handle "empty but holds a 4".
 
 **Files:**
-- Create: `core/model/src/main/kotlin/io/github/tonyxmelon/aisudoku/model/Cell.kt`
-- Test: `core/model/src/test/kotlin/io/github/tonyxmelon/aisudoku/model/CellTest.kt`
+- Create: `core/model/src/main/kotlin/org/freevia/sudokubuddy/model/Cell.kt`
+- Test: `core/model/src/test/kotlin/org/freevia/sudokubuddy/model/CellTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.model
+package org.freevia.sudokubuddy.model
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -455,7 +455,7 @@ Expected: FAIL — `Unresolved reference: Cell`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.model
+package org.freevia.sudokubuddy.model
 
 /** Where a digit in a cell came from. */
 enum class CellSource {
@@ -520,13 +520,13 @@ git commit -m "Add Cell with a given, guess or empty provenance"
 Note `fromRows`, which takes nine nine-character strings. Every later test writes fixtures that way, because a single 81-character string is unreadable and impossible to review. That readability is worth the extra factory.
 
 **Files:**
-- Create: `core/model/src/main/kotlin/io/github/tonyxmelon/aisudoku/model/Grid.kt`
-- Test: `core/model/src/test/kotlin/io/github/tonyxmelon/aisudoku/model/GridTest.kt`
+- Create: `core/model/src/main/kotlin/org/freevia/sudokubuddy/model/Grid.kt`
+- Test: `core/model/src/test/kotlin/org/freevia/sudokubuddy/model/GridTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.model
+package org.freevia.sudokubuddy.model
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -651,9 +651,9 @@ Expected: FAIL — `Unresolved reference: Grid`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.model
+package org.freevia.sudokubuddy.model
 
-import io.github.tonyxmelon.aisudoku.model.Coordinates.CELL_COUNT
+import org.freevia.sudokubuddy.model.Coordinates.CELL_COUNT
 
 /**
  * An immutable 9x9 grid. Every mutation returns a new grid.
@@ -771,13 +771,13 @@ git commit -m "Add immutable Grid with parsing and conflict detection"
 A set of digits `1..9` held in the low nine bits of an `Int`. The solver touches this millions of times in a hard search, so it is a value class and never allocates.
 
 **Files:**
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/CandidateSet.kt`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/CandidateSetTest.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/CandidateSet.kt`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/CandidateSetTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -839,7 +839,7 @@ Expected: FAIL — `Unresolved reference: CandidateSet`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
 /**
  * The digits `1..9` still possible in a cell, held as bits 0..8 of an `Int`.
@@ -913,16 +913,16 @@ The algorithm is Peter Norvig's. Rather than storing values and candidates separ
 Both return `false` on contradiction, which is how the search backtracks.
 
 **Files:**
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/SolverState.kt`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/SolverStateTest.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/SolverState.kt`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/SolverStateTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Cell
-import io.github.tonyxmelon.aisudoku.model.Grid
+import org.freevia.sudokubuddy.model.Cell
+import org.freevia.sudokubuddy.model.Grid
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -1028,12 +1028,12 @@ Expected: FAIL — `Unresolved reference: SolverState`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Cell
-import io.github.tonyxmelon.aisudoku.model.CellSource
-import io.github.tonyxmelon.aisudoku.model.Coordinates
-import io.github.tonyxmelon.aisudoku.model.Grid
+import org.freevia.sudokubuddy.model.Cell
+import org.freevia.sudokubuddy.model.CellSource
+import org.freevia.sudokubuddy.model.Coordinates
+import org.freevia.sudokubuddy.model.Grid
 
 /**
  * A working grid of candidate sets, with constraint propagation.
@@ -1145,16 +1145,16 @@ git commit -m "Add SolverState with Norvig-style constraint propagation"
 Uniqueness is what makes the recognizer checkable, so the solver must distinguish "no solution", "exactly one" and "more than one" rather than just returning an answer. `Multiple` carries both solutions it found, because the cells where they differ are precisely the ambiguous ones — the recognition repair path in a later plan uses that.
 
 **Files:**
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/Solver.kt`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/Puzzles.kt`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/SolverTest.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/Solver.kt`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/Puzzles.kt`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/SolverTest.kt`
 
 - [ ] **Step 1: Write the shared puzzle fixtures**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Grid
+import org.freevia.sudokubuddy.model.Grid
 
 /** Puzzles shared across solver and technique tests. */
 object Puzzles {
@@ -1221,11 +1221,11 @@ object Puzzles {
 Note the shape of `assertSolves`. Rather than hard-coding a solution string — which is unreviewable and easy to get wrong — it checks the three properties a correct solution must have: it is complete, it breaks no rules, and it agrees with every given. That catches a wrong answer just as well and cannot itself be wrong.
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Cell
-import io.github.tonyxmelon.aisudoku.model.CellSource
-import io.github.tonyxmelon.aisudoku.model.Grid
+import org.freevia.sudokubuddy.model.Cell
+import org.freevia.sudokubuddy.model.CellSource
+import org.freevia.sudokubuddy.model.Grid
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -1334,10 +1334,10 @@ Expected: FAIL — `Unresolved reference: Solver`.
 - [ ] **Step 4: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Coordinates
-import io.github.tonyxmelon.aisudoku.model.Grid
+import org.freevia.sudokubuddy.model.Coordinates
+import org.freevia.sudokubuddy.model.Grid
 
 /** What the solver made of a puzzle. */
 sealed interface SolveResult {
@@ -1442,16 +1442,16 @@ git commit -m "Add backtracking solver reporting none, unique or multiple soluti
 Two kinds of thing a human solver concludes: a digit definitely goes in a cell, or a digit definitely does not. Both need to name the cells that prove them, because the UI highlights exactly those.
 
 **Files:**
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/Deduction.kt`
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/Technique.kt`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/TechniqueTestSupport.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/Deduction.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/Technique.kt`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/TechniqueTestSupport.kt`
 
 - [ ] **Step 1: Write `Deduction.kt`**
 
 There is no test for these types on their own — they are pure data with no behaviour, and the technique tests in Tasks 9 to 12 exercise them thoroughly. Adding a test that a data class stores its arguments tests the Kotlin compiler, not this code.
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
 /** Ranks techniques from easiest to hardest. Also grades puzzles: see [TechniqueSolver]. */
 enum class Difficulty { EASY, MEDIUM, HARD, VERY_HARD }
@@ -1495,7 +1495,7 @@ sealed interface Deduction {
 - [ ] **Step 2: Write `Technique.kt`**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
 /**
  * One human solving method.
@@ -1527,9 +1527,9 @@ val ALL_TECHNIQUES: List<Technique> = listOf(
 Techniques are tested against states built from explicit candidate sets rather than from puzzles. Constructing a real puzzle that isolates one technique is difficult and the resulting fixture is unreadable — you cannot tell by looking whether it tests what it claims. Stating the candidates directly makes each test exact and obvious.
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Grid
+import org.freevia.sudokubuddy.model.Grid
 import kotlin.test.assertNotNull
 
 /**
@@ -1596,13 +1596,13 @@ git commit -m "Add Deduction and Technique vocabulary for explained hints"
 The simplest deduction there is: a cell with exactly one remaining candidate must hold it.
 
 **Files:**
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/NakedSingle.kt`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/NakedSingleTest.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/NakedSingle.kt`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/NakedSingleTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -1661,9 +1661,9 @@ Expected: FAIL — `Unresolved reference: NakedSingle`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Coordinates
+import org.freevia.sudokubuddy.model.Coordinates
 
 /**
  * A cell with one candidate left must hold it.
@@ -1747,13 +1747,13 @@ git commit -m "Add naked single technique"
 A digit that can only go in one cell of a row, column or box goes there — even when that cell still has other candidates of its own. This is the technique people find hardest to spot and so the most valuable to explain.
 
 **Files:**
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/HiddenSingle.kt`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/HiddenSingleTest.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/HiddenSingle.kt`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/HiddenSingleTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -1822,9 +1822,9 @@ Expected: FAIL — `Unresolved reference: HiddenSingle`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Coordinates
+import org.freevia.sudokubuddy.model.Coordinates
 
 /**
  * A digit with only one possible home in a unit belongs there, whatever else that cell
@@ -1891,13 +1891,13 @@ git commit -m "Add hidden single technique"
 When every possible home for a digit inside a box falls in the same row, that digit must be somewhere in that row *inside the box*, so it can be struck out of the rest of the row. Same for columns. This eliminates rather than places.
 
 **Files:**
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/PointingPair.kt`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/PointingPairTest.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/PointingPair.kt`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/PointingPairTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -1965,9 +1965,9 @@ Expected: FAIL — `Unresolved reference: PointingPair`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Coordinates
+import org.freevia.sudokubuddy.model.Coordinates
 
 /**
  * If every home for a digit inside a box shares one row or column, the digit lies on
@@ -2051,14 +2051,14 @@ git commit -m "Add pointing pair technique"
 The mirror image of Task 11. When every home for a digit in a row falls inside one box, the digit is in that box, so it can be struck from the box's other cells.
 
 **Files:**
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/BoxLineReduction.kt`
-- Modify: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/Technique.kt` — restore `ALL_TECHNIQUES`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/BoxLineReductionTest.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/BoxLineReduction.kt`
+- Modify: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/Technique.kt` — restore `ALL_TECHNIQUES`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/BoxLineReductionTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -2124,9 +2124,9 @@ Expected: FAIL — `Unresolved reference: BoxLineReduction`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Coordinates
+import org.freevia.sudokubuddy.model.Coordinates
 
 /**
  * If every home for a digit in a row or column falls inside one box, the digit is in
@@ -2214,13 +2214,13 @@ git commit -m "Add box line reduction technique and restore the registry"
 Applies techniques in order, simplest first, until the puzzle is done or nothing more can be deduced. The hardest technique it needed is the puzzle's difficulty.
 
 **Files:**
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/TechniqueSolver.kt`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/TechniqueSolverTest.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/TechniqueSolver.kt`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/TechniqueSolverTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -2286,9 +2286,9 @@ Expected: FAIL — `Unresolved reference: TechniqueSolver`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Grid
+import org.freevia.sudokubuddy.model.Grid
 
 /** What reasoning alone made of a puzzle. */
 sealed interface TechniqueOutcome {
@@ -2381,16 +2381,16 @@ git commit -m "Add technique solver with difficulty grading"
 The spec makes hint style a user setting, so both are built. `RevealHintEngine` names a digit. `ExplainedHintEngine` names the technique and the evidence, and only reveals the digit when asked a second time — and falls back to a plain reveal when no known technique applies, so the user is never left with nothing.
 
 **Files:**
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/HintEngine.kt`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/HintEngineTest.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/HintEngine.kt`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/HintEngineTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Cell
-import io.github.tonyxmelon.aisudoku.model.Grid
+import org.freevia.sudokubuddy.model.Cell
+import org.freevia.sudokubuddy.model.Grid
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -2457,10 +2457,10 @@ Expected: FAIL — `Unresolved reference: HintEngine`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Coordinates
-import io.github.tonyxmelon.aisudoku.model.Grid
+import org.freevia.sudokubuddy.model.Coordinates
+import org.freevia.sudokubuddy.model.Grid
 
 /** A suggestion for the user's next move. */
 sealed interface Hint {
@@ -2570,15 +2570,15 @@ git commit -m "Add hint engines for plain reveal and explained reasoning"
 The spec's "check my answers" needs one call that compares a user's guesses against the truth. It lives here rather than in the UI because it is logic, and because it is easy to get subtly wrong.
 
 **Files:**
-- Create: `core/solver/src/main/kotlin/io/github/tonyxmelon/aisudoku/solver/AnswerCheck.kt`
-- Test: `core/solver/src/test/kotlin/io/github/tonyxmelon/aisudoku/solver/AnswerCheckTest.kt`
+- Create: `core/solver/src/main/kotlin/org/freevia/sudokubuddy/solver/AnswerCheck.kt`
+- Test: `core/solver/src/test/kotlin/org/freevia/sudokubuddy/solver/AnswerCheckTest.kt`
 
 - [ ] **Step 1: Write the failing test**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.Cell
+import org.freevia.sudokubuddy.model.Cell
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -2643,11 +2643,11 @@ Expected: FAIL — `Unresolved reference: AnswerCheck`.
 - [ ] **Step 3: Write the implementation**
 
 ```kotlin
-package io.github.tonyxmelon.aisudoku.solver
+package org.freevia.sudokubuddy.solver
 
-import io.github.tonyxmelon.aisudoku.model.CellSource
-import io.github.tonyxmelon.aisudoku.model.Coordinates
-import io.github.tonyxmelon.aisudoku.model.Grid
+import org.freevia.sudokubuddy.model.CellSource
+import org.freevia.sudokubuddy.model.Coordinates
+import org.freevia.sudokubuddy.model.Grid
 
 /** The verdict on a user's handwritten answers. */
 sealed interface AnswerCheck {

@@ -49,11 +49,11 @@ Google's current references:
 ## First app after approval
 
 1. Choose **Create app**.
-2. Use **AI Sudoku** as the title, choose **App**, and choose **Free**.
+2. Use **Sudoku Buddy** as the title, choose **App**, and choose **Free**.
 3. Use `info@freevia.org` as the support email and accept the required declarations.
-4. Upload the signed AAB from the GitHub Actions artifact named `aisudoku-bundle`.
-   Its permanent application ID is `org.freevia.aisudoku`.
-5. Enrol in Play App Signing. The existing AI Sudoku release key becomes the upload key.
+4. Upload the signed AAB from the GitHub Actions artifact named `sudoku-buddy-bundle`.
+   Its permanent application ID is `org.freevia.sudokubuddy`.
+5. Enrol in Play App Signing. The existing Sudoku Buddy release key becomes the upload key.
 6. Complete the store listing and App content declarations in `docs/play-store.md`.
 7. Run an internal test, then a closed test, before production.
 
