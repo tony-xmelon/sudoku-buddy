@@ -1,6 +1,6 @@
 # Sudoku Buddy — Play Console submission sheet
 
-Prepared 7 September 2026. Use this as the copy-and-paste checklist after the Freevia
+Prepared 8 September 2026. Use this as the copy-and-paste checklist after the Freevia
 organization account is verified.
 
 ## Create app
@@ -23,11 +23,11 @@ the upload key.
 | Field | Answer or file |
 | --- | --- |
 | App name | Sudoku Buddy |
-| Short description | Scan printed Sudoku puzzles and learn each solution step by step |
+| Short description | Scan and check paper Sudoku, with clear hints when you get stuck |
 | Full description | Use the text under **Full description** below |
 | App icon | `docs/store/icon-512.png` |
 | Feature graphic | `docs/store/feature-graphic-1024x500.png` |
-| Phone screenshots | Four files listed in `docs/store/screenshots/README.md` |
+| Phone screenshots | Five files listed in the release package's `screenshots/README.md` |
 | App category | Education |
 | Tags | Sudoku; Puzzle; Education, where those tags are offered |
 | Support email | `info@freevia.org` |
@@ -40,22 +40,28 @@ derived from the app's existing artwork and real in-app screenshots are not AI-g
 
 ### Full description
 
-Sudoku Buddy reads a printed Sudoku through your camera and teaches you how to solve it one
-step at a time.
+Sudoku Buddy is a camera companion for Sudoku puzzles in newspapers, books and magazines.
+It is not another Sudoku game: it helps you check and understand the puzzle already on paper.
 
-Photograph a puzzle from a newspaper or book. The app finds the grid, reads the printed
-clues, and gives you an editable board. It can also read handwritten entries, and every
-recognized digit can be corrected before you continue.
+Point your camera at a printed grid. Sudoku Buddy reads the printed clues and your handwritten
+progress, then lets you correct any digit it misread.
 
-Ask for a hint when you get stuck. Sudoku Buddy explains the solving technique, highlights
-the relevant cells, and shows why the next move follows. It supports techniques ranging
-from naked and hidden singles to subsets, fish patterns, wings, coloring, and forcing
-chains. You can also check your entries or reveal the completed solution.
+Use Check to see which handwritten answers are right and which need another look. When you are
+stuck, ask for a hint. The app highlights the relevant cells, names the human solving technique
+and explains the next deduction. You choose how much help to reveal.
 
-Scanned puzzles are kept in an on-device history so you can continue later.
+You can also view the solution and reopen scanned puzzles from your on-device history.
 
-Privacy is simple: processing happens on your phone. Sudoku Buddy has no accounts, no ads,
-no analytics, and no internet permission. Your photographs and puzzles are not uploaded.
+Private by design:
+- Camera processing happens on your phone
+- No account
+- No ads
+- No analytics
+- No internet permission
+- No puzzle photographs or progress uploaded to Freevia
+
+Sudoku Buddy is for people who enjoy solving on paper and want a second pair of eyes, not a
+replacement game.
 
 ## App content declarations
 
@@ -75,8 +81,9 @@ no analytics, and no internet permission. Your photographs and puzzles are not u
 - Reviewer note if a text box is offered:
 
   > All functionality is available without an account or login. Grant camera permission,
-  > point the camera at a printed Sudoku grid, and capture it. The recognized board can be
-  > edited before using hints, checking entries, or viewing the solution.
+  > point the camera at a printed Sudoku. After scanning, every recognized digit can be
+  > corrected before the user checks handwritten answers, requests a hint or views the
+  > solution. Processing and puzzle history stay on the device.
 
 ### Target audience and content
 
@@ -165,5 +172,4 @@ confirm its application ID is `org.freevia.sudokubuddy` before upload.
 - A public, OTP-capable developer telephone number
 - A private contact telephone number for Google
 - One-time developer registration payment
-- Four real in-app phone screenshots
 - Final answers to any new declarations Play Console adds after this checklist was prepared

@@ -1,7 +1,7 @@
 # Getting Sudoku Buddy onto Google Play
 
-What is done, what needs a developer account, and what still needs a decision. Written
-against the state of the repository on 2 September 2026.
+What is done, what needs a developer account, and what still needs a decision. Updated
+against the state of the repository on 8 September 2026.
 
 ## Done in the repository
 
@@ -62,17 +62,17 @@ These cannot be done from the repository.
 | --- | --- | --- |
 | App icon | 512x512 PNG | `docs/store/icon-512.png` |
 | Feature graphic | 1024x500 PNG | `docs/store/feature-graphic-1024x500.png` |
-| Phone screenshots | at least 2, 16:9 or 9:16, min 320px | still to capture from a real phone |
+| Phone screenshots | at least 2, 16:9 or 9:16, min 320px | five physical-phone screenshots prepared in the release package |
 | Title | 30 characters | "Sudoku Buddy" |
 | Short description | 80 characters | draft below |
 | Full description | 4000 characters | draft below |
 
-Screenshots are worth taking on the phone rather than an emulator: the camera screen is
-most of the app's first impression, and an emulator cannot show it reading a real page.
+The five screenshots were captured on a physical phone and cover scanning, recognition,
+checking handwritten answers, hints, and on-device history.
 
 ### Short description
 
-> Scan printed Sudoku puzzles and learn each solution step by step
+> Scan and check paper Sudoku, with clear hints when you get stuck
 
 ### Full description
 

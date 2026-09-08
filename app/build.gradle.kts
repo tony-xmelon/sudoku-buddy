@@ -19,7 +19,7 @@ android {
         // CI supplies a build number so every distributed build is distinct;
         // locally it stays 1.
         versionCode = (System.getenv("BUILD_NUMBER") ?: "1").toInt()
-        versionName = "0.1." + (System.getenv("BUILD_NUMBER") ?: "0")
+        versionName = "1.0.0"
     }
 
     // OpenCV ships native libraries for four ABIs. Only arm64 matters for real phones,
