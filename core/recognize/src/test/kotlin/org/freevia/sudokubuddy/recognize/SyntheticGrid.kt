@@ -121,6 +121,17 @@ object SyntheticGrid {
          * reaches two thirds of the height of a printed digit.
          */
         val firmMarks: Double = 0.0,
+        /**
+         * Fraction of the empty squares carrying a wrapped list with a candidate struck out.
+         *
+         * What a solver leaves behind when a candidate is ruled out: the list wraps onto a
+         * second line below the middle of the square, and one figure on that line is
+         * crossed through. The cancel stroke runs past the figure at both ends, so the
+         * ink it belongs to is the height of a printed digit while sitting lower than a
+         * printed digit ever sits - which was the one place no rule was looking, since
+         * every limit on where a mark sits guards the top, where a list starts.
+         */
+        val struckMarks: Double = 0.0,
         /** Fraction of the answers written over a rubbed-out digit. */
         val ghosts: Double = 0.0,
         /** A lamp off to one side: 0 is flat, 1 takes a third of the light off one corner. */
@@ -172,7 +183,9 @@ object SyntheticGrid {
 
             val answer = page.answers?.get(index)?.takeIf { it != '.' }
             if (answer == null) {
-                if (page.firmMarks > 0 && random.nextDouble() < page.firmMarks) {
+                if (page.struckMarks > 0 && random.nextDouble() < page.struckMarks) {
+                    struckMarks(g, page, cell, centreX, centreY, random)
+                } else if (page.firmMarks > 0 && random.nextDouble() < page.firmMarks) {
                     firmMarks(g, page, cell, centreX, centreY, random)
                 } else if (page.marks > 0 && random.nextDouble() < page.marks) {
                     pencilMarks(g, page, cell, centreX, centreY, random)
@@ -331,6 +344,49 @@ object SyntheticGrid {
         for ((i, digit) in digits.withIndex()) {
             draw(g, '0' + digit, font, start + i * step, centreY + drop, grey, 1.0)
         }
+    }
+
+    /**
+     * A wrapped candidate list with one figure crossed out. See [Page.struckMarks].
+     *
+     * Three figures along the top and two below them, and a stroke through one of the
+     * lower pair. The stroke is what matters: it is drawn past the figure at both ends,
+     * so what it joins is taller than the figure alone and reaches the printed band while
+     * staying where no printed digit sits.
+     */
+    private fun struckMarks(
+        g: Graphics2D,
+        page: Page,
+        cell: Double,
+        centreX: Double,
+        centreY: Double,
+        random: Random,
+    ) {
+        val grey = 255 - ((255 - page.pen) * 0.95).roundToInt()
+        val font = Font(page.family, Font.BOLD, (cell * page.press * 0.72).roundToInt())
+        val digits = (1..9).shuffled(random).take(5).sorted()
+        val step = cell * page.press * 0.48
+        val lower = centreY + cell * 0.18
+        for ((i, digit) in digits.withIndex()) {
+            val line = if (i < 3) 0 else 1
+            val onLine = if (line == 0) 3 else 2
+            val start = centreX - step * (onLine - 1) / 2.0
+            draw(
+                g, '0' + digit, font,
+                start + (i % 3) * step,
+                if (line == 0) centreY - cell * 0.22 else lower,
+                grey, 1.0,
+            )
+        }
+        // Through one of the lower pair, chosen at random.
+        val struck = centreX - step / 2.0 + random.nextInt(2) * step
+        g.color = Color(grey, grey, grey)
+        g.stroke = BasicStroke((cell * 0.035).toFloat())
+        val reach = cell * 0.145
+        g.drawLine(
+            (struck - cell * 0.05).roundToInt(), (lower - reach).roundToInt(),
+            (struck + cell * 0.05).roundToInt(), (lower + reach).roundToInt(),
+        )
     }
 
     /** A lamp off to one side, so no two squares share a background. */

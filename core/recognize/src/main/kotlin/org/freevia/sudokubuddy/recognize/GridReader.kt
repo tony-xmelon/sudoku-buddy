@@ -117,7 +117,7 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         }
 
         val settled = sortWhatALargeHandCannotHaveWritten(
-            takeBackAFigureRank(readings, ink, core), ink, core,
+            takeBackAFigureRank(putBackPencilThatSatLow(readings, ink, core), ink, core), ink, core,
         )
 
         val printed = settled.filter { it.ink == Ink.PRINTED }
@@ -277,6 +277,50 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
      * from 0.60 to 0.70 takes the same nine cells and costs nothing, and 0.75 begins to
      * cost real answers.
      */
+    /**
+     * Pencilled candidate lists read as printed clues, because they sit low.
+     *
+     * Every rule about where a mark sits guards the top of the square, since that is where
+     * a candidate list is written. A list too long for one line wraps, and its second line
+     * sits below the middle - lower than a printed digit ever sits - and one figure of it
+     * fused to its neighbour is the height of the print. Nothing then objected: the printed
+     * band asked that a blob not sit too high and never that it not sit too low.
+     *
+     * This is the worst shape the fault can take. Two such lists in the bottom row of a
+     * booklet page put two clues into it that nobody had printed, and the puzzle stopped
+     * solving - so the app refused a page whose twenty-four real clues it had read
+     * perfectly, and the digits it had invented were not among the ones it offered to
+     * correct. A photograph of the app saying so is how it was found.
+     *
+     * Position alone will not do it. Real clues do sit low - a page photographed at an
+     * angle, a face with a deep descender - and the lowest of those sit lower than the
+     * highest of these. What separates them is what they are made of: clues sitting that
+     * low carry 0.685 of the press's ink and more, every false one carries 0.540 and less,
+     * so the line goes in a gap of 0.145 - wider than anything else the reader cuts on.
+     *
+     * It runs here rather than in [classify] for a reason worth keeping. Put among the
+     * tests that decide what a cell is, it also changes how many cells come out printed,
+     * and that count is what decides whether the page gives up on size and sorts by ink
+     * instead. Pages that had been switching stopped switching, and the collision pages
+     * went from 86 wrong to 142 - a rule that costs nothing where it fires, wrecking pages
+     * it never fired on. Run after the mode is chosen it cannot reach that decision.
+     */
+    private fun putBackPencilThatSatLow(
+        readings: List<CellReading>,
+        ink: List<CellInk?>,
+        core: PrintedCore,
+    ): List<CellReading> = readings.map { reading ->
+        val blob = ink[reading.index]?.blob
+        if (reading.ink == Ink.PRINTED && blob != null &&
+            blob.verticalOffset > PRINT_SITS_NO_LOWER &&
+            inkOf(blob, core) < PRESSED_ENOUGH_TO_SIT_LOW
+        ) {
+            reading.copy(ink = Ink.MARK, probabilities = null)
+        } else {
+            reading
+        }
+    }
+
     private fun sortWhatALargeHandCannotHaveWritten(
         readings: List<CellReading>,
         ink: List<CellInk?>,
@@ -883,6 +927,12 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
          * looser limit because its height band already excludes almost everything.
          */
         private const val PRINTED_TOP_LIMIT = -0.18
+
+        /** How far below the middle of its square a printed digit is ever found. */
+        private const val PRINT_SITS_NO_LOWER = 0.12
+
+        /** The ink a blob must carry to be believed as print when it sits that low. */
+        private const val PRESSED_ENOUGH_TO_SIT_LOW = 0.55
         private const val ANSWER_TOP_LIMIT = -0.13
 
         /**

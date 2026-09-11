@@ -1,0 +1,26 @@
+{
+  "photo": "sudoku-buddy-2026-09-11-booklet-candidates-2.jpg",
+  "givens": [
+    "3....857.",
+    "...65....",
+    ".8.3.2...",
+    "..47.....",
+    "1.....3..",
+    "....3...2",
+    "..628....",
+    ".....57.1",
+    "5......48"
+  ],
+  "written": [
+    "3....857.",
+    "...65.283",
+    ".853.21..",
+    "23471.85.",
+    "1...243.7",
+    "....3.412",
+    "..628.935",
+    "893465721",
+    "5....3648"
+  ],
+  "notes": "The same puzzle as [sudoku-buddy-2026-09-09-booklet-candidates-1], two days further on: twenty-five squares answered where that one had four, and the candidate lists still standing in most of what is left.\n\nIt is here because it is the first page a photograph of the app's own screen said was wrong. The app sorted it perfectly - all twenty-four clues to the press and all twenty-five answers to the hand, which the screenshot shows in its own colours - and then refused the puzzle, because one of the clues it sorted correctly it had read as the wrong digit. Sorting and reading are different jobs and this page passes one and fails the other, which is why it earns a label of its own rather than being folded into the page before it.\n\nCopyright the publisher; the picture stays on this machine and only the label is committed."
+}

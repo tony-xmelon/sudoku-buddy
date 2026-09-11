@@ -188,6 +188,41 @@ class SyntheticGridTest {
     }
 
     @Test
+    fun `a candidate crossed out is not a printed clue`() {
+        // A photograph of the app refusing a page found this one. Twenty-four clues read
+        // perfectly, twenty-five answers sorted correctly, and two pencilled lists in the
+        // bottom row taken for clues nobody had printed - so the puzzle would not solve,
+        // and the squares at fault were not among the ones offered for correction.
+        //
+        // Every limit on where a mark sits guards the top of the square, because that is
+        // where a list starts. This is about where one ends.
+        val readings = read(
+            SyntheticGrid.rectified(
+                SyntheticGrid.Page(
+                    givens,
+                    answers = halfWritten,
+                    press = 0.44,
+                    bold = true,
+                    hand = SyntheticGrid.Hand.LARGE,
+                    struckMarks = 0.25,
+                    seed = 31,
+                )
+            )
+        )
+        checkPrinted(readings, "with struck-out candidates")
+
+        val invented = (0 until 81).filter {
+            givens[it] == '.' && readings[it]?.ink == Ink.PRINTED
+        }
+        assertTrue(invented.isEmpty(), "pencil taken for printed clues at $invented")
+
+        val mistaken = (0 until 81).filter {
+            givens[it] == '.' && halfWritten[it] == '.' && readings[it]?.ink == Ink.ANSWER
+        }
+        assertTrue(mistaken.isEmpty(), "struck-out candidates taken for answers at $mistaken")
+    }
+
+    @Test
     fun `an answer written over a rubbed-out digit is still one digit`() {
         // The same-ink rule under a different light: the ghost is close enough to touch and
         // faint enough not to belong, and gathering it would make a plus sign of a 7.
