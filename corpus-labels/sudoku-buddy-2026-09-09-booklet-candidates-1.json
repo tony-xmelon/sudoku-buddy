@@ -1,0 +1,26 @@
+{
+  "photo": "sudoku-buddy-2026-09-09-booklet-candidates-1.jpg",
+  "givens": [
+    "3....857.",
+    "...65....",
+    ".8.3.2...",
+    "..47.....",
+    "1.....3..",
+    "....3...2",
+    "..628....",
+    ".....57.1",
+    "5......48"
+  ],
+  "written": [
+    "3....857.",
+    "...65....",
+    ".853.2...",
+    "..47.....",
+    "1.....3.7",
+    "....3...2",
+    "..628.9..",
+    ".....57.1",
+    "5....3.48"
+  ],
+  "notes": "A second puzzle from the same booklet as the four pages of 2026-09-07, in the same hand and through the same messaging app - 1152 by 1152, cropped square to the grid, EXIF stripped.\n\nTwenty-four clues in the bold sans press face, machine-checked to have exactly one solution, and only four squares answered: a 5, a 7, a 9 and a 3, each agreeing with it. Everything else written on the page is a candidate list, which is what this photograph is here for. Fifty-one of the eighty-one squares carry one, many of them wrapped onto a second line - 1246 over 9, 26 over 89, 58 over 49, 146 over 79 - and several written over the grey of marks rubbed out before them.\n\nThat makes it the densest page of candidate marks in the corpus and a direct test of the rule added on 2026-09-07, which puts back a mark a large hand cannot have written. The four pages that rule was measured on had between thirteen and thirty-one marked squares; this one has fifty-one, and a page this heavily marked has far more chances to offer one of them as an answer.\n\nCopyright the publisher; the picture stays on this machine and only the label is committed."
+}
