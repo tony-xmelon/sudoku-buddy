@@ -1,36 +1,57 @@
-One thing this build does that the last one would not.
+A fix for a page the app refused, and five things about how it asks you.
 
-PENCILLED NOTES ARE NO LONGER READ AS ANSWERS
+A CROSSED-OUT CANDIDATE IS NO LONGER READ AS A PRINTED CLUE
 
-Photograph a puzzle booklet part way through and you photograph two kinds of
-pencil: the answers, and the little lists of candidates squeezed into the squares
-you have not settled yet. The app read some of the lists as answers, and a wrong
-answer in a square is worse than no answer at all - it is a digit you did not
-write, in a puzzle you now have to correct by hand.
+Photograph a booklet page part way through and the app would sometimes say the
+printed digits do not make a solvable puzzle - on a page whose printed digits it
+had in fact read perfectly. It was adding to them.
 
-It had a reason. A candidate mark is normally faint and normally sits along the
-top of its square, and either of those gives it away. But a list written firmly
-into a cramped square is neither: it is pressed nearly as hard as an answer, it
-goes wherever there is room, and where one figure touches its neighbour the pair
-measures two thirds the height of a printed digit, which is tall enough to pass
-for something written.
+The squares at fault hold a pencilled candidate list that ran onto a second line,
+with one of the figures crossed out. The cancel stroke runs past the figure at
+both ends, so the ink it joins up with is the height of a printed digit while
+sitting lower in the square than a printed digit ever sits. Every rule about where
+a mark sits was guarding the top of the square, because that is where a list
+starts, and none of them was guarding the bottom. Two of those in the bottom row
+put two clues into the puzzle that nobody had printed.
 
-Nothing about such a mark on its own says what it is. What says so is the rest of
-the page. Where your handwriting is plainly bigger than the print - which is what
-a booklet gets, a small printed face in a large square - that hand has no small
-figures in it, and something at two thirds the height of the print did not come
-from it. So the page is now asked where its own handwriting lies, and anything far
-below that is put back to being a note.
+A printed digit may now not sit that low unless it carries the weight of ink a
+press leaves. Real clues do sit low - a page shot at an angle, a face with a long
+tail - but they are printed, and print is heavier than pencil by a wide margin.
 
-The same measure was going wrong in the other direction and is fixed with it. A
-printed clue with a stray pencil stroke fused to it, or a clue somebody has drawn
-a ring round, measures too tall to be print and was offered as an answer. Its size
-really is wrong and no size rule can save it; what is still right about it is the
-ink, because a press lays down more than a pencil can and a stray stroke is not
-heavy enough to dilute that. Those clues are given back to the press.
+THE READING LAYER OPENS ITSELF WHEN THERE IS SOMETHING TO SETTLE
 
-Four photographs of one booklet page, taken over three hours as it was solved,
-found all of this. Every printed clue on all four is read, every answer on all
-four is read, and one square out of three hundred and twenty-four is still sorted
-wrongly - a note written so large and so firmly, over the grey of two rubbed-out
-marks, that only its colour would tell you.
+The squares being asked about are marked on the photograph, and the reading layer
+is what shows those marks - so the app was asking a question and making you press
+a button before you could see what it was about. If a scan comes back with
+anything in doubt, that layer is already on.
+
+SETTLING A SQUARE NOW STAYS SETTLED
+
+Squares you had dealt with came back the moment you tapped anywhere else on the
+photograph. The tap was handing back a copy of the puzzle from before you settled
+them. It now reads what is actually on screen. The same fault was found and fixed
+in the tutor's sideways swipe, where it would have undone a correction made while
+the tutor was open.
+
+THE MESSAGE KEEPS UP WITH WHAT YOU HAVE FIXED
+
+"The printed digits do not make a solvable puzzle" was written once and then left
+there while you fixed exactly that. Now, when the puzzle starts solving, it says
+so - and the squares the app had named as likely culprits stop being marked,
+because they were only ever suspects for as long as the puzzle was broken. A
+complaint about the photograph itself, such as being too far away, still stands,
+because correcting squares cannot make a picture sharper.
+
+A BAR ONLY WHERE THERE IS DOUBT, AND IT MEANS ONE THING
+
+Squares were wearing an amber bar and then telling you, when tapped, that they had
+been read with complete confidence. The bar was saying two things at once: how
+well a square was read, and whether the app wanted you to look at it. It now says
+only the first, in green, amber or red, and the thickness says the second. Squares
+read with confidence and not in question get no bar at all, so the few worth
+finding are findable.
+
+And when the app is genuinely unsure - a digit at a third sure is the best of nine
+bad options rather than a reading - it no longer states what the square holds and
+then undermines it with the number. It says it could not read the square, offers
+its closest guess, and asks you to set it.

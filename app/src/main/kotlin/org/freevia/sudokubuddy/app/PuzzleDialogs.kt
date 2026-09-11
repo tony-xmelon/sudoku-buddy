@@ -113,7 +113,7 @@ internal fun TutorPicker(
  */
 @Composable
 internal fun ReadingBanner(state: PuzzleState, onChange: (PuzzleState) -> Unit) {
-    val count = state.uncertainCells.size
+    val count = state.openQuestions.size
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -122,19 +122,18 @@ internal fun ReadingBanner(state: PuzzleState, onChange: (PuzzleState) -> Unit) 
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            if (count == 1) "The app is not sure about one square."
-            else "The app is not sure about $count squares.",
+            PuzzleLogic.readingHeadline(count, state.grid),
             style = MaterialTheme.typography.titleSmall,
             color = Overlays.uncertain,
         )
         // The reader's own reason, when it has one. "One cell looked like a printed
         // digit but is not" says far more than a count does, and it was being thrown away.
-        state.readingNote?.let {
+        state.liveNote?.let {
             Text(it, style = MaterialTheme.typography.bodySmall)
         }
         Text(
-            "Look for the thick amber bar on the photo. Tap that square to fix it, or " +
-                "accept the reading as it stands.",
+            "Look for the thick bar under a square on the photo. Tap that square to fix " +
+                "it, or accept the reading as it stands.",
             style = MaterialTheme.typography.bodySmall,
         )
         FilledTonalButton(onClick = { onChange(state.acceptReading()) }) {
@@ -204,7 +203,7 @@ internal fun CellEditor(state: PuzzleState, index: Int, onChange: (PuzzleState) 
             }
         }
 
-        if (index in state.uncertainCells) {
+        if (index in state.openQuestions) {
             Button(
                 onClick = {
                     onChange(

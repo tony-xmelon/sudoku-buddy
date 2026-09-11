@@ -8,6 +8,84 @@ by Firebase at 16,384 characters. It used to hold all of this, growing every rou
 one day it went over the limit and the upload failed after a full CI build had already
 run. Keep that file short and put the history here.
 
+A PAGE THE APP REFUSED, AND FIVE THINGS ABOUT HOW IT ASKS.
+The first fault the app's own screen reported that the corpus had not. A
+photograph of Sudoku Buddy 1.0.0 saying "the printed digits do not make a solvable
+puzzle", on a page whose twenty-four printed clues it had read perfectly and whose
+twenty-five answers it had sorted perfectly. It was adding clues, not misreading
+them.
+
+Two squares in the bottom row hold a pencilled candidate list wrapped onto a
+second line with a figure crossed out. The cancel stroke runs past the figure at
+both ends, so the ink it joins is the height of a printed digit while sitting
+lower than a printed digit ever sits. Every rule about where a mark sits guards
+the top of the square, because that is where a list starts; none guarded the
+bottom. That is the worst shape the fault takes - the invented digits are
+invisible in the reading and only the refusal shows, and the squares at fault were
+not among the ones offered for correction.
+
+Position alone will not separate them: real clues sit lower than the worst of
+these. What separates them is what they are made of. Clues sitting that low carry
+0.685 of the press's ink and more, every false one carries 0.540 and less, and the
+line goes in the middle of a 0.145 gap - wider than anything else the reader cuts
+on. Triage 2658 to 2660 of 2754, with the collision pages, the printed digits and
+the handwriting unmoved.
+
+Where it runs matters as much as what it does. Put among the tests that decide
+what a cell is, it also changes how many cells come out printed, and that count is
+what decides whether a page gives up on size and sorts by ink instead: pages that
+had been switching stopped, and the collision pages went from 86 wrong to 142. A
+rule that costs nothing where it fires can still wreck pages it never fires on.
+Run after the mode is chosen, it cannot reach that decision.
+
+Two corpus pages came with it - the same booklet puzzle two days apart, twenty-four
+clues with one solution, four answers and then twenty-five. The earlier one is the
+densest page of candidate marks here, fifty-one squares carrying one, and every
+square of it sorts correctly.
+
+Then five things the same photograph showed about the asking rather than the
+reading, all reported from the phone.
+
+The reading layer now opens itself when a scan comes back with anything in doubt.
+The squares in question are marked on the photograph and that layer is what shows
+the marks, so the app was asking a question and requiring a button press before
+the question could be seen.
+
+Settling a square now stays settled. The tap handler on the photograph was built
+once and keyed on the grid and the grid lines, so settling a square - which
+changes neither - left it holding a copy of the puzzle from before, and the next
+tap anywhere handed that copy back. Every square already dealt with returned. The
+same fault was found in the tutor's sideways swipe, keyed on the lesson step,
+where it would have undone a correction made while the tutor was open.
+
+The message keeps up. Two complaints of different lifetimes were being carried as
+one string: what was wrong with the photograph, which stays true however many
+squares are corrected, and what was wrong with the puzzle, which stops being true
+the moment it solves. They are now separate, and the banner says when the puzzle
+has started solving. The squares the reader named as likely culprits also stop
+being marked once it does - when the digits will not make a puzzle the reader
+names its eight likeliest, and seven of them are innocent as soon as the eighth is
+corrected.
+
+The confidence bar means one thing. It was forced to amber whenever a square was
+flagged, so squares the classifier had read perfectly wore an amber bar and then
+told anyone who tapped them they were a hundred percent sure - because most
+flagged squares are flagged by the solver, not the classifier. Colour now says how
+well the square was read and thickness says whether it is being asked about, which
+are different facts. Squares read confidently and not in question get no bar at
+all; the reading layer used to put one under all eighty-one.
+
+And below two thirds sure the app stops asserting. A digit at a third is the best
+of nine bad options, not a reading, and stating it and then undermining it with
+the number in the same sentence is the worst of both. It now says it could not
+read the square, offers its closest guess, and asks.
+
+Nine app tests came with these, and the rules they test were moved into PuzzleLogic
+to be testable without a device. Two of the changes are Compose behaviour with no
+pure rule to test - the layer opening and the stale tap - and the project has no
+UI-test harness, so those are verified by inspection only and want a look on the
+phone.
+
 A BOOKLET SOLVED IN PENCIL, AND THE ONE WAY IT WENT WRONG.
 Four photographs of one page of a puzzle booklet, taken over about three hours as
 it was solved. A second hand, a second phone, and the first pages here that

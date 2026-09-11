@@ -430,6 +430,70 @@ object PuzzleLogic {
      * every screen, and the pane is the scarcest space in the app. That number now sits
      * in small type under the grid, where it is read at a glance and costs nothing.
      */
+    /**
+     * Which flagged squares are still in question, now that the grid says what it says.
+     *
+     * Two different doubts arrive in one set. The classifier's own - it could not tell a
+     * 3 from a 5 - belongs to the square and is still there whatever the puzzle does. The
+     * solver's is not about the square at all: when the digits will not make a puzzle the
+     * reader names its eight likeliest culprits, and every one of them is a suspect only
+     * for as long as there is a crime. Correct the square that was actually wrong and the
+     * other seven are innocent, but they went on wearing a mark and being counted, so the
+     * app kept asking about squares it had no remaining reason to doubt.
+     *
+     * So once the puzzle solves, a flag survives only if the classifier put it there.
+     * Confidence is what tells them apart: a square the reader flagged while the
+     * classifier was sure of it was flagged by the solver.
+     */
+    fun stillInQuestion(
+        flagged: Set<Int>,
+        reports: List<CellReport?>?,
+        grid: Grid,
+    ): Set<Int> {
+        if (Solver.solve(grid) !is SolveResult.Unique) return flagged
+        return flagged.filterTo(mutableSetOf()) { index ->
+            val report = reports?.getOrNull(index) ?: return@filterTo true
+            report.confidence < CellReport.SURE_ENOUGH_TO_SAY
+        }
+    }
+
+    /**
+     * The headline over the squares the reading wants looked at, as things stand.
+     *
+     * The count alone was the whole message, so the banner said the same thing after
+     * eight corrections as before them, and said nothing at all about the one change that
+     * matters: a puzzle that would not solve when it was read can solve now, and that is
+     * the news. Once it does, the squares left are worth a glance rather than a worry,
+     * and the words say which.
+     */
+    fun readingHeadline(count: Int, grid: Grid): String {
+        val squares = if (count == 1) "one square" else "$count squares"
+        return if (Solver.solve(grid) is SolveResult.Unique) {
+            val opening = squares.replaceFirstChar { it.uppercase() }
+            "The puzzle solves now. $opening ${if (count == 1) "is" else "are"} " +
+                "still worth a check."
+        } else {
+            "The app is not sure about $squares."
+        }
+    }
+
+    /**
+     * What the reading still has to complain about, given what the grid says now.
+     *
+     * Two complaints of different lifetimes were being carried as one string. The framing
+     * half is about the photograph - "move closer, the grid is too small to read" - and
+     * stays true however many squares are corrected. The reader's half is about the
+     * puzzle - "the printed digits do not make a solvable puzzle" - and stops being true
+     * the moment the puzzle solves. Joined at the time of reading and never looked at
+     * again, the second went on being shown while the user fixed exactly what it named,
+     * so the app was still complaining about a puzzle that had started solving several
+     * corrections ago.
+     */
+    fun readingNote(framing: String?, complaint: String?, grid: Grid): String? {
+        val live = complaint?.takeIf { Solver.solve(grid) !is SolveResult.Unique }
+        return listOfNotNull(framing, live).joinToString(" ").ifEmpty { null }
+    }
+
     fun status(grid: Grid): Status? = when (Solver.solve(grid)) {
         is SolveResult.Unique -> {
             val wrong = (AnswerChecker.check(grid) as? AnswerCheck.Checked)?.incorrect?.size ?: 0

@@ -73,4 +73,37 @@ class CellReportTest {
         val p = FloatArray(9).also { it[7] = 0.826f; it[1] = 0.10f }
         assertTrue(CellReport.of(reading(Ink.PRINTED, *p)).describe().contains("83%"))
     }
+
+    @Test
+    fun `a square the classifier was only guessing at is put as a question`() {
+        // The fault this exists for: a printed digit reported at 33% sure. That is not a
+        // reading, it is the best of nine bad options, and stating it as one and then
+        // undermining it with the number in the same sentence is the worst of both.
+        val p = FloatArray(9).also { it[4] = 0.33f; it[2] = 0.30f }
+        val report = CellReport.of(reading(Ink.PRINTED, *p))
+
+        assertTrue(report.onlyAGuess, "a third sure is a guess")
+        val text = report.describe()
+        assertTrue(text.contains("Not read with any confidence"), text)
+        assertTrue(text.contains("set this square yourself"), text)
+        assertTrue(!text.contains("Read as a printed"), "it must not state it as read: $text")
+    }
+
+    @Test
+    fun `a square read confidently is still stated plainly`() {
+        val p = FloatArray(9).also { it[4] = 0.98f }
+        val report = CellReport.of(reading(Ink.PRINTED, *p))
+
+        assertTrue(!report.onlyAGuess)
+        assertEquals("Read as a printed 5, 98% sure.", report.describe())
+    }
+
+    @Test
+    fun `the line between a reading and a guess sits where it is documented`() {
+        fun sureness(value: Float) =
+            CellReport.of(reading(Ink.PRINTED, *FloatArray(9).also { it[0] = value })).onlyAGuess
+
+        assertTrue(sureness(CellReport.SURE_ENOUGH_TO_SAY - 0.01f), "below is a guess")
+        assertTrue(!sureness(CellReport.SURE_ENOUGH_TO_SAY), "at the line it is a reading")
+    }
 }

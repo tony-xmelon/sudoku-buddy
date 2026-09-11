@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -126,6 +127,12 @@ private fun PhotoPane(
     measurer: TextMeasurer,
     modifier: Modifier = Modifier,
 ) {
+    // The gesture is installed once and then reads whatever the state is when a tap
+    // happens. It used to close over the state it was built with and was rebuilt only
+    // when the grid or the lines changed - and settling a flagged square changes
+    // neither, so the next tap anywhere on the photograph handed back a state from
+    // before the square was settled and every issue already dealt with came back.
+    val latest = rememberUpdatedState(state)
     Column(
         modifier = modifier.padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -133,15 +140,16 @@ private fun PhotoPane(
         Box(
             modifier = Modifier
                 .size(photoSide)
-                .pointerInput(state.grid, state.lines) {
+                .pointerInput(Unit) {
                     detectTapGestures { offset ->
-                        val column = state.lines.vertical
+                        val now = latest.value
+                        val column = now.lines.vertical
                             .indexOfLast { it * size.width <= offset.x }
                             .coerceIn(0, 8)
-                        val row = state.lines.horizontal
+                        val row = now.lines.horizontal
                             .indexOfLast { it * size.height <= offset.y }
                             .coerceIn(0, 8)
-                        onChange(state.copy(selectedCell = row * 9 + column))
+                        onChange(now.copy(selectedCell = row * 9 + column))
                     }
                 }
                 .drawWithContent {
@@ -216,7 +224,7 @@ private fun Controls(
                 .padding(horizontal = 16.dp, vertical = 4.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            if (state.uncertainCells.isNotEmpty()) {
+            if (state.openQuestions.isNotEmpty()) {
                 ReadingBanner(state, onChange)
             }
 

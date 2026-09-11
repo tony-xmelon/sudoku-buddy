@@ -2,6 +2,7 @@ package org.freevia.sudokubuddy.app
 
 import org.freevia.sudokubuddy.model.Cell
 import org.freevia.sudokubuddy.model.Grid
+import org.freevia.sudokubuddy.recognize.Ink
 import org.freevia.sudokubuddy.solver.Deduction
 import org.freevia.sudokubuddy.solver.Difficulty
 import org.freevia.sudokubuddy.solver.SolveResult
@@ -510,5 +511,120 @@ class PuzzleLogicTest {
         // Nothing is highlighted in the plain style, so there is nothing to name.
         assertNull(PuzzleLogic.evidenceLabel(puzzle, OverlayMode.HINT, HintStyle.REVEAL))
         assertNull(PuzzleLogic.evidenceLabel(puzzle, OverlayMode.CHECK, HintStyle.EXPLAIN))
+    }
+
+    @Test
+    fun `the reader stops complaining once the puzzle solves`() {
+        val broken = Grid.fromRows(
+            "1179852.4", ".25934718", "..3176952", "...685371", "....13294",
+            ".....9586", "......147", ".......25", "........9",
+        )
+        val complaint = "The printed digits do not make a solvable puzzle."
+        assertEquals(
+            complaint,
+            PuzzleLogic.readingNote(null, complaint, broken),
+            "while the digits will not make a puzzle it is still the news",
+        )
+
+        val solvable = Grid.fromRows(
+            "53..7....", "6..195...", ".98....6.", "8...6...3", "4..8.3..1",
+            "7...2...6", ".6....28.", "...419..5", "....8..79",
+        )
+        assertNull(
+            PuzzleLogic.readingNote(null, complaint, solvable),
+            "once it solves, the complaint is no longer true and must go",
+        )
+    }
+
+    @Test
+    fun `what was wrong with the photograph outlives what was wrong with the puzzle`() {
+        val framing = "Move closer - the grid is too small to read."
+        val solvable = Grid.fromRows(
+            "53..7....", "6..195...", ".98....6.", "8...6...3", "4..8.3..1",
+            "7...2...6", ".6....28.", "...419..5", "....8..79",
+        )
+        // The picture is still the picture. Correcting squares cannot make it sharper.
+        assertEquals(
+            framing,
+            PuzzleLogic.readingNote(framing, "The printed digits do not make a solvable puzzle.", solvable),
+        )
+    }
+
+    @Test
+    fun `the reading banner says when the puzzle has started solving`() {
+        val broken = Grid.fromRows(
+            "1179852.4", ".25934718", "..3176952", "...685371", "....13294",
+            ".....9586", "......147", ".......25", "........9",
+        )
+        assertEquals(
+            "The app is not sure about 3 squares.",
+            PuzzleLogic.readingHeadline(3, broken),
+        )
+
+        val solvable = Grid.fromRows(
+            "53..7....", "6..195...", ".98....6.", "8...6...3", "4..8.3..1",
+            "7...2...6", ".6....28.", "...419..5", "....8..79",
+        )
+        assertEquals(
+            "The puzzle solves now. 3 squares are still worth a check.",
+            PuzzleLogic.readingHeadline(3, solvable),
+            "the one change worth reporting is that it solves",
+        )
+        assertEquals(
+            "The puzzle solves now. One square is still worth a check.",
+            PuzzleLogic.readingHeadline(1, solvable),
+        )
+    }
+
+    @Test
+    fun `the solver's suspects stop being suspects once the puzzle solves`() {
+        // What the reader does when the digits will not make a puzzle: it names its eight
+        // likeliest culprits. Seven of them are innocent, and saying so is the point.
+        fun sure(confidence: Float) =
+            CellReport(Ink.PRINTED, 5, confidence, 3, 1f - confidence)
+
+        val reports = List<CellReport?>(81) { index ->
+            when (index) {
+                10 -> sure(0.40f)   // the classifier itself could not tell
+                20, 30 -> sure(1f)  // named by the solver, read perfectly
+                else -> null
+            }
+        }
+        val flagged = setOf(10, 20, 30)
+
+        val broken = Grid.fromRows(
+            "1179852.4", ".25934718", "..3176952", "...685371", "....13294",
+            ".....9586", "......147", ".......25", "........9",
+        )
+        assertEquals(
+            flagged,
+            PuzzleLogic.stillInQuestion(flagged, reports, broken),
+            "while it will not solve, every suspect is still a suspect",
+        )
+
+        val solvable = Grid.fromRows(
+            "53..7....", "6..195...", ".98....6.", "8...6...3", "4..8.3..1",
+            "7...2...6", ".6....28.", "...419..5", "....8..79",
+        )
+        assertEquals(
+            setOf(10),
+            PuzzleLogic.stillInQuestion(flagged, reports, solvable),
+            "the classifier's own doubt survives; the solver's does not",
+        )
+    }
+
+    @Test
+    fun `a flagged square with no reading of its own is always still asked about`() {
+        val solvable = Grid.fromRows(
+            "53..7....", "6..195...", ".98....6.", "8...6...3", "4..8.3..1",
+            "7...2...6", ".6....28.", "...419..5", "....8..79",
+        )
+        // Null means the user has already overruled the reader there, so there is no
+        // confidence to judge it by and the app must not quietly drop the question.
+        assertEquals(
+            setOf(7),
+            PuzzleLogic.stillInQuestion(setOf(7), List(81) { null }, solvable),
+        )
+        assertEquals(setOf(7), PuzzleLogic.stillInQuestion(setOf(7), null, solvable))
     }
 }

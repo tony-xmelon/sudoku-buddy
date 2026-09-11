@@ -72,28 +72,34 @@ object PhotoReading {
                         .map { (it / verdict.rectified.height).toFloat() },
                 )
                 fun puzzle(grid: org.freevia.sudokubuddy.model.Grid,
-                           uncertain: Set<Int>, note: String?,
+                           uncertain: Set<Int>, complaint: String?,
                            readings: List<org.freevia.sudokubuddy.recognize.CellReading>) =
                     PuzzleState(
                         photo = Images.toBitmap(verdict.rectified),
                         grid = grid,
                         uncertainCells = uncertain,
-                        readingNote = note,
+                        framingNote = verdict.complaint?.message,
+                        readerComplaint = complaint,
                         lines = lines,
                         reports = readings.map(CellReport::of),
-                    )
+                    ).let { read ->
+                        // Straight into the reading layer when there is something to
+                        // settle. The squares in question are marked on the photograph
+                        // and that layer is what shows them, so asking the user to find
+                        // and press a button before they can see what is being asked
+                        // about put a step between the question and its own answer.
+                        //
+                        // Asked of the questions that are actually open rather than of
+                        // everything the reader flagged, so a page that solves and was
+                        // only ever doubted by the solver opens as an ordinary puzzle.
+                        if (read.openQuestions.isEmpty()) read
+                        else read.copy(overlay = OverlayMode.READING)
+                    }
 
                 // The framing complaint travels with the reading instead of replacing it.
                 // "The grid was small" is the likeliest explanation for a page of wrong
                 // digits, and it is worth saying beside them - but it was never a good
                 // reason to refuse a photograph the app had already straightened.
-                val framing = verdict.complaint?.message
-                fun withFraming(note: String?): String? = when {
-                    framing == null -> note
-                    note == null -> framing
-                    else -> "$framing $note"
-                }
-
                 when (val result = GridReader().read(verdict.cells)) {
                     // Kept for the same reason a photograph the gate turned away is
                     // kept. This path refuses a photograph the gate was happy with -
@@ -106,13 +112,13 @@ object PhotoReading {
                         refuse(context, bytes, result.reason, "Digits not read")
 
                     is ReadResult.Accepted -> PhotoOutcome.Read(
-                        puzzle(result.grid, emptySet(), withFraming(null), result.readings)
+                        puzzle(result.grid, emptySet(), null, result.readings)
                     )
 
                     is ReadResult.NeedsConfirmation -> PhotoOutcome.Read(
                         puzzle(
                             result.grid, result.uncertainCells,
-                            withFraming(result.reason), result.readings,
+                            result.reason, result.readings,
                         )
                     )
                 }

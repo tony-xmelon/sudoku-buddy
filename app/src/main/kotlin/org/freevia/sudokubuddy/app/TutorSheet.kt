@@ -39,6 +39,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -361,20 +362,27 @@ private fun ColumnScope.OpenPanel(
     ChapterStrip(state.chapters, at - 1) { onChange(state.stepTo(it + 1)) }
 
     // Sideways for the next step, so the common move needs no button at all.
+    val step = rememberUpdatedState(onStep)
+    val threshold = rememberUpdatedState(stepAt)
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .weight(1f, fill = false)
             .scrollThread(scroll, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
             .verticalScroll(scroll)
-            .pointerInput(at, stepAt) {
+            // Installed once, and reading the current stepper when a swipe finishes
+            // rather than the one it was built with. Keyed on the step, it held the
+            // stepper made for that step - and the stepper carries the whole state with
+            // it, so correcting a square while the tutor was open and then swiping put
+            // the correction back the way it was.
+            .pointerInput(Unit) {
                 var swiped = 0f
                 detectHorizontalDragGestures(
                     onDragStart = { swiped = 0f },
                     onDragEnd = {
                         when {
-                            swiped < -stepAt -> onStep(1)
-                            swiped > stepAt -> onStep(-1)
+                            swiped < -threshold.value -> step.value(1)
+                            swiped > threshold.value -> step.value(-1)
                         }
                     },
                 ) { _, amount -> swiped += amount }

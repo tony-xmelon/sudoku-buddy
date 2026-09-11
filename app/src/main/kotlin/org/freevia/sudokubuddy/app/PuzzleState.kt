@@ -43,7 +43,23 @@ data class PuzzleState(
     val grid: Grid,
     /** Cells the reader was not sure of. Drawn as a ring, and cleared as they are settled. */
     val uncertainCells: Set<Int>,
-    val readingNote: String?,
+    /**
+     * What was wrong with the photograph itself, which staying true is the point of.
+     *
+     * "Move closer - the grid is too small to read" is about the picture and remains
+     * true however many squares get corrected, so it is kept apart from [readerComplaint],
+     * which is about the puzzle and stops being true the moment the puzzle works.
+     */
+    val framingNote: String? = null,
+    /**
+     * What the reader could not make of the digits, while that is still the case.
+     *
+     * Read through [liveNote] rather than directly. The reader says things like "the
+     * printed digits do not make a solvable puzzle", which was written once and then left
+     * on screen while the user fixed exactly that - so the app went on complaining about
+     * a puzzle that had started solving several corrections ago.
+     */
+    val readerComplaint: String? = null,
     /** Where the grid lines are, so the overlay lands on the squares it means. */
     val lines: GridLines = GridLines.EVEN,
     /**
@@ -98,6 +114,24 @@ data class PuzzleState(
     /** News about the puzzle, when there is any. Null is the ordinary case. */
     val status: Status? by lazy { PuzzleLogic.status(grid) }
 
+    /**
+     * The reading's own complaint, as it stands now rather than as it was first made.
+     *
+     * The framing half always survives - it is about the photograph. The reader's half
+     * only survives while the puzzle still fails to solve, which is what it was about.
+     */
+    val liveNote: String? by lazy { PuzzleLogic.readingNote(framingNote, readerComplaint, grid) }
+
+    /**
+     * The flagged squares that are still worth asking about. See [PuzzleLogic.stillInQuestion].
+     *
+     * Everything on screen asks this rather than [uncertainCells]: the banner, its count,
+     * and the bars drawn on the photograph. [uncertainCells] stays as the reader left it,
+     * less whatever the user has settled, so that a correction which makes the puzzle
+     * solvable and a later one which breaks it again do not lose the original doubts.
+     */
+    val openQuestions: Set<Int> by lazy { PuzzleLogic.stillInQuestion(uncertainCells, reports, grid) }
+
     /** How much is left, for the counter under the grid. */
     val progress: String by lazy { PuzzleLogic.progress(grid) }
 
@@ -109,7 +143,7 @@ data class PuzzleState(
     }
 
     val legend: List<LegendKey>
-        get() = PuzzleLogic.legend(computed, overlay, uncertainCells.isNotEmpty())
+        get() = PuzzleLogic.legend(computed, overlay, openQuestions.isNotEmpty())
 
     /** What to call the evidence colour in the key: the technique it belongs to. */
     val evidenceLabel: String?

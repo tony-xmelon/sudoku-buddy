@@ -25,6 +25,14 @@ import org.freevia.sudokubuddy.solver.Chain
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.sin
+
+/**
+ * Above this the app is taken to have read a square, and says nothing about it.
+ *
+ * Between this and [CellReport.SURE_ENOUGH_TO_SAY] the reading stands but is worth a
+ * glance; below that it is not a reading at all. See the colour chosen in drawConfidence.
+ */
+private const val CLEARLY_READ = 0.9f
 /*
  * Everything drawn on top of the photograph, and nothing that arranges it.
  *
@@ -287,14 +295,22 @@ private fun DrawScope.drawOverlayInLayer(state: PuzzleState, measurer: TextMeasu
     // stroke straight through the bar that says how unsure the app actually was. Two
     // marks for one fact, and the coarser of the two hid the finer.
     state.reports?.let { reports ->
+        // Only where there is something to be unsure about. The reading layer used to
+        // put a bar under every square it had read, so a page read perfectly wore
+        // eighty-one of them and the handful that wanted looking at were hidden in the
+        // crowd. A square the classifier is sure of says nothing by being marked.
         val marked = if (state.overlay == OverlayMode.READING) {
-            (0 until 81).filter { reports.getOrNull(it)?.digit != null }
+            (0 until 81).filter { index ->
+                val report = reports.getOrNull(index) ?: return@filter false
+                report.digit != null &&
+                    (index in state.openQuestions || report.confidence < CLEARLY_READ)
+            }
         } else {
-            state.uncertainCells.sorted()
+            state.openQuestions.sorted()
         }
         for (index in marked) {
             reports.getOrNull(index)?.let {
-                drawConfidence(squares, index, it.confidence, index in state.uncertainCells)
+                drawConfidence(squares, index, it.confidence, index in state.openQuestions)
             }
         }
     }
@@ -379,14 +395,18 @@ private fun DrawScope.drawConfidence(
     val width = cell.width - inset * 2
     val top = at.y + cell.height - height - inset * 0.5f
 
-    // Green, amber, red by how likely the classifier thought its answer was - except that
-    // a flagged square is never green. A square can be flagged with the classifier
-    // perfectly confident: the solver threw the digit out because a clump of candidate
-    // marks was not a printed digit at all, which the classifier had no way to know. Its
-    // confidence is then beside the point and must not read as reassurance.
+    // Green, amber, red by how likely the classifier thought its answer was, and by that
+    // alone. It used to be forced to amber whenever the square was flagged, which made
+    // the bar say two different things at once: most flagged squares are flagged by the
+    // solver rather than the classifier - eight are named as suspects whenever the
+    // digits will not make a puzzle - so squares the classifier had read perfectly wore
+    // an amber bar and then told anyone who tapped them they were a hundred percent
+    // sure. The thickness already says "this one is being asked about"; the colour is
+    // free to say how well it was read, which is a different fact and the one the
+    // number in the editor agrees with.
     val colour = when {
-        confidence < 0.6f -> Overlays.incorrect
-        flagged || confidence < 0.9f -> Overlays.uncertain
+        confidence < CellReport.SURE_ENOUGH_TO_SAY -> Overlays.incorrect
+        confidence < CLEARLY_READ -> Overlays.uncertain
         else -> Overlays.correct
     }
 

@@ -224,7 +224,7 @@ private fun AppRoot() {
                             photo = photo,
                             grid = entry.grid,
                             uncertainCells = emptySet(),
-                            readingNote = null,
+                            framingNote = null,
                             hintStyle = settings.hintStyle,
                             routeStyle = settings.routeStyle,
                         )
