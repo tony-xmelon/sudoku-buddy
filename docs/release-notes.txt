@@ -1,35 +1,35 @@
-A screen read as one puzzle when it was a puzzle and someone's answers, and a
-quieter viewfinder.
+Two fixes for the camera, on a screen where the keypad sits under the puzzle.
 
-A SUDOKU APP ON A SCREEN IS TWO POPULATIONS, NOT ONE
+THE OUTLINE NO LONGER SWALLOWS THE NUMBER PAD
 
-Photograph a sudoku app part way through and every digit on the page is printed -
-the clues and your own entries alike, in one face at one size. The app read all
-thirty digits on such a page correctly and then filed all thirty as clues, so it
-came back with "the printed digits do not make a solvable puzzle" and blamed its
-own reading for it.
+A sudoku app on a screen prints its keypad directly under the grid - three rows of
+nine, ruled in the same face at the same pitch. The rectangle round the puzzle and
+the pad together is regular enough to look like a grid and half as big again as
+the puzzle, and the app preferred it on size.
 
-The clues on that page are drawn at full height and the entries at about
-five-sixths of it, which the reader had in fact spotted and sorted correctly. What
-undid it was a rule meant for something else. Some fonts set their figures short -
-a 1 and a 2 at the height of a lower-case letter - so when the app finds a group
-of short digits that are all the same height and as dark as the print, it takes
-them back as print. Seven entries in one weight look exactly like that.
+That preference was put in for a newspaper, which prints last week's solution
+under this week's puzzle and prints it more neatly, so the better-looking grid is
+the wrong one and size is what tells them apart. It had one half of the test and
+not the other: a candidate had to be clearly a grid before its size counted, but
+nothing asked whether it was the right shape. A sudoku is square. The pad and the
+puzzle together are a third taller than wide.
 
-The page now gets the last word. A sudoku's clues have exactly one solution, so a
-group taken back as print that leaves the clues with no solution was not print. It
-is only taken back when the page can still be a puzzle afterwards.
+Size now only wins among candidates as square as the best grid on the page. The
+comparison is against the page's own best rather than a fixed bar, because a page
+photographed at an angle is genuinely oblong in the frame - but everything in one
+photograph is foreshortened alike, so a shape that is still oblong after that is
+oblong in life.
 
-Worth saying plainly about the page that found this: it has a mistake on it. One
-entry is a 2 where the answer is a 9, made before the photograph was taken. So the
-thirty digits really do not make a puzzle, and an app that reads every one of them
-correctly is still right to say so - but it must say the answer is wrong, not that
-its own reading is.
+A BLINK NO LONGER RESETS THE SHUTTER
 
-THE AMBER OUTLINE IS GONE FROM THE VIEWFINDER
+Automatic capture waits for a run of frames in which the grid is found, held
+still, and framed properly. Any single frame that found nothing threw the whole
+run away - and it does not take a moving camera to produce one of those, only a
+breath, a reflection, or the autofocus hunting for a moment. On a page where the
+reader was right nine frames in ten the shutter never fired at all: you held
+still, watched the outline blink, and pressed the button yourself.
 
-The camera drew two shapes: green for a grid it would accept, amber for the
-closest thing it could otherwise find. The amber one was drawn on nearly every
-frame, jumped about as the camera moved, and covered the page you were lining up.
-It is gone. The green outline appears exactly when there is something to know,
-which is what makes it worth seeing.
+Two blank frames in a row are now forgiven. Nothing else is relaxed - the frames
+that count still have to be a grid the app accepts, with no complaint and no
+movement - and a camera that has really left the page misses far more than two in
+a row and starts again as before.

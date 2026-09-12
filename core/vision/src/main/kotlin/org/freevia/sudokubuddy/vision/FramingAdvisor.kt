@@ -37,6 +37,7 @@ class FramingAdvisor(
 
     private var lastQuad: Quad? = null
     private var stableFrames = 0
+    private var missedFrames = 0
 
     private companion object {
         /** Mean luma below which the lines are lost in the dark, on a 0..255 scale. */
@@ -50,18 +51,44 @@ class FramingAdvisor(
          * not glare on the page.
          */
         const val GLARE = 0.08
+
+        /** How many frames in a row may find nothing before the steady run is given up. */
+        const val FORGIVEN_MISSES = 2
     }
 
     /** Resets the stability counter, e.g. after a capture. */
     fun reset() {
         lastQuad = null
         stableFrames = 0
+        missedFrames = 0
+    }
+
+    /**
+     * A frame that said nothing, forgiven up to [FORGIVEN_MISSES] in a row.
+     *
+     * Holding a camera still over a grid does not produce an unbroken run of frames in
+     * which the grid is found: one comes back blurred by a breath, one catches a
+     * reflection, one loses a rule to the autofocus hunting. Every one of those used to
+     * throw the whole streak away, so on a page where the locator was right nine frames
+     * in ten the shutter never fired at all - the user held still, watched the outline
+     * blink, and eventually pressed the button themselves.
+     *
+     * Forgiving a couple of frames is not forgiving a bad shot. The frames that do count
+     * still have to be a grid the app accepts, with no complaint and no movement, and the
+     * run still has to reach [stableFramesRequired]; a camera that has genuinely moved
+     * off the page misses far more than two in a row and is reset like any other.
+     */
+    private fun missedOne(): Boolean {
+        missedFrames++
+        if (missedFrames <= FORGIVEN_MISSES) return false
+        reset()
+        return true
     }
 
     fun advise(frame: GrayImage): Guidance {
         val located = GridLocator.locate(frame)
         if (located !is GridLocation.Found) {
-            reset()
+            missedOne()
             val missed = located as? GridLocation.NoGrid
             return Guidance(
                 whyNoGrid(frame, missed),
@@ -98,6 +125,7 @@ class FramingAdvisor(
             return Guidance(complaint, false, outline, outlineAccepted = true)
         }
 
+        missedFrames = 0
         val previous = lastQuad
         val steady = previous != null && quad.corners.zip(previous.corners).all { (a, b) ->
             abs(a.x - b.x) <= steadyTolerance && abs(a.y - b.y) <= steadyTolerance

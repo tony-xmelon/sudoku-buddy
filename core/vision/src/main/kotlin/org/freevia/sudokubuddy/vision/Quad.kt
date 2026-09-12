@@ -30,6 +30,21 @@ data class Quad(
     val bottomEdge: Double get() = sideLength(bottomRight, bottomLeft)
     val leftEdge: Double get() = sideLength(bottomLeft, topLeft)
 
+    /**
+     * Shortest edge over longest. A sudoku is square, so a grid's is near one.
+     *
+     * Perspective lowers it - the far edge of a page photographed at an angle is shorter
+     * than the near one - so it is a poor absolute test and a good comparative one:
+     * two shapes in the same photograph are foreshortened alike, and the one that is
+     * oblong after that is oblong in life.
+     */
+    val edgeRatio: Double
+        get() {
+            val edges = listOf(topEdge, rightEdge, bottomEdge, leftEdge)
+            val longest = edges.max()
+            return if (longest <= 0.0) 0.0 else edges.min() / longest
+        }
+
     /** Worse of the two opposite-side ratios. 1.0 is a parallelogram; perspective raises it. */
     val oppositeSideRatio: Double
         get() = max(

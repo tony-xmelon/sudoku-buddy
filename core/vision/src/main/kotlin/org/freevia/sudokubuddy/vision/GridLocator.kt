@@ -60,6 +60,17 @@ object GridLocator {
      */
     private const val AS_GOOD_AS_THE_BEST = 0.75
 
+    /**
+     * How square a larger grid must be, against the best on the page, to be preferred.
+     *
+     * The puzzle and the keypad under it make a rectangle about three-quarters as wide as
+     * it is tall, where the puzzle alone is square; measured against a best grid that is
+     * square, that is 0.75 of it and this bar excludes it. A page photographed at an angle
+     * foreshortens every shape on it together, so both sides of the comparison move and
+     * the bar does not need loosening for it.
+     */
+    private const val AS_SQUARE_AS_THE_BEST = 0.90
+
     /** How many of the failed candidates to look at again, best score first. */
     private const val RESCUE_CANDIDATES = 3
 
@@ -165,11 +176,31 @@ object GridLocator {
         // the page, a photograph's own edge - scores zero and never enters this at all: on
         // that same page the two big rectangles round the whole panel both score 0.000. A
         // candidate has to be a grid first, and clearly one, before its size is consulted.
+        // And it has to be as square as the grid it is beating, which is the other half
+        // of "a score is not a shape" and was missing.
+        //
+        // A sudoku app on a screen prints its keypad directly under the puzzle, three rows
+        // of nine, ruled like the grid and in the same face. The rectangle round both is
+        // a third taller than it is wide, scores well enough on twenty lines to clear the
+        // bar, and is half as big again as the puzzle - so it won on size, and the camera
+        // drew its green outline round the puzzle and the keypad together. Worse than
+        // reading the wrong thing: the locator found that shape on some frames and nothing
+        // at all on others, so the outline flickered, the steadiness it waits for never
+        // accumulated, and the shutter never fired.
+        //
+        // Squareness cannot be a fixed bar - a page photographed at an angle is genuinely
+        // oblong in the frame, which is why [QuadDetector.MIN_EDGE_RATIO] is as low as
+        // 0.45 - but it can be a comparison. Two shapes in one photograph are foreshortened
+        // alike, so a candidate that is markedly less square than the best grid on the page
+        // is markedly less square in life, whatever the angle.
         val winner = scored
             .filter { it.second >= MIN_GRID_SCORE }
             .let { clearing ->
-                val best = clearing.maxOfOrNull { it.second } ?: return@let null
-                clearing.filter { it.second >= best * AS_GOOD_AS_THE_BEST }
+                val best = clearing.maxByOrNull { it.second } ?: return@let null
+                val squareEnough = best.first.edgeRatio * AS_SQUARE_AS_THE_BEST
+                clearing
+                    .filter { it.second >= best.second * AS_GOOD_AS_THE_BEST }
+                    .filter { it.first.edgeRatio >= squareEnough }
                     .maxByOrNull { it.first.area }
             }
             ?: strongest
