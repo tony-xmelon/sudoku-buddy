@@ -1,0 +1,26 @@
+{
+  "photo": "sudoku-buddy-2026-09-12-screen-two-weights.jpg",
+  "givens": [
+    "......987",
+    "...3.1...",
+    "2.4......",
+    "8....6..9",
+    "4.6....7.",
+    "..2.1...6",
+    "...28....",
+    ".594..3..",
+    "......5.."
+  ],
+  "written": [
+    "......987",
+    "...321...",
+    "2.4......",
+    "8....6..9",
+    "4.6....7.",
+    "..2.1...6",
+    ".4.2857..",
+    ".594..3..",
+    ".281..5.."
+  ],
+  "notes": "A sudoku app on a screen, photographed part way through, and the first page here where both populations are printed.\n\nThe app it was photographed from sets its clues in a bold weight and the solver's own entries in a light one, in the same face at the same size. So the difference between a clue and an answer is stroke weight and nothing else - not size, which is what this reader cuts on first, and not the hand, because there is no hand. Measured over the thirty filled squares and normalised by digit (a 1 carries less ink than an 8 whatever its weight), the two groups do not overlap: every clue is about a third heavier in the stroke than every answer of the same digit.\n\nTwenty-three clues, machine-checked to have exactly one solution. Seven answers, six of them right.\n\nThe seventh is the point. At r2c5 the page says 2 where the solution says 9 - the solver's own slip, made before the photograph was taken. So the thirty digits genuinely do not make a puzzle, and an app that read every one of them correctly is still right to say so. What it must not do is what this one did: file all thirty as clues and then report its own reading as the thing at fault. The mistake is on the page, and the page is the only place it can be found.\n\nCopyright the publisher; the picture stays on this machine and only the label is committed."
+}

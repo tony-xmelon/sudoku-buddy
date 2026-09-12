@@ -244,7 +244,33 @@ class GridReader(private val classifier: DigitClassifier = DigitClassifier.load(
         }
 
         val taken = agreeing.mapTo(mutableSetOf()) { (reading, _) -> reading.index }
-        return readings.map { if (it.index in taken) it.copy(ink = Ink.PRINTED) else it }
+        val promoted = readings.map { if (it.index in taken) it.copy(ink = Ink.PRINTED) else it }
+
+        // And the page itself gets the last word, because everything above is satisfied by
+        // a second printed population as neatly as by a rank of short figures - and one
+        // page in the corpus is exactly that. A sudoku app photographed part way through
+        // sets its clues in one weight and the solver's own entries in a lighter, smaller
+        // one: seven entries, every one 0.83 of the printed height, every one within 0.01
+        // of the others, and as dark as the press because they are the press. That is a
+        // rank by every test here, and promoting it put seven answers among the clues.
+        //
+        // What tells the two apart is not in the ink. It is that a sudoku's clues have
+        // exactly one solution, so a promotion that leaves the clues with none has
+        // promoted something that is not a clue. The rank is taken only when the page can
+        // still be a puzzle afterwards - and only refused when it was one before, so a
+        // page that was never going to solve is left to the repair that follows.
+        return if (!makesAPuzzle(promoted) && makesAPuzzle(readings)) readings else promoted
+    }
+
+    /** Whether the cells called print are a sudoku: enough of them, and exactly one answer. */
+    private fun makesAPuzzle(readings: List<CellReading>): Boolean {
+        val printed = readings.mapNotNull { reading ->
+            reading.digit?.takeIf { reading.ink == Ink.PRINTED }?.let { reading.index to it }
+        }
+        if (printed.size < MIN_GIVENS) return false
+        var grid = Grid.Empty
+        for ((index, digit) in printed) grid = grid.with(index, Cell.given(digit))
+        return Solver.solve(grid) is SolveResult.Unique
     }
 
     /**

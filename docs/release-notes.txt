@@ -1,57 +1,35 @@
-A fix for a page the app refused, and five things about how it asks you.
+A screen read as one puzzle when it was a puzzle and someone's answers, and a
+quieter viewfinder.
 
-A CROSSED-OUT CANDIDATE IS NO LONGER READ AS A PRINTED CLUE
+A SUDOKU APP ON A SCREEN IS TWO POPULATIONS, NOT ONE
 
-Photograph a booklet page part way through and the app would sometimes say the
-printed digits do not make a solvable puzzle - on a page whose printed digits it
-had in fact read perfectly. It was adding to them.
+Photograph a sudoku app part way through and every digit on the page is printed -
+the clues and your own entries alike, in one face at one size. The app read all
+thirty digits on such a page correctly and then filed all thirty as clues, so it
+came back with "the printed digits do not make a solvable puzzle" and blamed its
+own reading for it.
 
-The squares at fault hold a pencilled candidate list that ran onto a second line,
-with one of the figures crossed out. The cancel stroke runs past the figure at
-both ends, so the ink it joins up with is the height of a printed digit while
-sitting lower in the square than a printed digit ever sits. Every rule about where
-a mark sits was guarding the top of the square, because that is where a list
-starts, and none of them was guarding the bottom. Two of those in the bottom row
-put two clues into the puzzle that nobody had printed.
+The clues on that page are drawn at full height and the entries at about
+five-sixths of it, which the reader had in fact spotted and sorted correctly. What
+undid it was a rule meant for something else. Some fonts set their figures short -
+a 1 and a 2 at the height of a lower-case letter - so when the app finds a group
+of short digits that are all the same height and as dark as the print, it takes
+them back as print. Seven entries in one weight look exactly like that.
 
-A printed digit may now not sit that low unless it carries the weight of ink a
-press leaves. Real clues do sit low - a page shot at an angle, a face with a long
-tail - but they are printed, and print is heavier than pencil by a wide margin.
+The page now gets the last word. A sudoku's clues have exactly one solution, so a
+group taken back as print that leaves the clues with no solution was not print. It
+is only taken back when the page can still be a puzzle afterwards.
 
-THE READING LAYER OPENS ITSELF WHEN THERE IS SOMETHING TO SETTLE
+Worth saying plainly about the page that found this: it has a mistake on it. One
+entry is a 2 where the answer is a 9, made before the photograph was taken. So the
+thirty digits really do not make a puzzle, and an app that reads every one of them
+correctly is still right to say so - but it must say the answer is wrong, not that
+its own reading is.
 
-The squares being asked about are marked on the photograph, and the reading layer
-is what shows those marks - so the app was asking a question and making you press
-a button before you could see what it was about. If a scan comes back with
-anything in doubt, that layer is already on.
+THE AMBER OUTLINE IS GONE FROM THE VIEWFINDER
 
-SETTLING A SQUARE NOW STAYS SETTLED
-
-Squares you had dealt with came back the moment you tapped anywhere else on the
-photograph. The tap was handing back a copy of the puzzle from before you settled
-them. It now reads what is actually on screen. The same fault was found and fixed
-in the tutor's sideways swipe, where it would have undone a correction made while
-the tutor was open.
-
-THE MESSAGE KEEPS UP WITH WHAT YOU HAVE FIXED
-
-"The printed digits do not make a solvable puzzle" was written once and then left
-there while you fixed exactly that. Now, when the puzzle starts solving, it says
-so - and the squares the app had named as likely culprits stop being marked,
-because they were only ever suspects for as long as the puzzle was broken. A
-complaint about the photograph itself, such as being too far away, still stands,
-because correcting squares cannot make a picture sharper.
-
-A BAR ONLY WHERE THERE IS DOUBT, AND IT MEANS ONE THING
-
-Squares were wearing an amber bar and then telling you, when tapped, that they had
-been read with complete confidence. The bar was saying two things at once: how
-well a square was read, and whether the app wanted you to look at it. It now says
-only the first, in green, amber or red, and the thickness says the second. Squares
-read with confidence and not in question get no bar at all, so the few worth
-finding are findable.
-
-And when the app is genuinely unsure - a digit at a third sure is the best of nine
-bad options rather than a reading - it no longer states what the square holds and
-then undermines it with the number. It says it could not read the square, offers
-its closest guess, and asks you to set it.
+The camera drew two shapes: green for a grid it would accept, amber for the
+closest thing it could otherwise find. The amber one was drawn on nearly every
+frame, jumped about as the camera moved, and covered the page you were lining up.
+It is gone. The green outline appears exactly when there is something to know,
+which is what makes it worth seeing.

@@ -439,17 +439,19 @@ private fun Shutter(onClick: () -> Unit) {
 }
 
 /**
- * The shape the reader has locked onto, drawn over the preview.
+ * The grid the reader has locked onto, drawn over the preview.
  *
- * Green when it is a grid the app accepts, amber when it is only the closest thing it
- * could find. The amber case is the useful one: it shows the reader fastening onto the
- * page, or the book, or the edge of the table - something the user can act on at once, and
- * which no wording ever conveyed.
+ * Only the grid it accepts. It used to draw the closest thing it could find as well, in
+ * amber, on the thought that watching the reader fasten onto the page or the edge of the
+ * table was something the user could act on. In the hand it is the opposite: the amber
+ * shape is drawn on nearly every frame, it jumps about as the camera moves, and it covers
+ * the page you are trying to line up. The green one appears exactly when there is
+ * something to know, which is what makes it worth seeing.
  */
 @Composable
 private fun Sighted(sighting: Sighting, modifier: Modifier) {
-    if (sighting.corners.size < 4) return
-    val colour = if (sighting.accepted) Overlays.correct else Overlays.uncertain
+    if (sighting.corners.size < 4 || !sighting.accepted) return
+    val colour = Overlays.correct
 
     Canvas(modifier = modifier) {
         val points = sighting.corners.map {
